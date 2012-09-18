@@ -1,0 +1,27 @@
+{%extends 'datapanel/base.html'%}
+{% block subnav-stream %}
+<li class="active">
+	<a href="{%url datapanel_stream project.id%}">访问路径</a>
+</li>
+{% endblock subnav-stream %}
+{% block content %}
+<div class="well">
+	<div class="page-header">
+		<h1>{{project.name}} / 访问路径</h1>
+	</div>
+
+	<ul class='unstyled'>
+		{% for session in session_list %}
+		<li>
+			<a href="{{ session.id }}/">
+				{% if session.username %} 
+				{{ session.username }}
+				{% else %}
+				Guest#{{session.id}}
+				{% endif %}
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endblock content %}

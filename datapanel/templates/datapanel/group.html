@@ -1,0 +1,148 @@
+{%extends 'datapanel/base.html'%}
+{% block subnav-group %}
+<li class="active">
+	<a href="{%url datapanel_group project.id%}">网页分析</a>
+</li>
+{% endblock subnav-group %}
+{% block content %}
+<div class="well">
+	<div class="page-header">
+		<h1>{{project.name}} / 网页分析</h1>
+	</div>
+	<!--<ul class="nav nav-pills">
+		<li>
+			<input id="sd" type="text" class="datepicker input-small" value="2012-08-01" data-date-format="yyyy-mm-dd">
+			-
+			<input id="ed" type="text" class="datepicker input-small" value="2012-08-08" data-date-format="yyyy-mm-dd"></li>
+		<li class="dropdown pull-right" id="menu1">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#menu1">
+				天 <b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu">
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=H">小时</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=D">天</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=W">周</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=M">月</a>
+				</li>
+			</ul>
+		</li>
+		<li class="dropdown pull-right" id="menu2">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#menu2">
+				所有页面
+				<b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu">
+				<li>
+					<a href="#">所有页面</a>
+				</li>
+				<li>
+					<a href="#">着陆页</a>
+				</li>
+				<li>
+					<a href="#">第一次点击</a>
+				</li>
+				<li>
+					<a href="#">跳出页</a>
+				</li>
+			</ul>
+		</li>
+	</ul>
+	<hr>
+	<ul>
+		<li>pv: {{data.pv}}</li>
+		<li>uv: {{data.uv}}</li>
+	</ul>-->
+	<ul class="nav nav-pills">
+		<li class="dropdown" id="groupcate">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#groupcate">
+				所有页面
+				<b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu">
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=A&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">所有页面</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=L&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">着陆页</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=F&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">第一次点击</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=J&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">跳出页</a>
+				</li>
+			</ul>
+		</li>
+		<li class="dropdown" id="groupdate">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#groupdate">
+				天 <b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu">
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=H">小时</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=D">天</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=W">周</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=M">月</a>
+				</li>
+			</ul>
+		</li>
+		<li class="dropdown" id="datatype">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#datatype">
+				访问量 <b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu">
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype=C&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">访问量</a>
+				</li>
+				<li>
+					<a href="?grouptype={{params.grouptype}}&datatype=D&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">停留时间</a>
+				</li>
+			</ul>
+		</li>
+		<li class="navbar-form">
+			<input id="sd" type="text" class="input-small" value="" placeholder="时间间隔(天)" />
+		</li>
+	</ul>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>动作<a style="float:right" href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.ptimeline}}&groupdate={{params.groupdate}}"><<</a></th>
+				<th>{{d1}}</th>
+				<th>{{d2}}</th>
+				<th>{{d3}}</th>
+				<th>{{d4}}</th>
+				<th>{{d5}}<a style="float:right" href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.ntimeline}}&groupdate={{params.groupdate}}">>></a></th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for key,value in data.items %}
+			<tr>
+				<td>{{key}}</td>
+				
+				
+				<td>{% for k,v in value.items %}{% ifequal k d1 %}{{v}}{%endifequal%}{%endfor%}</td>
+				<td>{% for k,v in value.items %}{% ifequal k d2 %}{{v}}{%endifequal%}{%endfor%}</td>
+				<td>{% for k,v in value.items %}{% ifequal k d3 %}{{v}}{%endifequal%}{%endfor%}</td>
+				<td>{% for k,v in value.items %}{% ifequal k d4 %}{{v}}{%endifequal%}{%endfor%}</td>
+				<td>{% for k,v in value.items %}{% ifequal k d5 %}{{v}}{%endifequal%}{%endfor%}</td>
+				
+			</tr>
+		{%endfor%}
+		</tbody>
+	</table>
+</div>
+{% endblock content %}

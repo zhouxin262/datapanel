@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="generator" content="">
+	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
+	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/datepicker.css">
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dataTables.min.js"></script>
+	<title>{%block title%}{%endblock%}</title>
+</head>
+
+<body>
+	<div class="container">
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="brand" href="#">MyPanel</a>
+					<ul class="nav">
+						<li class="dropdown">
+							<a href="#"
+          class="dropdown-toggle"
+          data-toggle="dropdown">
+								项目 - {{project.name}} <b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								{% for p in user.participate_projects.all %}
+								<li {% if project.id == p.id %}
+									class = "active"
+								{% endif %}>
+									<a href="{%url datapanel_home p.id%}">{{p.name}}</a>
+								</li>
+								{% endfor %}
+							</ul>
+						</li>
+					</ul>
+
+					<ul class="nav pull-right">
+						<li>
+							<a href="#">联系我们</a>
+						</li>
+						<li class="divider-vertical"></li>
+						<li>
+							<a href="#">帮助中心</a>
+						</li>
+						<li class="divider-vertical"></li>
+						<li class="dropdown">
+							<a href="#"
+          class="dropdown-toggle"
+          data-toggle="dropdown">
+								账号 - [{{user}}] <b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="#">账号资料</a>
+								</li>
+								<li>
+									<a href="#">设置邮箱</a>
+								</li>
+								<li>
+									<a href="{%url auth_password_change%}">设置密码</a>
+								</li>
+								<li>
+									<a href="{%url auth_logout%}">退出</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid" style="margin-top:50px;" >
+			<div class="span2">
+				<ul class="nav nav-list well">
+					<li class="nav-header">概况</li>
+					{% block subnav-home %}
+					<li>
+						<a href="{%url datapanel_home project.id%}">网站概况</a>
+					</li>
+					{% endblock subnav-home %}
+					<li class="nav-header">分析</li>
+					{% block subnav-stream %}
+					<li>
+						<a href="{%url datapanel_stream project.id%}">访问路径</a>
+					</li>
+					{% endblock subnav-stream %}
+					{% block subnav-group %}
+					<li>
+						<a href="{%url datapanel_group project.id%}">网页分析</a>
+					</li>
+					{% endblock subnav-group %}
+					<li>
+						<a href="#">转化路径</a>
+					</li>
+					<li>
+						<a href="#">忠诚度</a>
+					</li>
+					<li class="nav-header">访客分析</li>
+					<li>
+						<a href="#">Explore</a>
+					</li>
+					<li>
+						<a href="#">Insight</a>
+					</li>
+					<li class="nav-header">设置</li>
+					<li>
+						<a href="{%url datapanel_setting project.id%}">设置</a>
+					</li>
+					<li>
+						<a href="#">队友</a>
+					</li>
+				</ul>
+			</div>
+			<div class="span10">{%block content%}{%endblock%}</div>
+		</div>
+	</div>
+</body>
+</html>

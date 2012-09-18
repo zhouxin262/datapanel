@@ -1,0 +1,22 @@
+{%extends 'datapanel/base.html'%}
+{% block subnav-stream %}
+<li class="active">
+	<a href="{%url datapanel_stream project.id%}">访问路径</a>
+</li>
+{% endblock subnav-stream %}
+{% block content %}
+<div class="well">
+	<div class="page-header">
+		<h1>访问路径</h1>
+	</div>
+	<table class='table'>
+		{% for track in track_flow %}
+		<tr>
+		<td>{{ track.action }}</td>
+		<td>{{ track.url }}</td>
+		<td>{{ track.dateline|date:"Y-m-d H:i:s" }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock content %}
