@@ -132,7 +132,9 @@ Desktop.ini
 #############
 
 *.py[co]
-*.pyc
+*.log
+*.pot
+local_settings.py
 
 # Packages
 *.egg
