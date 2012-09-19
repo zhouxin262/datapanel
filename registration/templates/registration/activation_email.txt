@@ -1,10 +1,11 @@
-Thank you for registering an account at {{ site.domain }}.
-To activate your registration, please visit the following page:
+You (or someone pretending to be you) have asked to register an account at 
+{{ site.name }}.  If this wasn't you, please ignore this email
+and your address will be removed from our records.
 
-http://{{ site.domain }}{% url registration_activate activation_key %}
+To activate this account, please click the following link within the next 
+{{ expiration_days }} days:
 
-This page will expire in {{ expiration_days }} day{{ expiration_days|pluralize }}.
+http://{{site.domain}}{% url registration_activate activation_key %}
 
-***
-
-If you didn't register this account you can simply delete this email and we won't bother you again.
+Sincerely,
+{{ site.name }} Management

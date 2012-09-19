@@ -5,8 +5,6 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-	(r'^accounts/', include('registration.backends.default.urls')),
-
     url(r'^$', 'datapanel.views.index', name='datapanel_index'),
     url(r'^track/$', 'datapanel.views.track', name='datapanel_track'),
     url(r'^(?P<id>\d+)/$', 'datapanel.views.home', name='datapanel_home'),
@@ -17,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/group/$', 'datapanel.views.group', name='datapanel_group'),
     url(r'^create/$', 'datapanel.views.create', name='datapanel_create'),
 
+    (r'^accounts/', include('registration.backends.default.urls')),
     # Examples:
     # url(r'^$', 'datapanel.views.home', name='home'),
     # url(r'^datapanel/', include('datapanel.foo.urls')),

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="generator" content="">
+	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css">
+	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/datepicker.css">
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dataTables.min.js"></script>
+	<title>{%block title%}{%endblock%}</title>
+</head>
+
+<body>
+	<div class="container">
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				{%block topbar%}		
+				{%endblock topbar%}
+			</div>
+		</div>
+		<div class="row-fluid" style="margin-top:50px;" >
+				{%block navbar%}
+				{%endblock navbar%}		
+				{%block content%}
+				{%endblock content%}
+		</div>
+	</div>
+</body>
+</html>

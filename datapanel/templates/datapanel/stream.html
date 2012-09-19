@@ -1,11 +1,11 @@
-{%extends 'datapanel/base.html'%}
+{%extends 'datapanel/datapanel_base.html'%}
 {% block subnav-stream %}
 <li class="active">
 	<a href="{%url datapanel_stream project.id%}">访问路径</a>
 </li>
 {% endblock subnav-stream %}
 {% block content %}
-<div class="well">
+<div class="well span10">
 	<div class="page-header">
 		<h1>{{project.name}} / 访问路径</h1>
 	</div>

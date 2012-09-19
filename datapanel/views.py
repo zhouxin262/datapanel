@@ -5,7 +5,7 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import simplejson
 from django.db.models import Count,Avg
-from datapanel import tongji
+from datapanel.temp import tongji
 from forms import ProjectForm
 from models import Project,Session,Track,TrackGroup
 
