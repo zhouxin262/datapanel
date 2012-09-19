@@ -44,10 +44,10 @@ class Track(models.Model):
 	xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
 	event = models.CharField(max_length=255, verbose_name=u'event', default='')
 	param = models.CharField(max_length=255, verbose_name=u'参数', default='')
-	mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数',null = True, default='')
-	step = models.IntegerField(max_length=50,null = True,default='')
+	mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数',null=False,default=0)
+	step = models.IntegerField(max_length=50,null=False,default=0)
 	dateline = models.DateTimeField(auto_now_add=True)
-	timelength = models.IntegerField(max_length=50,null = True,default='')
+	timelength = models.IntegerField(max_length=50, null=False, default=0)
 
 class TrackGroup(models.Model):
 	TYPE_CHOICES = (('U', u'url'), ('A', u'action',))

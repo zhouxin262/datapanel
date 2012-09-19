@@ -3,4 +3,5 @@
     <chdir>/home/hongyuan/website_django/datapanel/datapanel</chdir>
     <pythonpath>..</pythonpath>
     <module>wsgi</module>
+    <daemonize>/home/hongyuan/website_django/datapanel/log/uwsgi/datapanel.log</daemonize>
 </uwsgi>

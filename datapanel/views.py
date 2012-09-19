@@ -5,9 +5,10 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import simplejson
 from django.db.models import Count,Avg
-from datapanel.temp import tongji
-from forms import ProjectForm
-from models import Project,Session,Track,TrackGroup
+
+from datapanel.common import tongji
+from datapanel.forms import ProjectForm
+from datapanel.models import Project,Session,Track,TrackGroup
 
 def index(request):
 	if not request.user.is_authenticated():
@@ -99,6 +100,7 @@ def dealdate(groupdate,stime,interval):
 	else:
 		d = ''
 	return {'d':d,'stime':stime}
+	
 def group(request, id):
 	project = request.user.participate_projects.get(id = id)
 	grouptype = request.GET.get('grouptype','A')
@@ -262,6 +264,9 @@ def track(request):
 		t.action = request.GET.get('t','')
 		t.url = request.META.get('HTTP_REFERER','')
 		t.param = request.GET.get('p','')
+		t.step = 0
+		t.mark = 0
+		t.timelength = 0
 		t.save()
 	response_data = {}
 	response_data['result'] = 'success'

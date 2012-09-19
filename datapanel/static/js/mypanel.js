@@ -68,7 +68,7 @@ jx = {
 		http.send(null);
 	},
 	push : function(t, p) {
-		var url = 'http://127.0.0.1:8000/panel/track/?k=caccf5abd685f38ff89b5ad7bbdcc651&t=' + encodeURIComponent(t) + '&p=' + encodeURIComponent(p);
+		var url = 'http://111.67.195.174/track/?k=caccf5abd685f38ff89b5ad7bbdcc651&t=' + encodeURIComponent(t) + '&p=' + encodeURIComponent(p);
 		return this.load(url, null, 'jsonp');
 	},
 	init : function() {return this.getHTTPObject();}
