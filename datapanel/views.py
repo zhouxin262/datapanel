@@ -11,7 +11,7 @@ from models import Project,Session,Track,TrackGroup
 
 def index(request):
 	if not request.user.is_authenticated():
-		return HttpResponseRedirect('/')
+		return HttpResponseRedirect(reverse('auth_login'))
 	if not request.user.participate_projects.all():
 		return HttpResponseRedirect(reverse('datapanel_create'))
 	else:
