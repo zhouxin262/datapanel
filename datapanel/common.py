@@ -2,7 +2,6 @@
 import datetime
 
 from django.db.models import Count,Avg
-
 from datapanel.models import Track, TrackGroup,Session
 
 def dealtrack(s):

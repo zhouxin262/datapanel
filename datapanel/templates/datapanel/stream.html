@@ -10,9 +10,9 @@
 		<h1>{{project.name}} / 访问路径</h1>
 	</div>
 
-	<ul class='unstyled'>
-		{% for session in project.session.all %}
-		<li>
+	<dl>
+		{% for session in session_list %}
+		<dt>
 			<a href="{{ session.id }}/">
 				{% if session.username %} 
 				{{ session.username }}
@@ -20,8 +20,27 @@
 				Guest#{{session.id}}
 				{% endif %}
 			</a>
-		</li>
+		</dt>
+		<dd><ul class='unstyled'><li>访问页面数：{{session.track.count}}</li></ul></dd>
 		{% endfor %}
-	</ul>
+	</dl>
+	<div class="pagination pagination-right">
+	  <ul>
+	  	{% if session_list.has_previous %}  	
+	    <li>
+	    	<a href="?page={{ session_list.previous_page_number }}">上一页</a>
+	    </li>
+	    {% else %}
+	    <li class="disabled"><a>上一页</a></li>
+	    {% endif %}
+	    {% if session_list.has_next %}
+	    <li>
+	    	<a href="?page={{ session_list.next_page_number }}">下一页</a>
+	    </li>
+	    {% else %}
+	    <li class="disabled"><a>下一页</a></li>
+	    {% endif %}
+	  </ul>
+	</div>
 </div>
 {% endblock content %}
