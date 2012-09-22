@@ -1,0 +1,10 @@
+.ul-striped li{
+    padding: 5px;border-left: 2px solid #ccc;
+}
+.ul-striped li:nth-child(odd),
+.ul-striped li:nth-child(odd) {
+  background-color: #f0f6fb;border-left: 2px solid #f0f6fb;
+}
+.track-list li p {
+    margin: 2px 0;
+}

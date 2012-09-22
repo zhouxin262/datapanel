@@ -29,6 +29,12 @@ class Session(models.Model):
     user_agent = models.CharField(max_length=255, verbose_name=u'客户端类型', default='')
     user_referer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
     ipaddress = models.IPAddressField(verbose_name=u'IP地址',null=False,default='0.0.0.0')
+
+    def first_track(self):
+        return self.track.filter().order_by('dateline')[0]
+
+    def last_track(self):
+        return self.track.filter().order_by('-dateline')[0]
 #
 #class Action(models.Model):
 #    project = models.ForeignKey(Project, related_name='action')
@@ -47,33 +53,45 @@ class Track(models.Model):
     mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数',null=False,default=0)
     step = models.IntegerField(max_length=50,null=False,default=0)
     dateline = models.DateTimeField(auto_now_add=True)
-    timelength = models.IntegerField(max_length=50, null=False, default=0)    
+    timelength = models.IntegerField(max_length=50, null=False, default=0)
 
     def param_display(self):
         try:
             param = ast.literal_eval(self.param)
             if param.has_key('referer'):
                 parsed_url = urlparse.urlparse(param['referer'])
-                if parsed_url.netloc in ('www.baidu.com','m.baidu.com'):
-                    #baidu                    
-                    querystring = urlparse.parse_qs(parsed_url.query,True)
-                    if querystring.has_key('wd'):
-                        param['referer_site'] = 'baidu'
-                        if querystring.has_key('ie') and querystring['ie'][0] == 'utf-8':
-                            param['referer_keyword'] = querystring['wd'][0].decode('utf-8')
-                        else:
-                            param['referer_keyword'] = querystring['wd'][0].decode('gbk')
-                    elif querystring.has_key('word'):
-                        param['referer_site'] = 'baidu mobile'
-                        param['referer_keyword'] = querystring['word'][0].decode('utf-8')
+                if parsed_url.netloc:
+                    param['referer_site'] = parsed_url.netloc
                     param['referer_parsed'] = True
+                    if parsed_url.netloc in ('www.baidu.com','m.baidu.com'):
+                        #baidu
+                        querystring = urlparse.parse_qs(parsed_url.query,True)
+                        if querystring.has_key('wd'):
+                            if querystring.has_key('ie') and querystring['ie'][0] == 'utf-8':
+                                try:
+                                    param['referer_keyword'] = querystring['wd'][0].decode('utf-8')
+                                except:
+                                    param['referer_keyword'] = querystring['wd'][0]
+                            else:
+                                try:
+                                    param['referer_keyword'] = querystring['wd'][0].decode('gbk')
+                                except:
+                                    param['referer_keyword'] = querystring['wd'][0]
+                        elif querystring.has_key('word'):
+                            try:
+                                param['referer_keyword'] = querystring['word'][0].decode('utf-8')
+                            except:
+                                try:
+                                    param['referer_keyword'] = querystring['word'][0].decode('gbk')
+                                except:
+                                    param['referer_keyword'] = querystring['word'][0]
 
             return param
         except AttributeError:
             return None
         except SyntaxError:
             return None
-             
+
 class TrackGroup(models.Model):
     TYPE_CHOICES = (('U', u'url'), ('A', u'action',))
     DATA_CHOICES = (('C', u'页面点击数'), ('D', u'页面停留时间',))
