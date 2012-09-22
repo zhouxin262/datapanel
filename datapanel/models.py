@@ -3,6 +3,7 @@ import ast, urlparse
 from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
+from datapanel.utils import smart_decode
 
 class Project(models.Model):
     """docstring for Project"""
@@ -63,29 +64,13 @@ class Track(models.Model):
                 if parsed_url.netloc:
                     param['referer_site'] = parsed_url.netloc
                     param['referer_parsed'] = True
-                    if parsed_url.netloc in ('www.baidu.com','m.baidu.com'):
+                    querystring = urlparse.parse_qs(parsed_url.query,True)
+                    if parsed_url.netloc.find('baidu.com')!=-1:
                         #baidu
-                        querystring = urlparse.parse_qs(parsed_url.query,True)
                         if querystring.has_key('wd'):
-                            if querystring.has_key('ie') and querystring['ie'][0] == 'utf-8':
-                                try:
-                                    param['referer_keyword'] = querystring['wd'][0].decode('utf-8')
-                                except:
-                                    param['referer_keyword'] = querystring['wd'][0]
-                            else:
-                                try:
-                                    param['referer_keyword'] = querystring['wd'][0].decode('gbk')
-                                except:
-                                    param['referer_keyword'] = querystring['wd'][0]
+                            param['referer_keyword'] = smart_decode(querystring['wd'][0])
                         elif querystring.has_key('word'):
-                            try:
-                                param['referer_keyword'] = querystring['word'][0].decode('utf-8')
-                            except:
-                                try:
-                                    param['referer_keyword'] = querystring['word'][0].decode('gbk')
-                                except:
-                                    param['referer_keyword'] = querystring['word'][0]
-
+                            param['referer_keyword'] = smart_decode(querystring['word'][0])
             return param
         except AttributeError:
             return None
