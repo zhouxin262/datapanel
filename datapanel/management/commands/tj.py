@@ -24,7 +24,7 @@ class Command(NoArgsCommand):
             else:
                 return False
 
-        raw_starttime = starttime.replace(tzinfo=None)
+        raw_starttime = starttime
         for grouptype in ('U','A'):
             for datatype in ('C','D'):
                 for groupcate in ('A','L','F','J'):

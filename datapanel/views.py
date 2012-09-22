@@ -275,6 +275,7 @@ def track(request):
         request.session.save()
         request.session.modified = False
     s = get_or_create_session(request)
+
     if request.GET.get('t',''):
         session = s[0]
         t = Track()
@@ -284,10 +285,6 @@ def track(request):
         t.param = request.GET.get('p','')
         t.save()
 
-        if s[1]:
-            # 新开的session，在客户服务器上存一个，需要配合
-            response_data = 'jx.callback({mp_act:"set_session", mb_session_key: "%s"});' % s[0].sn;
-            return HttpResponse(response_data, mimetype="application/javascript")
     if request.GET.get('p', ''):
         params = ast.literal_eval(request.GET.get('p', ''))
         if params.has_key('function') and params['function']:
@@ -295,6 +292,11 @@ def track(request):
             if f[0] == 'set_user':
                 s[0].username = f[1]['username']
                 s[0].save()
+
+    if s[1]:
+        # 新开的session，在客户服务器上存一个，需要配合
+        response_data = 'jx.callback({mp_act:"set_session", mb_session_key: "%s"});' % s[0].sn;
+        return HttpResponse(response_data, mimetype="application/javascript")
     return HttpResponse('', mimetype="application/javascript")
 
 def get_or_create_session(request):
