@@ -25,7 +25,7 @@ class Command(NoArgsCommand):
                 return False
 
         raw_starttime = starttime
-        for grouptype in ('U','A'):
+        for grouptype in ('A'):#('U','A'):
             for datatype in ('C','D'):
                 for groupcate in ('A','L','F','J'):
                     #for groupdate in ('H','D','W','M','Y'):

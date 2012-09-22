@@ -8,3 +8,15 @@
 .track-list li p {
     margin: 2px 0;
 }
+.trackgroup-list th {
+padding: 10px 15px;
+text-shadow: 0px 1px 1px #555;
+font-weight: bold;
+text-align: right;
+}
+.trackgroup-list td {
+    text-align: right
+}
+.trackgroup-list td.action, .trackgroup-list th.action {
+    text-align: left;
+}

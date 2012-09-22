@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream_detail', name='datapanel_stream_detail'),
     url(r'^(?P<id>\d+)/group/$', 'datapanel.views.group', name='datapanel_group'),
     url(r'^create/$', 'datapanel.views.create', name='datapanel_create'),
-    url(r'^test/$', 'datapanel.views.test', name='datapanel_test'),
+    url(r'^server_info/$', 'datapanel.views.server_info', name='datapanel_server_info'),
 
     (r'^accounts/', include('registration.backends.default.urls')),
     # Examples:

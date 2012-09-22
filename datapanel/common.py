@@ -87,7 +87,7 @@ def tongji(starttime='', endtime='', grouptype ='A', datatype = 'C', groupcate =
             alias = 'action'
 
         for name in Track.objects.filter().values(alias).distinct():
-            args[alias + '__exact'] = name
+            args[alias + '__exact'] = name[alias]
 
             if datatype == 'C':
                 c = Track.objects.filter(**args).count()
@@ -104,6 +104,8 @@ def tongji(starttime='', endtime='', grouptype ='A', datatype = 'C', groupcate =
                 tg.groupdate = groupdate
                 tg.datatype = datatype
                 tg.name = name[alias]
+                if not c:
+                    c = 0
                 tg.count = int(c)
                 tg.dateline = endtime
                 tg.save()

@@ -130,25 +130,27 @@ def group(request, id):
     datatype = request.GET.get('datatype','C')
     groupcate = request.GET.get('groupcate','A')
     groupdate = request.GET.get('groupdate','D')
-    interval = int(request.GET.get('interval','1'))
-    timeline = request.GET.get('timeline','0')
+    interval = int(request.GET.get('interval',1))
+    timeline = int(request.GET.get('timeline',0))
     params = {'grouptype':grouptype,'datatype':datatype,'groupcate':groupcate,'groupdate':groupdate,'interval':interval,'timeline':timeline}
 
     # 处理时间
     times = []
     if groupdate == 'H':
         for i in range(5):
-            times.append(datetime.datetime.now(UTC()).replace(minute=0, second=0, microsecond=0) - datetime.timedelta(hours=i*interval))
+            times.append(datetime.datetime.now(UTC()).replace(minute=0, second=0, microsecond=0) - datetime.timedelta(hours=i*interval + timeline))
     elif groupdate == 'D':
         for i in range(5):
-            times.append(datetime.datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - datetime.timedelta(days=i*interval))
+            times.append(datetime.datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - datetime.timedelta(days=i*interval + timeline))
     elif groupdate == 'W':
         for i in range(5):
-            times.append(datetime.datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - datetime.timedelta(days=datetime.datetime.now(UTC()).weekday()) - datetime.timedelta(days=7*i*interval))
+            times.append(datetime.datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - datetime.timedelta(days=datetime.datetime.now(UTC()).weekday()) - datetime.timedelta(days=7*i*interval + timeline*7))
     elif groupdate == 'M':
         for i in range(5):
-            month = datetime.datetime.now(UTC()).month + i*intval
-            times.append(datetime.datetime.now(UTC()).replace(month=month, day=1, minute=0, second=0, microsecond=0))
+            month = ( datetime.datetime.now(UTC()).month + i*interval + timeline ) % 12
+            if month == 0:
+                month = 12
+            times.append(datetime.datetime.now(UTC()).replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0))
 
     trackgroup_list = TrackGroup.objects.filter(project = project, grouptype = grouptype, datatype = datatype, groupcate = groupcate, groupdate = groupdate, dateline__in = times).order_by('name','-dateline')
     # for t in trackgroup_list:
@@ -342,7 +344,12 @@ def get_or_create_session(request):
         s[0].save()
     return s
 
-def test(request):
-    from django.contrib.sessions.models import Session
-    html = 'session_count: %d' % Session.objects.filter().count()
+def server_info(request):
+    html = '<a href="/">点</a>'
+    if request.GET.get('whois') == 'zx':
+        from django.contrib.sessions.models import Session as DjangoSession
+        html = 'django_session_count: %d' % DjangoSession.objects.filter().count()
+        html += '<br/>session_count: %d' % Session.objects.filter().count()
+        html += '<br/>track_count: %d' % Track.objects.filter().count()
+        html += '<br/>trackgroup_count: %d' % TrackGroup.objects.filter().count()
     return HttpResponse(html)
