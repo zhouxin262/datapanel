@@ -82,6 +82,7 @@ class TrackGroup(models.Model):
     DATA_CHOICES = (('C', u'页面点击数'), ('D', u'页面停留时间',))
     CATE_CHOICES = (('A', u'所有页面'), ('L', u'着陆页',), ('F', u'第一次点击',), ('J', u'跳出页',))
     DATE_CHOICES = (('H', u'小时'), ('D', u'天',), ('W', u'周 ',), ('M', u'月',), ('Y', u'年',))
+    project = models.ForeignKey(Project, related_name='trackgroup')
     grouptype = models.CharField(u'统计类型', max_length=1, null=True,blank = False, choices=TYPE_CHOICES)
     groupcate = models.CharField(u'统计分类', max_length=1, null=True,blank = False, choices=CATE_CHOICES)
     groupdate = models.CharField(u'时间类型', max_length=1, null=True,blank = False, choices=DATE_CHOICES)

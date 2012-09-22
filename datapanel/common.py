@@ -2,7 +2,7 @@
 import datetime
 
 from django.db.models import Count,Avg
-from datapanel.models import Track, TrackGroup,Session
+from datapanel.models import Track, TrackGroup,Session, Project
 
 def dealtrack(s):
     ts = Track.objects.filter(session = s).order_by('dateline')
@@ -45,9 +45,7 @@ def dealtrack(s):
 
 def dealdata():
     # 清理无效session
-    ss = Session.objects.filter(track__isnull = True)
-    print ss.count()
-    ss.delete()
+    ss = Session.objects.filter(track__isnull = True).delete()
 
     list = []
     tn = Track.objects.filter(step__isnull = True)
@@ -64,46 +62,50 @@ def tongji(starttime='', endtime='', grouptype ='A', datatype = 'C', groupcate =
     # DATA_CHOICES = (('C', u'页面点击数'), ('D', u'页面停留时间',))
     # CATE_CHOICES = (('A', u'所有页面'), ('L', u'着陆页',), ('F', u'第一次点击',), ('J', u'跳出页',))
     # DATE_CHOICES = (('H', u'小时'), ('D', u'天',), ('W', u'周 ',), ('M', u'月',), ('Y', u'年',))
-    args = {}
+    for p in Project.objects.filter():
+        args = {}
 
-    if starttime:
-        args['dateline__gte'] = starttime
-    if endtime:
-        args['dateline__lte'] = endtime
+        if starttime:
+            args['dateline__gte'] = starttime
+        if endtime:
+            args['dateline__lte'] = endtime
 
-    if groupcate == 'L':
-        args['mark__in'] = [1,10]
-    elif groupcate == 'F':
-        args['mark__in'] = [2,20]
-    elif groupcate == 'J':
-        args['mark__in'] = [10,20,30,40,50,60,70,80,0]
-    else:
-        pass
+        if groupcate == 'L':
+            args['mark__in'] = [1,10]
+        elif groupcate == 'F':
+            args['mark__in'] = [2,20]
+        elif groupcate == 'J':
+            args['mark__in'] = [10,20,30,40,50,60,70,80,0]
+        else:
+            pass
 
-    if grouptype == 'A':
-        alias = 'action'
-    elif grouptype == 'U':
-        alias = 'url'
-    else:
-        alias = 'action'
+        if grouptype == 'A':
+            alias = 'action'
+        elif grouptype == 'U':
+            alias = 'url'
+        else:
+            alias = 'action'
 
-    if datatype == 'C':
-        c = Track.objects.filter(**args).values(alias).annotate(val = Count('id'))
-    elif datatype == 'D':
-        c = Track.objects.filter(**args).values(alias).annotate(val = Avg('timelength'))
-    else:
-        c = Track.objects.filter(**args).values(alias).annotate(val = Count('id'))
+        for name in Track.objects.filter().values(alias).distinct():
+            args[alias + '__exact'] = name
 
-    if save and c:
-        for a in c:
-            tg = TrackGroup()
-            tg.grouptype = grouptype
-            tg.groupcate = groupcate
-            tg.groupdate = groupdate
-            tg.datatype = datatype
-            tg.name = a[alias]
-            tg.count = int(a['val'])
-            tg.dateline = endtime
-            tg.save()
-        print starttime, endtime, grouptype, datatype, groupcate, groupdate
-    return c
+            if datatype == 'C':
+                c = Track.objects.filter(**args).count()
+            elif datatype == 'D':
+                c = Track.objects.filter(**args).aggregate(Avg('timelength'))['timelength__avg']
+            else:
+                c = Track.objects.filter(**args).count()
+
+            if save:
+                tg = TrackGroup()
+                tg.project = p
+                tg.grouptype = grouptype
+                tg.groupcate = groupcate
+                tg.groupdate = groupdate
+                tg.datatype = datatype
+                tg.name = name[alias]
+                tg.count = int(c)
+                tg.dateline = endtime
+                tg.save()
+                print starttime, endtime, grouptype, datatype, groupcate, groupdate
+        return c

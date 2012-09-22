@@ -121,27 +121,22 @@
 		<thead>
 			<tr>
 				<th>动作<a style="float:right" href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.ptimeline}}&groupdate={{params.groupdate}}"><<</a></th>
-				<th>{{d1}}</th>
-				<th>{{d2}}</th>
-				<th>{{d3}}</th>
-				<th>{{d4}}</th>
-				<th>{{d5}}<a style="float:right" href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.ntimeline}}&groupdate={{params.groupdate}}">>></a></th>
+				{% for t in times %}
+					<th>{{t|date:"H:i\<\b\r\/\>Y-m-d"|safe}}</th>
+				{% endfor %}
+				<th><a style="float:right" href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.ntimeline}}&groupdate={{params.groupdate}}">>></a></th>
 			</tr>
 		</thead>
 		<tbody>
-		{% for key,value in data.items %}
+			{% regroup trackgroup_list by name as action_list %}
+			{% for action in action_list %}
 			<tr>
-				<td>{{key}}</td>
-				
-				
-				<td>{% for k,v in value.items %}{% ifequal k d1 %}{{v}}{%endifequal%}{%endfor%}</td>
-				<td>{% for k,v in value.items %}{% ifequal k d2 %}{{v}}{%endifequal%}{%endfor%}</td>
-				<td>{% for k,v in value.items %}{% ifequal k d3 %}{{v}}{%endifequal%}{%endfor%}</td>
-				<td>{% for k,v in value.items %}{% ifequal k d4 %}{{v}}{%endifequal%}{%endfor%}</td>
-				<td>{% for k,v in value.items %}{% ifequal k d5 %}{{v}}{%endifequal%}{%endfor%}</td>
-				
-			</tr>
-		{%endfor%}
+			<td>{{action.grouper}}</td>
+			{% for action_data in action.list %}
+				<td>{{action_data.count}}</td>
+			{% endfor %}
+		</tr>
+			{% endfor %}
 		</tbody>
 	</table>
 </div>
