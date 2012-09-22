@@ -270,37 +270,32 @@ def group(request, id):
     return render(request, 'datapanel/group.html', {'project':project,'data':data,'d1':d1,'d2':d2,'d3':d3,'d4':d4,'d5':d5,'params':params})
 
 def track(request):
+    if not request.session.session_key:
+        request.session.flush()
+        request.session.save()
+        request.session.modified = False
     s = get_or_create_session(request)
-    if s:
-        if request.GET.get('t',''):
-            session = s[0]
-            t = Track()
-            t.session = session
-            t.action = request.GET.get('t','')
-            t.url = request.META.get('HTTP_REFERER','')
-            t.param = request.GET.get('p','')
-            t.save()
+    if request.GET.get('t',''):
+        session = s[0]
+        t = Track()
+        t.session = session
+        t.action = request.GET.get('t','')
+        t.url = request.META.get('HTTP_REFERER','')
+        t.param = request.GET.get('p','')
+        t.save()
 
-            if s[1]:
-                # 新开的session，在客户服务器上存一个，需要配合
-                response_data = 'jx.callback({mp_act:"set_session", mb_session_key: "%s"});' % s[0].sn;
-                return HttpResponse(response_data, mimetype="application/javascript")
-        if request.GET.get('p', ''):
-            params = ast.literal_eval(request.GET.get('p', ''))
-            if params.has_key('function') and params['function']:
-                f = params['function']
-                if f[0] == 'set_user':
-                    s[0].username = f[1]['username']
-                    s[0].save()
-        return HttpResponse('', mimetype="application/javascript")
-    else:
-        if request.session.test_cookie_worked():
-            request.session.delete_test_cookie()
-            response_data = 'jx.push("%s", %s);' % (request.GET.get('t',''), request.GET.get('p',''));
+        if s[1]:
+            # 新开的session，在客户服务器上存一个，需要配合
+            response_data = 'jx.callback({mp_act:"set_session", mb_session_key: "%s"});' % s[0].sn;
             return HttpResponse(response_data, mimetype="application/javascript")
-        else:
-            # those browsers which did not support cookies, fuck u! no explanation.
-            return HttpResponse('', mimetype="application/javascript")
+    if request.GET.get('p', ''):
+        params = ast.literal_eval(request.GET.get('p', ''))
+        if params.has_key('function') and params['function']:
+            f = params['function']
+            if f[0] == 'set_user':
+                s[0].username = f[1]['username']
+                s[0].save()
+    return HttpResponse('', mimetype="application/javascript")
 
 def get_or_create_session(request):
     token = request.GET.get('k', -1)
@@ -310,23 +305,17 @@ def get_or_create_session(request):
         session_key = request.GET.get('s')
     else:
         session_key = request.session.session_key
-
-    if not session_key:
-        # 没有session
-        if request.session.test_cookie_worked():
-            request.session.delete_test_cookie()
-            request.session.modified = True
-            return None
-    else:
-        p = Project.objects.get(token = token)
-        s = Session.objects.get_or_create(sn = session_key,
-            project=p)
+    p = Project.objects.get(token = token)
+    s = Session.objects.get_or_create(sn = session_key,
+        project=p)
+    if s[1]:
         s[0].ipaddress = request.META.get('REMOTE_ADDR','0.0.0.0')
         s[0].user_agent = request.META.get('HTTP_USER_AGENT','')
         s[0].user_timezone = request.META.get('TZ','')
-        if s[1]:
-            s[0].save()
-        return s
+        s[0].save()
+    return s
 
 def test(request):
-    return render(request, 'datapanel/test.html')
+    from django.contrib.sessions.models import Session
+    html = 'session_count: %d' % Session.objects.filter().count()
+    return HttpResponse(html)

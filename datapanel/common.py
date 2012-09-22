@@ -44,6 +44,11 @@ def dealtrack(s):
     s.save()
 
 def dealdata():
+    # 清理无效session
+    ss = Session.objects.filter(track__isnull = True)
+    print ss.count()
+    ss.delete()
+
     list = []
     tn = Track.objects.filter(step__isnull = True)
     for t in tn:
