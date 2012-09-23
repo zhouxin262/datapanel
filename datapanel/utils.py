@@ -9,7 +9,6 @@ def smart_decode(s):
         except UnicodeDecodeError:
             return s
 
-
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
 

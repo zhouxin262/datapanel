@@ -32,10 +32,16 @@ class Session(models.Model):
     ipaddress = models.IPAddressField(verbose_name=u'IP地址',null=False,default='0.0.0.0')
 
     def first_track(self):
-        return self.track.filter().order_by('dateline')[0]
+        try:
+            return self.track.filter().order_by('dateline')[0]
+        except IndexError:
+            return None
 
     def last_track(self):
-        return self.track.filter().order_by('-dateline')[0]
+        try:
+            return self.track.filter().order_by('-dateline')[0]
+        except IndexError:
+            return None
 #
 #class Action(models.Model):
 #    project = models.ForeignKey(Project, related_name='action')
@@ -51,10 +57,14 @@ class Track(models.Model):
     xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
     event = models.CharField(max_length=255, verbose_name=u'event', default='')
     param = models.CharField(max_length=255, verbose_name=u'参数', default='')
-    mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数',null=False,default=0)
+    mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
+    is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
     step = models.IntegerField(max_length=50,null=False,default=0)
     dateline = models.DateTimeField(auto_now_add=True)
     timelength = models.IntegerField(max_length=50, null=False, default=0)
+
+    def action_display(self):
+        return smart_decode(slef.action).encode('utf-8')
 
     def param_display(self):
         try:
@@ -65,16 +75,18 @@ class Track(models.Model):
                     param['referer_site'] = parsed_url.netloc
                     param['referer_parsed'] = True
                     querystring = urlparse.parse_qs(parsed_url.query,True)
-                    if parsed_url.netloc.find('baidu.com')!=-1:
+                    if parsed_url.netloc.find('baidu')!=-1:
                         #baidu
                         if querystring.has_key('wd'):
                             param['referer_keyword'] = smart_decode(querystring['wd'][0])
                         elif querystring.has_key('word'):
                             param['referer_keyword'] = smart_decode(querystring['word'][0])
+                    if parsed_url.netloc.find('sougou')!=-1:
+                        #sougou
+                        if querystring.has_key('query'):
+                            param['referer_keyword'] = smart_decode(querystring['query'][0])
             return param
-        except AttributeError:
-            return None
-        except SyntaxError:
+        except:
             return None
 
 class TrackGroup(models.Model):
@@ -90,3 +102,9 @@ class TrackGroup(models.Model):
     name = models.CharField(max_length=255, verbose_name=u'Action/url值', default='')
     count = models.IntegerField(u'统计数值', null=True)
     dateline = models.DateTimeField(auto_now_add = False)
+
+class Referer(models.Model):
+    session = models.ForeignKey(Session, related_name='referer', verbose_name=u'用户会话')
+    site = models.CharField(max_length=255, verbose_name=u'site', default='')
+    keyword = models.CharField(max_length=255, verbose_name=u'keyword', default='')
+    url = models.CharField(max_length=255, verbose_name=u'url ', default='')

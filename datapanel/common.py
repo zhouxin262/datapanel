@@ -2,59 +2,77 @@
 import datetime
 
 from django.db.models import Count,Avg
-from datapanel.models import Track, TrackGroup,Session, Project
+from datapanel.models import Track, TrackGroup,Session, Project, Referer
 
-def dealtrack(s):
-    ts = Track.objects.filter(session = s).order_by('dateline')
-    c = ts.count()
-    for i in range(0,c):
-        tt = ts[i]
-        tt.step = i+1
-        if (i+1) == c:
-            tt.timelength = 0
-            if c == 1:
-                tt.mark = 10
-            elif c == 2:
-                tt.mark = 20
-            elif tt.action == u'总确认':
-                tt.mark = 30
-            elif ts[i-1].mark in [31,41,51,61,71]:
-                tt.mark = ts[i-1].mark -1 +10
-            else:
-                tt.mark = 0
+def clean_track():
+    ts = Track.objects.filter()
+    for i, t in enumerate(ts):
+        if i % 1000 == 0:
+            print i
 
-        else:
-            tl = (ts[i+1].dateline - tt.dateline).seconds
-            if tl ==0:
-                tt.timelength = 1
-            else:
-                tt.timelength = tl
-            if i == 0:
-                tt.mark = 1
-            elif i == 1:
-                tt.mark = 2
-            elif tt.action == u'总确认':
-                tt.mark = 31
-            elif ts[i-1].mark in [31,41,51,61]:
-                tt.mark = ts[i-1].mark +10
-            else:
-                tt.mark = 3
+        try:
+            # 清理无效tracks
+            t.action = t.action.decode('gbk').encode('gbk')
+        except UnicodeEncodeError:
+            t.delete()
+            continue
 
-        tt.save()
-    s.save()
+    tgs = TrackGroup.objects.filter()
+    for i, t in enumerate(tgs):
+        if i % 1000 == 0:
+            print i
+
+        try:
+            # 清理无效tracks
+            t.name = t.name.decode('gbk').encode('gbk')
+        except UnicodeEncodeError:
+            t.delete()
+            continue
+
+def session_referer(starttime):
+    # 清理无效session
+    ss = Session.objects.filter(track__isnull = True).delete()
+
+    ss = Session.objects.filter(start_time__gte = starttime)
+    for s in ss:
+        t = s.first_track()
+        if t and t.param_display():
+            p = t.param_display()
+            if p and p.has_key('referer_parsed'):
+                if not s.referer.all():
+                    try:
+                        r = Referer()
+                        r.session = s
+                        r.site = p['referer_site']
+                        if p.has_key('referer_keyword'):
+                            r.keyword = p['referer_keyword']
+                        else:
+                            r.keyword = ''
+                        r.url = p['referer']
+                        r.save()
+                    except:
+                        print r.keyword
 
 def dealdata():
     # 清理无效session
     ss = Session.objects.filter(track__isnull = True).delete()
 
-    list = []
-    tn = Track.objects.filter(step__isnull = True)
-    for t in tn:
-        if t.session.id not in list:
-            list.append(t.session.id)
-    for l in list:
-        ss = Session.objects.get(id = l)
-        dealtrack(ss)
+    s_list = []
+    tn = Track.objects.filter(step = 0)
+
+    for i, t in enumerate(tn):
+        try:
+            # 清理无效tracks
+            t.action = t.action.decode('gbk').encode('gbk')
+        except UnicodeEncodeError:
+            t.delete()
+            continue
+
+        if i % 1000 == 0:
+            print (i * 100) / tn.count(), '%'
+        t.step = Track.objects.filter(session = t.session, pk__lt = t.pk).count() + 1
+        t.save()
+
     print 'Preprocess with tracks, finished.'
 
 def tongji(starttime='', endtime='', grouptype ='A', datatype = 'C', groupcate = 'A', groupdate='H', save = True):

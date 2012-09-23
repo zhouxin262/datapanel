@@ -3,7 +3,7 @@ from datetime import tzinfo, timedelta, datetime
 from django.core.management.base import NoArgsCommand
 
 from datapanel.models import Track, TrackGroup
-from datapanel.common import tongji,dealdata
+from datapanel.common import tongji,dealdata,session_referer
 from datapanel.utils import UTC
 
 """
@@ -23,6 +23,8 @@ class Command(NoArgsCommand):
                 starttime = t[0]['dateline']
             else:
                 return False
+
+        session_referer(starttime)
 
         raw_starttime = starttime
         for grouptype in ('A'):#('U','A'):
