@@ -1,6 +1,5 @@
 #coding=utf-8
 from bootstrap.forms import BootstrapModelForm, Fieldset
-
 from models import Project
 
 class ProjectForm(BootstrapModelForm):
