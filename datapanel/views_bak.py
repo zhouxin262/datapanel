@@ -12,89 +12,7 @@ from datapanel.utils import UTC
 from datapanel.forms import ProjectForm
 from datapanel.models import Project,Session,Track,TrackGroup
 
-def index(request):
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('auth_login'))
-    if not request.user.participate_projects.all():
-        return HttpResponseRedirect(reverse('datapanel_create'))
-    else:
-        lastview = request.user.participate_projects.order_by('-lastview')[0]
-        return HttpResponseRedirect(reverse('datapanel_home', args=[lastview.id]))
 
-def home(request, id):
-    project = request.user.participate_projects.get(id = id)
-    project.save() #更新lastview
-    # data = {}
-    # data['pv'] = Track.objects.filter(session__project = project).count()
-    # data['uv'] = Session.objects.filter(project = project).count()
-    # today = datetime.date.today()
-    # action_list = Track.objects.filter(session__project = project).values('action')
-    # track_list = {}
-    # for a in action_list:
-    #     track_list[a['action']] = Track.objects.filter(session__project = project, action=a['action'])
-    #dateline__range = [datetime.date(today.year, today.month, today.day), datetime.date(today.year, today.month, today.day)]
-
-    return render(request, 'datapanel/index.html', {'project' : project, })
-
-def setting(request, id):
-    project = request.user.participate_projects.get(id = id)
-    return render(request, 'datapanel/setting.html', {'project':project})
-
-def delete(request, id):
-    project_name = request.POST.get('project_name', None)
-    project = request.user.participate_projects.get(id = id, name=project_name)
-    project.delete()
-    return HttpResponseRedirect(reverse('datapanel_index'))
-
-def create(request):
-    form = ProjectForm()
-    if request.method=="POST":
-        form = ProjectForm(request.POST)
-        if form.is_valid():
-            project = form.save(commit=False)
-            project.creator = request.user
-            project.save()
-            import time, md5
-            #project.token = md5.new(str(project.id + time.mktime(project.dateline.timetuple()))).hexdigest()
-            project.token = md5.new(str(project.id + 54321)).hexdigest()
-            project.participants.add(request.user)
-            project.save()
-            return HttpResponseRedirect(reverse('datapanel_home', args=[project.id]))
-
-    return render(request, 'datapanel/create.html', {'form': form})
-
-def stream(request, id):
-    project = request.user.participate_projects.get(id = id)
-
-    #排序
-    order = request.GET.get('order', 't')
-    if order == 'c':
-        project_sessions = project.session.all().annotate(c=Count('track')).order_by('-c')
-    else:
-        project_sessions = project.session.all().order_by('-end_time')
-
-    #过滤
-    param_filter = request.GET.get('filter', '')
-    if param_filter:
-        project_sessions = project_sessions.filter(param_contains = param_filter)
-
-    paginator = Paginator(project_sessions, 25)
-    page = request.GET.get('page')
-    try:
-        session_list = paginator.page(page)
-    except PageNotAnInteger:
-        session_list = paginator.page(1)
-    except EmptyPage:
-        session_list = paginator.page(paginator.num_pages)
-    page_range = range(100);
-    return render(request, 'datapanel/stream.html', {'project':project,
-        'session_list': session_list, 'page_range':page_range})
-
-def stream_detail(request, id, sid):
-    project = request.user.participate_projects.get(id = id)
-    session = project.session.get(id=sid)
-    track_flow = session.track.all().order_by('-dateline')
-    return render(request, 'datapanel/stream_detail.html', {'project':project,'track_flow':track_flow})
 
 def dealdate(groupdate,stime,interval):
     if groupdate == 'H':
@@ -169,6 +87,7 @@ def track(request):
         t.action = request.GET.get('t','')
         t.url = request.META.get('HTTP_REFERER','')
         t.param = request.GET.get('p','')
+        t.set_times()
         t.save()
 
     if request.GET.get('p', ''):

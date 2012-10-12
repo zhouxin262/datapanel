@@ -1,6 +1,6 @@
 #coding=utf-8
 import ast, urlparse
-from datetime import datetime
+from datetime import datetime, timedelta, tzinfo
 from django.db import models
 from django.contrib.auth.models import User
 from datapanel.utils import smart_decode
@@ -51,20 +51,40 @@ class Session(models.Model):
 #    event = models.CharField(max_length=255, verbose_name=u'event')
 
 class Track(models.Model):
+    """
+    User behavior action track
+    """
     session = models.ForeignKey(Session, related_name='track', verbose_name=u'用户会话')
     action = models.CharField( max_length=255,verbose_name=u'事件',default='')
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
     xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
     event = models.CharField(max_length=255, verbose_name=u'event', default='')
     param = models.CharField(max_length=255, verbose_name=u'参数', default='')
-    mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
-    is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
-    step = models.IntegerField(max_length=50,null=False,default=0)
+    # mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
+    # is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
+    # step = models.IntegerField(max_length=50,null=False,default=0)
+    # timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
-    timelength = models.IntegerField(max_length=50, null=False, default=0)
-
+    hourline = models.DateTimeField(auto_now_add=False, verbose_name=u"小时")
+    dayline = models.DateTimeField(auto_now_add=False, verbose_name=u"天")
+    weekline = models.DateTimeField(auto_now_add=False, verbose_name=u"周")
+    monthline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
+    
     def action_display(self):
         return smart_decode(slef.action).encode('utf-8')
+
+    def set_times(self, save=False):
+        if self.dateline:
+            self.hourline = self.dateline.replace(minute=0, second=0, microsecond=0)
+            self.dayline = self.dateline.replace(hour=0, minute=0, second=0, microsecond=0)
+            self.weekline = self.dateline.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=self.dateline.weekday())
+            self.monthline = self.dateline.replace(day=1, minute=0, second=0, microsecond=0)
+            if save:
+                self.save()
+            else:
+                return True
+        else:
+            return False
 
     def param_display(self):
         try:
