@@ -1,7 +1,7 @@
 {%extends 'datapanel/datapanel_base.html'%}
 {% block subnav-group %}
 <li class="active">
-	<a href="{%url datapanel_group project.id%}">网页分析</a>
+	<a href="{%url group_home project.id%}">网页分析</a>
 </li>
 {% endblock subnav-group %}
 {% block content %}
@@ -11,7 +11,7 @@
 	</div>
 	<div class="">
 	<ul class="nav nav-pills">
-		<li class="dropdown" id="groupcate">
+		<!--<li class="dropdown" id="groupcate">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#groupcate">
 				{% if params.groupcate == 'L' %}
 					着陆页
@@ -38,14 +38,14 @@
 					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=J&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">跳出页</a>
 				</li>
 			</ul>
-		</li>
+		</li>-->
 		<li class="dropdown" id="groupdate">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#groupdate">
-				{% if params.groupdate == 'H' %}
+				{% if params.groupdate == 'hourline' %}
 					小时
-				{% elif params.groupdate == 'M' %}
+				{% elif params.groupdate == 'monthline' %}
 					月
-				{% elif params.groupdate == 'W' %}
+				{% elif params.groupdate == 'weekline' %}
 					周
 				{% else %}
 					天
@@ -54,22 +54,22 @@
 			</a>
 			<ul class="dropdown-menu">
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=H">小时</a>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=hourline">小时</a>
 				</li>
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=D">天</a>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=dayline">天</a>
 				</li>
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=W">周</a>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=weekline">周</a>
 				</li>
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=M">月</a>
+					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=monthline">月</a>
 				</li>
 			</ul>
 		</li>
 		<li class="dropdown" id="datatype">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#datatype">
-				{% if params.datatype == "C" %}
+				{% if params.datatype == "delay" %}
 					停留时间
 				{% else %}
 					访问量
@@ -78,10 +78,10 @@
 			</a>
 			<ul class="dropdown-menu">
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype=C&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">访问量</a>
+					<a href="?grouptype={{params.grouptype}}&datatype=click&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">访问量</a>
 				</li>
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype=D&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">停留时间</a>
+					<a href="?grouptype={{params.grouptype}}&datatype=delay&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">停留时间</a>
 				</li>
 			</ul>
 		</li>
@@ -102,12 +102,11 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% regroup trackgroup_list by name as action_list %}
-			{% for action in action_list %}
+			{% for action, value in data.items %}
 			<tr>
-			<td class="action">{{action.grouper}}</td>
-			{% for action_data in action.list %}
-				<td>{{action_data.count}}</td>
+			<td class="action">{{action}}</td>
+			{% for t,v in value.items %}
+				<td>{{v}}</td>
 			{% endfor %}
 		</tr>
 			{% endfor %}
