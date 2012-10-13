@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
     url(r'^$', 'datapanel.views.index', name='index'),
@@ -16,4 +17,8 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/group/$', 'datapanel.views.group.home', name='group_home'),
 
     (r'^accounts/', include('registration.backends.default.urls')),
+)
+
+urlpatterns += patterns('django.views.generic.simple',
+    (r'^js/(?P<key>\w+)/$', 'direct_to_template', {'template': 'js_template.js'}),
 )
