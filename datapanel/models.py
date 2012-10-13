@@ -69,7 +69,7 @@ class Track(models.Model):
     dayline = models.DateTimeField(auto_now_add=False, verbose_name=u"天")
     weekline = models.DateTimeField(auto_now_add=False, verbose_name=u"周")
     monthline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
-    
+
     def action_display(self):
         return smart_decode(slef.action).encode('utf-8')
 
@@ -109,19 +109,19 @@ class Track(models.Model):
         except:
             return None
 
-class TrackGroup(models.Model):
-    TYPE_CHOICES = (('U', u'url'), ('A', u'action',))
-    DATA_CHOICES = (('C', u'页面点击数'), ('D', u'页面停留时间',))
-    CATE_CHOICES = (('A', u'所有页面'), ('L', u'着陆页',), ('F', u'第一次点击',), ('J', u'跳出页',))
-    DATE_CHOICES = (('H', u'小时'), ('D', u'天',), ('W', u'周 ',), ('M', u'月',), ('Y', u'年',))
-    project = models.ForeignKey(Project, related_name='trackgroup')
-    grouptype = models.CharField(u'统计类型', max_length=1, null=True,blank = False, choices=TYPE_CHOICES)
-    groupcate = models.CharField(u'统计分类', max_length=1, null=True,blank = False, choices=CATE_CHOICES)
-    groupdate = models.CharField(u'时间类型', max_length=1, null=True,blank = False, choices=DATE_CHOICES)
-    datatype = models.CharField(u'数据类型', max_length=1, null=True,blank = False, choices=DATA_CHOICES)
-    name = models.CharField(max_length=255, verbose_name=u'Action/url值', default='')
-    count = models.IntegerField(u'统计数值', null=True)
-    dateline = models.DateTimeField(auto_now_add = False)
+# class TrackGroup(models.Model):
+#     TYPE_CHOICES = (('U', u'url'), ('A', u'action',))
+#     DATA_CHOICES = (('C', u'页面点击数'), ('D', u'页面停留时间',))
+#     CATE_CHOICES = (('A', u'所有页面'), ('L', u'着陆页',), ('F', u'第一次点击',), ('J', u'跳出页',))
+#     DATE_CHOICES = (('H', u'小时'), ('D', u'天',), ('W', u'周 ',), ('M', u'月',), ('Y', u'年',))
+#     project = models.ForeignKey(Project, related_name='trackgroup')
+#     grouptype = models.CharField(u'统计类型', max_length=1, null=True,blank = False, choices=TYPE_CHOICES)
+#     groupcate = models.CharField(u'统计分类', max_length=1, null=True,blank = False, choices=CATE_CHOICES)
+#     groupdate = models.CharField(u'时间类型', max_length=1, null=True,blank = False, choices=DATE_CHOICES)
+#     datatype = models.CharField(u'数据类型', max_length=1, null=True,blank = False, choices=DATA_CHOICES)
+#     name = models.CharField(max_length=255, verbose_name=u'Action/url值', default='')
+#     count = models.IntegerField(u'统计数值', null=True)
+#     dateline = models.DateTimeField(auto_now_add = False)
 
 class Referer(models.Model):
     session = models.ForeignKey(Session, related_name='referer', verbose_name=u'用户会话')
