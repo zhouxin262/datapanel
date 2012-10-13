@@ -1,5 +1,6 @@
 //var host = '111.67.195.174';
 var host = '127.0.0.1:8000';
+var key = 'caccf5abd685f38ff89b5ad7bbdcc651';
 
 jx = {
     callback : function (obj){
@@ -11,7 +12,7 @@ jx = {
             p.referer = document.referrer;
         }
         var params = this.params(p);
-        var url = 'http://'+host+'/track/?k=caccf5abd685f38ff89b5ad7bbdcc651&t=' + encodeURIComponent(t) + '&p=' + encodeURIComponent(params);
+        var url = 'http://'+host+'/track/?k='+key+'&t=' + encodeURIComponent(t) + '&p=' + encodeURIComponent(params);
         return this.load(url, null, 'jsonp');
     },
 	//Create a xmlHttpRequest object - this is the constructor.

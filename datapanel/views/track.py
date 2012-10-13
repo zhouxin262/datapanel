@@ -1,3 +1,4 @@
+#coding=utf8
 def default(request):
     if not request.session.session_key:
         request.session.flush()
