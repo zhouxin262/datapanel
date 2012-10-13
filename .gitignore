@@ -1,6 +1,7 @@
 #################
 ## Eclipse
-
+*.pyc
+.idea/
 *.pydevproject
 .project
 .metadata
@@ -126,5 +127,4 @@ pip-log.txt
 .mr.developer.cfg
 # Mac crap
 .DS_Store
-*.pyc
-.idea/
+
