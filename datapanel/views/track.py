@@ -1,9 +1,34 @@
 #coding=utf8
+import ast
+from datetime import datetime
+# from django.shortcuts import render, render_to_response
+from django.http import HttpResponse
+from datapanel.utils import UTC
+from datapanel.models import Project, Session, Track
+
+def get_or_create_session(request):
+    token = request.GET.get('k', -1)
+    # 客户服务器访问，可带客户的客户session_key
+    session_key = None
+    if request.GET.get('s', None):
+        session_key = request.GET.get('s')
+    else:
+        session_key = request.session.session_key
+    p = Project.objects.get(token = token)
+    s = Session.objects.get_or_create(sn = session_key,
+        project=p)
+    if s[1]:
+        s[0].ipaddress = request.META.get('REMOTE_ADDR','0.0.0.0')
+        s[0].user_agent = request.META.get('HTTP_USER_AGENT','')
+        s[0].user_timezone = request.META.get('TZ','')
+        s[0].save()
+    return s
+
 def default(request):
     if not request.session.session_key:
         request.session.flush()
         request.session.save()
-        request.session.modified = False
+
     s = get_or_create_session(request)
 
     if request.GET.get('t',''):
@@ -13,6 +38,7 @@ def default(request):
         t.action = request.GET.get('t','')
         t.url = request.META.get('HTTP_REFERER','')
         t.param = request.GET.get('p','')
+        t.dateline = datetime.now(UTC())
         t.set_times()
         t.save()
 

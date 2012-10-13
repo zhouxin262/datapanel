@@ -7,10 +7,13 @@ from django.db.models import Count
 from datapanel.utils import UTC
 from datapanel.models import Track
 
-
+def print_delay(request, name=''):
+    if not request.session.has_key('S'):
+        request.session['S'] = datetime.now()
+    print name, datetime.now() - request.session['S']
 
 def home(request, id):
-    s = datetime.now()
+    print_delay(request, 'start')
     # deal with params 0.01
     project = request.user.participate_projects.get(id = id)
     grouptype = request.GET.get('grouptype','action')
@@ -37,18 +40,19 @@ def home(request, id):
             if month == 0:
                 month = 12
             times.append(datetime.now(UTC()).replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0))
+
+    print_delay(request, 'time')
     # deal with actions 0.47
     args = {'session__project': project, }
     actions = [a['action'] for a in Track.objects.filter(**args).values(grouptype).distinct().order_by(grouptype)]
     args[groupdate + '__in'] = times
     args[grouptype + '__in'] = actions
 
-    print datetime.now() - s
-    s = datetime.now()
-    ts = Track.objects.filter(**args).order_by(grouptype, '-' + groupdate).values(grouptype, groupdate).annotate(val = Count('id'))
+    ts = Track.objects.filter(**args)
+    for t in ts:
+        print t
+    print_delay(request, 'actions')
 
-    print datetime.now() - s
-    s = datetime.now()
     # process data
     data = {}
     init_data = {}
@@ -57,11 +61,7 @@ def home(request, id):
     for a in actions:
         data[a] = init_data
 
-    print datetime.now() - s
-    s = datetime.now()
     for t in ts:
         data[t['action']][t[groupdate]] = t['val']
-
-    print datetime.now() - s
-    s = datetime.now()
+    print_delay(request, 'data')
     return render(request, 'datapanel/group/home.html', {'project':project,'params':params, 'times': times, 'data': data }) #'trackgroup_list': trackgroup_list,

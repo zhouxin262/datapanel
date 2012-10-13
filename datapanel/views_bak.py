@@ -103,31 +103,3 @@ def track(request):
         response_data = 'jx.callback({mp_act:"set_session", mb_session_key: "%s"});' % s[0].sn;
         return HttpResponse(response_data, mimetype="application/javascript")
     return HttpResponse('', mimetype="application/javascript")
-
-def get_or_create_session(request):
-    token = request.GET.get('k', -1)
-    # 客户服务器访问，可带客户的客户session_key
-    session_key = None
-    if request.GET.get('s', None):
-        session_key = request.GET.get('s')
-    else:
-        session_key = request.session.session_key
-    p = Project.objects.get(token = token)
-    s = Session.objects.get_or_create(sn = session_key,
-        project=p)
-    if s[1]:
-        s[0].ipaddress = request.META.get('REMOTE_ADDR','0.0.0.0')
-        s[0].user_agent = request.META.get('HTTP_USER_AGENT','')
-        s[0].user_timezone = request.META.get('TZ','')
-        s[0].save()
-    return s
-
-def server_info(request):
-    html = '<a href="/">点</a>'
-    if request.GET.get('whois') == 'zx':
-        from django.contrib.sessions.models import Session as DjangoSession
-        html = 'django_session_count: %d' % DjangoSession.objects.filter().count()
-        html += '<br/>session_count: %d' % Session.objects.filter().count()
-        html += '<br/>track_count: %d' % Track.objects.filter().count()
-        html += '<br/>trackgroup_count: %d' % TrackGroup.objects.filter().count()
-    return HttpResponse(html)
