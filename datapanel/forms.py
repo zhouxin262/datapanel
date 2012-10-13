@@ -1,6 +1,7 @@
 #coding=utf-8
+from bootstrap import forms
 from bootstrap.forms import BootstrapModelForm, Fieldset
-from models import Project
+from models import Project, Action
 
 class ProjectForm(BootstrapModelForm):
 	class Meta:
@@ -9,3 +10,11 @@ class ProjectForm(BootstrapModelForm):
         )
 		model = Project
 		exclude = ('dateline','lastview','creator','participants','key','token')
+
+
+class ActionForm(BootstrapModelForm):
+    class Meta:
+        layout = (
+            Fieldset(u"动作", "project","name", "url","xpath","event" ),
+            )
+        model = Action

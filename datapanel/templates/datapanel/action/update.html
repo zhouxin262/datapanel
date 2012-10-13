@@ -1,0 +1,16 @@
+{%extends 'datapanel/datapanel_base.html'%}
+
+{%block navbar%}
+{%endblock navbar%}   
+{% block content %}
+<div class="well">
+	<form action="" method="post" class="form-horizontal">
+		{%csrf_token%}
+    	{{ form }}
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">修 改</button>
+			<button type="submit" class="btn">取 消</button>
+		</div>
+	</form>
+</div>
+{% endblock content %}

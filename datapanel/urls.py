@@ -17,6 +17,11 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/group/$', 'datapanel.views.group.home', name='group_home'),
 
     (r'^accounts/', include('registration.backends.default.urls')),
+
+    url(r'^action/create/$', 'datapanel.views.action.create', name='action_create'),
+    url(r'^action/update/(?P<id>\d+)/$', 'datapanel.views.action.update', name='action_update'),
+    url(r'^action/delete/(?P<id>\d+)/$', 'datapanel.views.action.delete', name='action_delete'),
+    url(r'^action/(?P<id>\d+)/$', 'datapanel.views.action.view', name='action_view'),
 )
 
 urlpatterns += patterns('django.views.generic.simple',

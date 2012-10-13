@@ -20,6 +20,9 @@ class Project(models.Model):
         unique_together = (('name', 'creator'),)
         ordering = ['-lastview']
 
+    def __unicode__(self):
+        return self.name
+
 
 class Session(models.Model):
     project = models.ForeignKey(Project, related_name='session')
@@ -51,6 +54,7 @@ class Action(models.Model):
     url = models.CharField(max_length=255, verbose_name=u'url')
     xpath = models.CharField(max_length=255, verbose_name=u'dom')
     event = models.CharField(max_length=255, verbose_name=u'event')
+
 
 
 class Track(models.Model):
