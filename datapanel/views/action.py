@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from datapanel.forms import ActionForm
 from datapanel.models import Action
 
-def create(request):
+def create(request,id):
     form = ActionForm()
     if request.method=="POST":
         form = ActionForm(request.POST)
@@ -15,8 +15,8 @@ def create(request):
     return render(request, 'datapanel/action/create.html', {'form': form})
 
 
-def update(request,id):
-    action = get_object_or_404(Action, pk=id)
+def update(request,id,aid):
+    action = get_object_or_404(Action, pk=aid)
     form = ActionForm(instance=action)
     if request.method == 'POST':
         form = ActionForm(request.POST,instance=action)
@@ -26,12 +26,12 @@ def update(request,id):
     return render(request, 'datapanel/action/update.html',{'form': form})
 
 
-def delete(request,id):
-    action = Action.objects.get(id=id)
+def delete(request,id,aid):
+    action = Action.objects.get(id=aid)
     action.delete()
     return HttpResponseRedirect(reverse('action_create'))
 
 
-def view(request,id):
-    action = Action.objects.get(id=id)
+def view(request,id,aid):
+    action = Action.objects.get(id=aid)
     return render(request, 'datapanel/action/view.html',{'action':action})

@@ -18,10 +18,10 @@ urlpatterns = patterns('',
 
     (r'^accounts/', include('registration.backends.default.urls')),
 
-    url(r'^action/create/$', 'datapanel.views.action.create', name='action_create'),
-    url(r'^action/update/(?P<id>\d+)/$', 'datapanel.views.action.update', name='action_update'),
-    url(r'^action/delete/(?P<id>\d+)/$', 'datapanel.views.action.delete', name='action_delete'),
-    url(r'^action/(?P<id>\d+)/$', 'datapanel.views.action.view', name='action_view'),
+    url(r'^(?P<id>\d+)/action/create/$', 'datapanel.views.action.create', name='action_create'),
+    url(r'^(?P<id>\d+)/action/update/(?P<aid>\d+)/$', 'datapanel.views.action.update', name='action_update'),
+    url(r'^(?P<id>\d+)/action/delete/(?P<aid>\d+)/$', 'datapanel.views.action.delete', name='action_delete'),
+    url(r'^(?P<id>\d+)/action/(?P<aid>\d+)/$', 'datapanel.views.action.view', name='action_view'),
 )
 
 urlpatterns += patterns('django.views.generic.simple',
