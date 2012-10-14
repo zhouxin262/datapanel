@@ -17,7 +17,7 @@ def list(request, id):
     if param_filter:
         project_sessions = project_sessions.filter(param_contains = param_filter)
 
-    paginator = Paginator(project_sessions, 25)
+    paginator = Paginator(project_sessions[:1000], 25)
     page = request.GET.get('page')
     try:
         session_list = paginator.page(page)
