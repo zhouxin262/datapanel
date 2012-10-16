@@ -4,7 +4,7 @@ from datetime import datetime
 # from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from datapanel.utils import UTC
-from datapanel.models import Project, Session, Track
+from datapanel.models import Project, Session, Track, Referer
 
 def get_or_create_session(request):
     token = request.GET.get('k', -1)
@@ -41,6 +41,14 @@ def default(request):
         t.dateline = datetime.now(UTC())
         t.set_times()
         t.save()
+
+        if t.param_display()['referer_parsed']:
+            r = Referer()
+            r.session = session
+            r.site = t.param_display()['referer_site']
+            r.keyword = t.param_display()['referer_keyword']
+            r.url = t.param_display()['referer']
+            r.save()
 
     if request.GET.get('p', ''):
         params = ast.literal_eval(request.GET.get('p', ''))

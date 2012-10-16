@@ -6,21 +6,19 @@ from django.db.models import Count
 def list(request, id):
     project = request.user.participate_projects.get(id = id)
 
-    #排序
-    order = request.GET.get('order', 't')
-    if order == 'c':
-        project_sessions = project.session.all().annotate(c=Count('track')).order_by('-c')
-    else:
-        project_sessions = project.session.all().annotate(c=Count('track')).order_by('-end_time')
+    # #排序
+    # order = request.GET.get('order', 't')
+    # if order == 'c':
+    #     project_sessions = project.session.all().annotate(c=Count('track')).order_by('-c')
+    # else:
+    #     project_sessions = project.session.all().annotate(c=Count('track')).order_by('-end_time')
 
     #过滤
-    param_filter = request.GET.get('filter', '')
-    if param_filter:
-        project_sessions = project_sessions.filter(param_contains = param_filter)
-    project_sessions = project_sessions.filter(c__gt= 3)
+    # param_filter = request.GET.get('filter', '')
+    # if param_filter:
+    #     project_sessions = project_sessions.filter(param_contains = param_filter)
+    project_sessions = project.session.all().order_by('-end_time')
     project_sessions = project_sessions[:1000]
-
-
     paginator = Paginator(project_sessions, 25)
     page = request.GET.get('page')
     try:

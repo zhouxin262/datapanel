@@ -23,8 +23,20 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+class Action(models.Model):
+    """
+    Websites' managers defined their own actions
+    """
+    project = models.ForeignKey(Project, related_name='action')
+    name = models.CharField(max_length=255, verbose_name=u'动作')
+    url = models.CharField(max_length=255, verbose_name=u'url')
+    xpath = models.CharField(max_length=255, verbose_name=u'dom')
+    event = models.CharField(max_length=255, verbose_name=u'event')
 
 class Session(models.Model):
+    """
+    User sessions
+    """
     project = models.ForeignKey(Project, related_name='session')
     sn = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
     start_time = models.DateTimeField(auto_now_add=True, verbose_name=u'会话开始时间')
@@ -47,15 +59,27 @@ class Session(models.Model):
         except IndexError:
             return None
 
+    def first_referer(self):
+        try:
+            return self.referer.filter().order_by('dateline')[0]
+        except IndexError:
+            return None
 
-class Action(models.Model):
-    project = models.ForeignKey(Project, related_name='action')
-    name = models.CharField(max_length=255, verbose_name=u'动作')
-    url = models.CharField(max_length=255, verbose_name=u'url')
-    xpath = models.CharField(max_length=255, verbose_name=u'dom')
-    event = models.CharField(max_length=255, verbose_name=u'event')
+    def last_referer(self):
+        try:
+            return self.referer.filter().order_by('-dateline')[0]
+        except IndexError:
+            return None
 
-
+class Referer(models.Model):
+    """
+    User referer parsed by Track param_display
+    """
+    session = models.ForeignKey(Session, related_name='referer', verbose_name=u'用户会话')
+    site = models.CharField(max_length=255, verbose_name=u'site', default='')
+    keyword = models.CharField(max_length=255, verbose_name=u'keyword', default='')
+    url = models.CharField(max_length=255, verbose_name=u'url ', default='')
+    dateline = models.DateTimeField(auto_now_add=True)
 
 class Track(models.Model):
     """
@@ -99,7 +123,7 @@ class Track(models.Model):
             param = ast.literal_eval(self.param)
             if param.has_key('referer'):
                 parsed_url = urlparse.urlparse(param['referer'])
-                if parsed_url.netloc:
+                if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
                     param['referer_site'] = parsed_url.netloc
                     param['referer_parsed'] = True
                     querystring = urlparse.parse_qs(parsed_url.query, True)
@@ -117,22 +141,13 @@ class Track(models.Model):
         except:
             return None
 
-# class TrackGroup(models.Model):
-#     TYPE_CHOICES = (('U', u'url'), ('A', u'action',))
-#     DATA_CHOICES = (('C', u'页面点击数'), ('D', u'页面停留时间',))
-#     CATE_CHOICES = (('A', u'所有页面'), ('L', u'着陆页',), ('F', u'第一次点击',), ('J', u'跳出页',))
-#     DATE_CHOICES = (('H', u'小时'), ('D', u'天',), ('W', u'周 ',), ('M', u'月',), ('Y', u'年',))
-#     project = models.ForeignKey(Project, related_name='trackgroup')
-#     grouptype = models.CharField(u'统计类型', max_length=1, null=True,blank = False, choices=TYPE_CHOICES)
-#     groupcate = models.CharField(u'统计分类', max_length=1, null=True,blank = False, choices=CATE_CHOICES)
-#     groupdate = models.CharField(u'时间类型', max_length=1, null=True,blank = False, choices=DATE_CHOICES)
-#     datatype = models.CharField(u'数据类型', max_length=1, null=True,blank = False, choices=DATA_CHOICES)
-#     name = models.CharField(max_length=255, verbose_name=u'Action/url值', default='')
-#     count = models.IntegerField(u'统计数值', null=True)
-#     dateline = models.DateTimeField(auto_now_add = False)
-
-class Referer(models.Model):
-    session = models.ForeignKey(Session, related_name='referer', verbose_name=u'用户会话')
-    site = models.CharField(max_length=255, verbose_name=u'site', default='')
-    keyword = models.CharField(max_length=255, verbose_name=u'keyword', default='')
-    url = models.CharField(max_length=255, verbose_name=u'url ', default='')
+class TrackGroup(models.Model):
+    """
+    Brand new Trackgroup only contained data grouped by action, hour, count
+    removed other kinds of data such as: url, average timelength
+    """
+    project = models.ForeignKey(Project, related_name='trackgroup')
+    action = models.CharField(max_length=255, verbose_name=u'事件', default='')
+    count = models.IntegerField(u'统计数值', null=True)
+    hourline = models.DateTimeField(auto_now_add=False, verbose_name=u"小时")
+    dateline = models.DateTimeField(auto_now_add = False)
