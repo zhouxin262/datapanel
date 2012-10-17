@@ -24,25 +24,25 @@ def home(request, id):
     if groupdate == 'hourline':
         for i in range(5):
             t = datetime.now(UTC()).replace(minute=0, second=0, microsecond=0) - timedelta(hours=i*interval + timeline)
-            times.append((t, time.mktime(t.timetuple())))
+            times.append((t, int(time.mktime(t.timetuple()))))
     elif groupdate == 'dayline':
         for i in range(5):
             t = datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i*interval + timeline)
-            times.append((t, time.mktime(t.timetuple())))
+            times.append((t, int(time.mktime(t.timetuple()))))
     elif groupdate == 'weekline':
         for i in range(5):
             t = datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=datetime.now(UTC()).weekday()) - timedelta(days=7*i*interval + timeline*7)
-            times.append((t, time.mktime(t.timetuple())))
+            times.append((t, int(time.mktime(t.timetuple()))))
     elif groupdate == 'monthline':
         for i in range(5):
             month = (datetime.now(UTC()).month + i*interval + timeline ) % 12
             if month == 0:
                 month = 12
             t= datetime.now(UTC()).replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
-            times.append((t, time.mktime(t.timetuple())))
+            times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions 0.47
-    args = {'project': project, 'dateline__in': times, 'datetype': groupdate}
+    args = {'project': project, 'dateline__in': [t[1] for t in times], 'datetype': groupdate}
     actions = [a['action'] for a in TrackGroupByClick.objects.filter().values(grouptype).distinct().order_by(grouptype)]
     data = serializers.serialize("json",TrackGroupByClick.objects.filter(**args), fields=('action','dateline','value'))
 

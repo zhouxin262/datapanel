@@ -97,7 +97,7 @@
 					动作
 				</th>
 				{% for t in times %}
-					<th>{{t[0]|date:"H:i\<\b\r\/\>Y-m-d"|safe}}</th>
+					<th>{{t.0|date:"H:i\<\b\r\/\>Y-m-d"|safe}}</th>
 				{% endfor %}
 			</tr>
 		</thead>
@@ -106,7 +106,7 @@
 			<tr>
 			<td class="action">{{action}}</td>
 			{% for t in times %}
-				<td data-id="{{action}}_{{t}}">0</td>
+				<td data-id="{{action}}_{{t.1}}">0</td>
 			{% endfor %}
 			</tr>
 			{% endfor %}
@@ -141,7 +141,7 @@ $(document).ready(function(){
 	});
 	var data = {{data|safe}};
 	$.each(data, function(k, v){
-		v.fileds.action
+		$('td[data-id='+ v.fields.action + '_' + v.fields.dateline+']').html(v.fields.value);
 	});
 });
 </script>

@@ -32,14 +32,14 @@ class Command(NoArgsCommand):
                     ts = ts.values('action', datetype).annotate(c = Count('id'))
                     for t in ts:
                         try:
-                            tg = TrackGroupByClick.objects.get(project = p, datetype=datetype, action=t['action'], dateline=t[datetype])
-                            tg.value = t['c']
-                            tg.save()
+                            trackGroupByClick = TrackGroupByClick.objects.get(project = p, datetype=datetype, action=t['action'], dateline=time.mktime(t[datetype].timetuple()))
+                            trackGroupByClick.value = t['c']
+                            trackGroupByClick.save()
                         except TrackGroupByClick.DoesNotExist:
-                            tg = TrackGroupByClick()
-                            tg.project = p
-                            tg.datetype = datetype
-                            tg.dateline = time.mktime(t[datetype].timetuple())
-                            tg.action = t['action']
-                            tg.value = t['c']
-                            tg.save()
+                            trackGroupByClick = TrackGroupByClick()
+                            trackGroupByClick.project = p
+                            trackGroupByClick.datetype = datetype
+                            trackGroupByClick.dateline = time.mktime(t[datetype].timetuple())
+                            trackGroupByClick.action = t['action']
+                            trackGroupByClick.value = t['c']
+                            trackGroupByClick.save()
