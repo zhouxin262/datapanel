@@ -28,10 +28,10 @@ class Action(models.Model):
     Websites' managers defined their own actions
     """
     project = models.ForeignKey(Project, related_name='action')
-    name = models.CharField(max_length=255, verbose_name=u'动作')
-    url = models.CharField(max_length=255, verbose_name=u'url')
-    xpath = models.CharField(max_length=255, verbose_name=u'dom')
-    event = models.CharField(max_length=255, verbose_name=u'event')
+    name = models.CharField(max_length=255, verbose_name=u'行为名称')
+    url = models.CharField(max_length=255, verbose_name=u'URL正则', null=True, blank=True)
+    xpath = models.CharField(max_length=255, verbose_name=u'控件', null=True,  blank=True)
+    event = models.CharField(max_length=255, verbose_name=u'事件', null=True, blank=True)
 
 class Session(models.Model):
     """

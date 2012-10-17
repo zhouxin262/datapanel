@@ -7,15 +7,16 @@
 {% block content %}
     <div class="span10">
         <div class="page-header">
+            <a class="btn pull-right" href="{%url action_create project.id%}">添加行为</a>
             <h1>{{project.name}} / action</h1>
         </div>
-        <table class="table table-striped table-hover table-bordered trackgroup-list">
+        <table class="table">
             <thead>
             <tr>
-                <th class="action">name</th>
-                <th>url</th>
-                <th>dom</th>
-                <th>event</th>
+                <th class="action">行为名称</th>
+                <th>URL正则</th>
+                <th>控件</th>
+                <th>事件</th>
             </tr>
             </thead>
             <tbody>
