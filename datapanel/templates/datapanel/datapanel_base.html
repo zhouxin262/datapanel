@@ -15,7 +15,7 @@
 				</li>
 			</ul>
 			</li>
-		{% endif %}		
+		{% endif %}
 	</ul>
 	<ul class="nav pull-right">
 		<li>
@@ -55,11 +55,6 @@
 	</li>
 	{% endblock subnav-home %}
 	<li class="nav-header">分析</li>
-	{% block subnav-stream %}
-	<li>
-		<a href="{%url stream_list project.id%}">访问路径</a>
-	</li>
-	{% endblock subnav-stream %}
 	{% block subnav-group %}
 	<li>
 		<a href="{%url group_home project.id%}">网页分析</a>
@@ -71,7 +66,17 @@
 	<li>
 		<a href="#">忠诚度</a>
 	</li>
+	{% block subnav-condition %}
+	<li>
+		<a href="{%url condition_list project.id%}">条件设定</a>
+	</li>
+	{% endblock subnav-condition %}
 	<li class="nav-header">访客分析</li>
+	{% block subnav-stream %}
+	<li>
+		<a href="{%url stream_list project.id%}">访问路径</a>
+	</li>
+	{% endblock subnav-stream %}
 	<li>
 		<a href="#">Explore</a>
 	</li>
@@ -86,7 +91,7 @@
     {% endblock subnav-setting %}
     {% block subnav-action %}
     <li>
-        <a href="{%url action_list project.id%}">action</a>
+        <a href="{%url action_list project.id%}">定义行为</a>
     </li>
     {% endblock subnav-action %}
 	<li>

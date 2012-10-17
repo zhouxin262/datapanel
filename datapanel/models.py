@@ -150,10 +150,18 @@ class TrackCondition(models.Model):
     name = models.CharField(max_length=20, verbose_name=u'条件命名')
 
 class TrackConditionTester(models.Model):
+    """
+    TrackConditionTester
+    should be regex tester.
+    """
+    OPERATOR_CHOICES = (('OR', 'OR'), ('AND', 'AND'))
+    TESTEROPERATOR_CHOICES = (('gt', '大于'), ('eq', '等于'), ('lt', '小于'))
+    COLNAME_CHOICES = (('action', '动作名称'), ('step', '操作步骤'), ('mark', '标志'))
     condition = models.ForeignKey(TrackCondition, related_name='tester')
-    col_name = models.CharField(max_length=20, verbose_name=u'Track列名')
-    test_value = models.CharField(max_length=255, verbose_name=u'等于值') # 以后考虑改成正则表达式
-
+    operator = models.CharField(max_length=20, verbose_name="与或关系", choices=OPERATOR_CHOICES)
+    col_name = models.CharField(max_length=20, verbose_name=u'Track列名', choices=COLNAME_CHOICES)
+    test_operator = models.CharField(max_length=255, verbose_name=u'运算符', choices=TESTEROPERATOR_CHOICES)
+    test_value = models.CharField(max_length=255, verbose_name=u'值') # 以后考虑改成正则表达式
 
 class TrackGroupByClick(models.Model):
     """

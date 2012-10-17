@@ -3,44 +3,75 @@ from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from datapanel.forms import ActionForm
-from datapanel.models import Action
+from datapanel.forms import ConditionForm, ConditionTesterForm
+from datapanel.models import TrackCondition, TrackConditionTester
 
-def create(request,condition_aid):
-    form = ActionForm()
+def create(request,id):
+    project = request.user.participate_projects.get(id = id)
+    form = ConditionForm()
     if request.method=="POST":
-        form = ActionForm(request.POST)
+        form = ConditionForm(request.POST)
         if form.is_valid():
-            action = form.save()
-            return HttpResponseRedirect(reverse('action_list', args=[id]))
-    return render(request, 'datapanel/action/create.html', {'form': form})
+            condition = form.save(commit=False)
+            condition.project = project
+            condition.save()
+            return HttpResponseRedirect(reverse('condition_list', args=[id]))
+    return render(request, 'datapanel/condition/create.html', {'project':project, 'form': form})
 
 def update(request,id,condition_id):
-    action = get_object_or_404(Action, pk=aid)
-    form = ActionForm(instance=action)
+    project = request.user.participate_projects.get(id = id)
+    condition = get_object_or_404(TrackCondition, pk=condition_id)
+    form = ConditionForm(instance=condition)
     if request.method == 'POST':
-        form = ActionForm(request.POST,instance=action)
+        form = ConditionForm(request.POST,instance=condition)
         if form.is_valid():
-            action = form.save()
-            return HttpResponseRedirect(reverse('action_view', args=[action.id]))
-    return render(request, 'datapanel/action/update.html',{'form': form})
+            condition = form.save()
+            return HttpResponseRedirect(reverse('condition_list', args=[id]))
+    return render(request, 'datapanel/condition/update.html', {'project':project, 'form': form})
 
 
 def delete(request,id,condition_id):
-    action = Action.objects.get(id=aid)
-    action.delete()
-    return HttpResponseRedirect(reverse('action_create'))
+    condition = get_object_or_404(TrackCondition, pk=condition_id)
+    condition.delete()
+    return HttpResponseRedirect(reverse('condition_list', args=[id]))
 
 def list(request,id):
     project = request.user.participate_projects.get(id = id)
-    project_actions = Action.objects.filter(project_id=id)
-    paginator = Paginator(project_actions, 2)
-    page = request.GET.get('page')
-    try:
-        action_list = paginator.page(page)
-    except PageNotAnInteger:
-        action_list = paginator.page(1)
-    except EmptyPage:
-        action_list = paginator.page(paginator.num_pages)
-    page_range = range(100)
-    return render(request, 'datapanel/action/list.html',{'project':project,'action_list':action_list,'page_range':page_range})
+    condition_list = TrackCondition.objects.filter(project=project)
+    return render(request, 'datapanel/condition/list.html',{'project':project,'condition_list':condition_list,})
+
+def testercreate(request, id, condition_id):
+    project = request.user.participate_projects.get(id = id)
+    condition = TrackCondition.objects.get(project=project, id = condition_id)
+    form = ConditionTesterForm()
+    if request.method=="POST":
+        form = ConditionTesterForm(request.POST)
+        if form.is_valid():
+            tester = form.save(commit=False)
+            tester.condition = condition
+            tester.save()
+            return HttpResponseRedirect(reverse('condition_testerlist', args=[id, condition_id]))
+    return render(request, 'datapanel/condition/create.html', {'project':project, 'form': form})
+
+def testerupdate(request, id, condition_id, tester_id):
+    project = request.user.participate_projects.get(id = id)
+    t = get_object_or_404(TrackConditionTester, pk=tester_id)
+    form = ConditionTesterForm(instance=t)
+    if request.method == 'POST':
+        form = ConditionTesterForm(request.POST,instance=t)
+        if form.is_valid():
+            t = form.save()
+            return HttpResponseRedirect(reverse('condition_testerlist', args=[id, condition_id]))
+    return render(request, 'datapanel/condition/update.html', {'project':project, 'form': form})
+
+
+def testerdelete(request,id,condition_id, tester_id):
+    t = get_object_or_404(TrackConditionTester, pk=tester_id)
+    t.delete()
+    return HttpResponseRedirect(reverse('condition_testerlist', args=[id, condition_id]))
+
+def testerlist(request,id, condition_id):
+    project = request.user.participate_projects.get(id = id)
+    condition = TrackCondition.objects.get(project=project, id = condition_id)
+    tester_list = condition.tester.all()
+    return render(request, 'datapanel/condition/tester/list.html',{'project':project, 'condition': condition, 'tester_list':tester_list,})

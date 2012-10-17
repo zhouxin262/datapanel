@@ -1,7 +1,7 @@
 #coding=utf-8
 from bootstrap import forms
 from bootstrap.forms import BootstrapModelForm, Fieldset
-from models import Project, Action
+from models import Project, Action, TrackCondition, TrackConditionTester
 
 class ProjectForm(BootstrapModelForm):
 	class Meta:
@@ -19,3 +19,19 @@ class ActionForm(BootstrapModelForm):
             )
         model = Action
         exclude = ('project')
+
+class ConditionForm(BootstrapModelForm):
+    class Meta:
+        layout = (
+            Fieldset(u"条件设定", "name" ),
+            )
+        model = TrackCondition
+        exclude = ('project')
+
+class ConditionTesterForm(BootstrapModelForm):
+    class Meta:
+        layout = (
+            Fieldset(u"条件设定", "operator", "col_name", "test_operator", "test_value"),
+            )
+        model = TrackConditionTester
+        exclude = ('condition')
