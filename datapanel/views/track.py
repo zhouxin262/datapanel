@@ -39,8 +39,12 @@ def default(request):
         t.param = request.GET.get('p','')
         t.dateline = datetime.now(UTC())
         t.set_times()
-        prv_track = Track.objects.filter(session = session).order_by('-dateline')[0]
-        t.step = prv_track.step+1
+        try:
+            prv_track = Track.objects.filter(session = session).order_by('-dateline')[0]
+            t.step = prv_track.step+1
+        except:
+            t.step = 0
+
         prv_time = prv_track.dateline
 #        now = datetime.datetime.today()
 #        t.timelength = now - prv_time
