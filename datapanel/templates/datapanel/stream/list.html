@@ -44,17 +44,22 @@
 			{% endfor %}
 		</ul>
 		<div class="pagination pagination-right">
+		 <input type="text" class="input-small pull-left" > 
+		 <button type="submit" class="btn pull-left" id="btn_goto_page">跳转</button>
 		  <ul>
+		  	<li class="disabled">
+		 	<a>{{ session_list.number }} / {{ session_list.paginator.num_pages }}</a>
+		 	</li>
 		  	{% if session_list.has_previous %}
 		    <li>
-		    	<a href="?page={{ session_list.previous_page_number }}">上一页</a>
+		    	<a href="?{{querystr}}&page={{ session_list.previous_page_number }}">上一页</a>
 		    </li>
 		    {% else %}
 		    <li class="disabled"><a>上一页</a></li>
 		    {% endif %}
 		    {% if session_list.has_next %}
 		    <li>
-		    	<a href="?page={{ session_list.next_page_number }}">下一页</a>
+		    	<a href="?{{querystr}}&page={{ session_list.next_page_number }}">下一页</a>
 		    </li>
 		    {% else %}
 		    <li class="disabled"><a>下一页</a></li>

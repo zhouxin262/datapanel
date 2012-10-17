@@ -17,8 +17,7 @@ def list(request, id):
     # param_filter = request.GET.get('filter', '')
     # if param_filter:
     #     project_sessions = project_sessions.filter(param_contains = param_filter)
-    project_sessions = project.session.all().order_by('-end_time')
-    project_sessions = project_sessions[:1000]
+    project_sessions = project.session.all().order_by('-id')
     paginator = Paginator(project_sessions, 25)
     page = request.GET.get('page')
     try:
@@ -27,9 +26,8 @@ def list(request, id):
         session_list = paginator.page(1)
     except EmptyPage:
         session_list = paginator.page(paginator.num_pages)
-    page_range = range(100);
     return render(request, 'datapanel/stream/list.html', {'project':project,
-        'session_list': session_list, 'page_range':page_range})
+        'session_list': session_list})
 
 def view(request, id, sid):
     project = request.user.participate_projects.get(id = id)

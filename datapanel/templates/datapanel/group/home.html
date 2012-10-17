@@ -97,18 +97,18 @@
 					动作
 				</th>
 				{% for t in times %}
-					<th>{{t|date:"H:i\<\b\r\/\>Y-m-d"|safe}}</th>
+					<th>{{t[0]|date:"H:i\<\b\r\/\>Y-m-d"|safe}}</th>
 				{% endfor %}
 			</tr>
 		</thead>
 		<tbody>
-			{% for action, value in data.items %}
+			{% for action in actions %}
 			<tr>
 			<td class="action">{{action}}</td>
-			{% for t,v in value.items %}
-				<td>{{v}}</td>
+			{% for t in times %}
+				<td data-id="{{action}}_{{t}}">0</td>
 			{% endfor %}
-		</tr>
+			</tr>
 			{% endfor %}
 			<tr>
 				<td>
@@ -138,7 +138,11 @@ $(document).ready(function(){
 		else{
 			$(this).val(1).blur();
 		}
-	})
+	});
+	var data = {{data|safe}};
+	$.each(data, function(k, v){
+		v.fileds.action
+	});
 });
 </script>
 {% endblock content %}

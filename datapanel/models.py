@@ -141,13 +141,16 @@ class Track(models.Model):
         except:
             return None
 
-class TrackGroup(models.Model):
+class TrackGroupByClick(models.Model):
     """
     Brand new Trackgroup only contained data grouped by action, hour, count
     removed other kinds of data such as: url, average timelength
     """
     project = models.ForeignKey(Project, related_name='trackgroup')
     action = models.CharField(max_length=255, verbose_name=u'事件', default='')
-    count = models.IntegerField(u'统计数值', null=True)
-    hourline = models.DateTimeField(auto_now_add=False, verbose_name=u"小时")
-    dateline = models.DateTimeField(auto_now_add = False)
+    datetype = models.CharField(u'统计时间', null=True, max_length=12)
+    value = models.IntegerField(u'统计数值', null=True)
+    dateline = models.IntegerField(verbose_name=u"时间")
+
+    def dateline__str(self):
+        return 111
