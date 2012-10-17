@@ -94,7 +94,7 @@ class Track(models.Model):
     # mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
     # is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
     step = models.IntegerField(max_length=50,null=False,default=0)
-    timelength = models.IntegerField(max_length=50, null=False, default=0)
+    # timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
     hourline = models.DateTimeField(auto_now_add=False, verbose_name=u"小时")
     dayline = models.DateTimeField(auto_now_add=False, verbose_name=u"天")
@@ -110,7 +110,7 @@ class Track(models.Model):
             self.dayline = self.dateline.replace(hour=0, minute=0, second=0, microsecond=0)
             self.weekline = self.dateline.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
                 days=self.dateline.weekday())
-            self.monthline = self.dateline.replace(day=1, minute=0, second=0, microsecond=0)
+            self.monthline = self.dateline.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             if save:
                 self.save()
             else:
@@ -174,3 +174,13 @@ class TrackGroupByClick(models.Model):
     value = models.IntegerField(u'统计数值', null=True)
     dateline = models.IntegerField(verbose_name=u"时间")
     condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
+
+    def increase_value(self, save=True):
+        if self.value:
+            self.value = self.value+1
+        else:
+            self.value = 1
+
+        if save:
+            self.save()
+        return self.value

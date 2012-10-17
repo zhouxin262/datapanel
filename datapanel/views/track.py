@@ -1,9 +1,9 @@
 #coding=utf8
-import ast
+import ast, time
 from datetime import datetime
 from django.http import HttpResponse
 from datapanel.utils import UTC
-from datapanel.models import Project, Session, Track, Referer
+from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByClick
 
 def get_or_create_session(request):
     token = request.GET.get('k', -1)
@@ -39,24 +39,47 @@ def default(request):
         t.param = request.GET.get('p','')
         t.dateline = datetime.now(UTC())
         t.set_times()
+        # set step
         try:
             prv_track = Track.objects.filter(session = session).order_by('-dateline')[0]
             t.step = prv_track.step+1
-        except:
-            t.step = 0
-
-        prv_time = prv_track.dateline
-#        now = datetime.datetime.today()
-#        t.timelength = now - prv_time
+        except IndexError:
+            t.step = 1
+        # todo : set timelength
         t.save()
 
         for datetype in ['hourline', 'dayline', 'weekline', 'monthline']:
-            try:
-                trackGroupByClick = TrackGroupByClick.objects.get(project = s[0].project, datetype=datetype, action=t['action'], dateline=time.mktime(t[datetype].timetuple()))
-            except TrackGroupByClick.DoesNotExist:
-                trackGroupByClick = TrackGroupByClick(project = s[0].project, datetype=datetype, action=t['action'], dateline=time.mktime(t[datetype].timetuple()))
+            conditions = TrackCondition.objects.filter(project = session.project)
+            for condition in conditions:
+                test_result = None
+                for tester in condition.tester.all():
+                    result = False
+                    if tester.test_operator == 'gt':
+                        result = getattr(t, tester.col_name) > tester.test_value
+                    elif tester.test_operator == 'eq':
+                        result = getattr(t, tester.col_name) == tester.test_value
+                    elif tester.test_operator == 'lt':
+                        result = getattr(t, tester.col_name) < tester.test_value
+                    if tester.operator == "AND":
+                        test_result = test_result and result
+                    else:
+                        test_result = test_result or result
+                if test_result:
+                    try:
+                        trackGroupByClick = TrackGroupByClick.objects.get(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition = condition)
+                        trackGroupByClick.increase_value()
+                    except TrackGroupByClick.DoesNotExist:
+                        trackGroupByClick = TrackGroupByClick(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition = condition)
+                        trackGroupByClick.increase_value()
 
-        if t.param_display()['referer_parsed']:
+            try:
+                trackGroupByClick = TrackGroupByClick.objects.get(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()))
+                trackGroupByClick.increase_value()
+            except TrackGroupByClick.DoesNotExist:
+                trackGroupByClick = TrackGroupByClick(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()))
+                trackGroupByClick.increase_value()
+
+        if t.param_display().has_key('referer_parsed'):
             r = Referer()
             r.session = session
             r.site = t.param_display()['referer_site']
