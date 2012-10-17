@@ -79,9 +79,11 @@
 		<a href="#">Insight</a>
 	</li>
 	<li class="nav-header">设置</li>
+	{% block subnav-setting %}
 	<li>
 		<a href="{%url project_setting project.id%}">设置</a>
 	</li>
+	{% endblock subnav-setting %}
 	<li>
 		<a href="#">队友</a>
 	</li>
