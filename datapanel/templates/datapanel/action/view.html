@@ -1,9 +1,9 @@
 {%extends 'datapanel/datapanel_base.html'%}
-{% block subnav-stream %}
-<li class="active">
-	<a href="{%url datapanel_stream project.id%}">访问路径</a>
-</li>
-{% endblock subnav-stream %}
+{% block subnav-action %}
+    <li class="active">
+        <a href="{%url action_list project.id%}">action</a>
+    </li>
+{% endblock subnav-action %}
 {% block content %}
 <div class="well span10">
 	<div class="page-header">

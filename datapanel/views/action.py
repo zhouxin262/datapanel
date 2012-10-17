@@ -7,16 +7,20 @@ from datapanel.forms import ActionForm
 from datapanel.models import Action
 
 def create(request,id):
+    project = request.user.participate_projects.get(id = id)
     form = ActionForm()
     if request.method=="POST":
         form = ActionForm(request.POST)
         if form.is_valid():
-            action = form.save()
+            action = form.save(commit=False)
+            action.project = project
+            action.save()
             return HttpResponseRedirect(reverse('action_list', args=[id]))
-    return render(request, 'datapanel/action/create.html', {'form': form})
+    return render(request, 'datapanel/action/create.html', {'project':project,'form': form})
 
 
 def update(request,id,aid):
+    project = request.user.participate_projects.get(id = id)
     action = get_object_or_404(Action, pk=aid)
     form = ActionForm(instance=action)
     if request.method == 'POST':
@@ -24,7 +28,7 @@ def update(request,id,aid):
         if form.is_valid():
             action = form.save()
             return HttpResponseRedirect(reverse('action_view', args=[action.id]))
-    return render(request, 'datapanel/action/update.html',{'form': form})
+    return render(request, 'datapanel/action/update.html',{'project':project,'form': form})
 
 
 def delete(request,id,aid):
@@ -41,7 +45,7 @@ def view(request,id,aid):
 def list(request,id):
     project = request.user.participate_projects.get(id = id)
     project_actions = Action.objects.filter(project_id=id)
-    paginator = Paginator(project_actions, 2)
+    paginator = Paginator(project_actions, 25)
     page = request.GET.get('page')
     try:
         action_list = paginator.page(page)

@@ -1,9 +1,12 @@
 {%extends 'datapanel/datapanel_base.html'%}
 
-{%block navbar%}
-{%endblock navbar%}   
+{% block subnav-action %}
+    <li class="active">
+        <a href="{%url action_list project.id%}">action</a>
+    </li>
+{% endblock subnav-action %}
 {% block content %}
-<div class="well">
+<div class="well span10">
 	<form action="" method="post" class="form-horizontal">
 		{%csrf_token%}
     	{{ form }}
