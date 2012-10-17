@@ -93,8 +93,8 @@ class Track(models.Model):
     param = models.CharField(max_length=255, verbose_name=u'参数', default='')
     # mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
     # is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
-    # step = models.IntegerField(max_length=50,null=False,default=0)
-    # timelength = models.IntegerField(max_length=50, null=False, default=0)
+    step = models.IntegerField(max_length=50,null=False,default=0)
+    timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
     hourline = models.DateTimeField(auto_now_add=False, verbose_name=u"小时")
     dayline = models.DateTimeField(auto_now_add=False, verbose_name=u"天")
@@ -141,6 +141,20 @@ class Track(models.Model):
         except:
             return None
 
+class TrackCondition(models.Model):
+    """
+    TrackCondition
+    only support 'equal' condition for now
+    """
+    project = models.ForeignKey(Project, related_name='condition')
+    name = models.CharField(max_length=20, verbose_name=u'条件命名')
+
+class TrackConditionTester(models.Model):
+    condition = models.ForeignKey(TrackCondition, related_name='tester')
+    col_name = models.CharField(max_length=20, verbose_name=u'Track列名')
+    test_value = models.CharField(max_length=255, verbose_name=u'等于值') # 以后考虑改成正则表达式
+
+
 class TrackGroupByClick(models.Model):
     """
     Brand new Trackgroup only contained data grouped by action, hour, count
@@ -151,6 +165,4 @@ class TrackGroupByClick(models.Model):
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
     value = models.IntegerField(u'统计数值', null=True)
     dateline = models.IntegerField(verbose_name=u"时间")
-
-    def dateline__str(self):
-        return 111
+    condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)

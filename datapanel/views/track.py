@@ -1,7 +1,6 @@
 #coding=utf8
 import ast
 from datetime import datetime
-# from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
 from datapanel.utils import UTC
 from datapanel.models import Project, Session, Track, Referer
@@ -41,6 +40,12 @@ def default(request):
         t.dateline = datetime.now(UTC())
         t.set_times()
         t.save()
+
+        for datetype in ['hourline', 'dayline', 'weekline', 'monthline']:
+            try:
+                trackGroupByClick = TrackGroupByClick.objects.get(project = s[0].project, datetype=datetype, action=t['action'], dateline=time.mktime(t[datetype].timetuple()))
+            except TrackGroupByClick.DoesNotExist:
+                trackGroupByClick = TrackGroupByClick(project = s[0].project, datetype=datetype, action=t['action'], dateline=time.mktime(t[datetype].timetuple()))
 
         if t.param_display()['referer_parsed']:
             r = Referer()

@@ -22,7 +22,11 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/action/create/$', 'datapanel.views.action.create', name='action_create'),
     url(r'^(?P<id>\d+)/action/update/(?P<aid>\d+)/$', 'datapanel.views.action.update', name='action_update'),
     url(r'^(?P<id>\d+)/action/delete/(?P<aid>\d+)/$', 'datapanel.views.action.delete', name='action_delete'),
-    url(r'^(?P<id>\d+)/action/(?P<aid>\d+)/$', 'datapanel.views.action.view', name='action_view'),
+
+    url(r'^(?P<id>\d+)/condition/$', 'datapanel.views.condition.list', name='condition_list'),
+    url(r'^(?P<id>\d+)/condition/create/$', 'datapanel.views.condition.create', name='condition_create'),
+    url(r'^(?P<id>\d+)/condition/update/(?P<condition_id>\d+)/$', 'datapanel.views.condition.update', name='condition_update'),
+    url(r'^(?P<id>\d+)/condition/delete/(?P<condition_id>\d+)/$', 'datapanel.views.condition.delete', name='condition_delete'),
 )
 
 urlpatterns += patterns('django.views.generic.simple',
