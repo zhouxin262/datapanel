@@ -35,3 +35,8 @@ def delete(request,id,aid):
 def view(request,id,aid):
     action = Action.objects.get(id=aid)
     return render(request, 'datapanel/action/view.html',{'action':action})
+
+def list(request,id):
+    project = request.user.participate_projects.get(id = id)
+    action_list = Action.objects.filter(project_id=id)
+    return render(request, 'datapanel/action/list.html',{'project':project,'action_list':action_list})

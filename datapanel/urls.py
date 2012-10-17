@@ -18,6 +18,7 @@ urlpatterns = patterns('',
 
     (r'^accounts/', include('registration.backends.default.urls')),
 
+    url(r'^(?P<id>\d+)/action/$', 'datapanel.views.action.list', name='action_list'),
     url(r'^(?P<id>\d+)/action/create/$', 'datapanel.views.action.create', name='action_create'),
     url(r'^(?P<id>\d+)/action/update/(?P<aid>\d+)/$', 'datapanel.views.action.update', name='action_update'),
     url(r'^(?P<id>\d+)/action/delete/(?P<aid>\d+)/$', 'datapanel.views.action.delete', name='action_delete'),
