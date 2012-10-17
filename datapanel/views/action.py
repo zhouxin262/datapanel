@@ -1,4 +1,5 @@
 #coding=utf-8
+from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
@@ -11,7 +12,7 @@ def create(request,id):
         form = ActionForm(request.POST)
         if form.is_valid():
             action = form.save()
-            return HttpResponseRedirect(reverse('action_view', args=[action.id]))
+            return HttpResponseRedirect(reverse('action_list', args=[id]))
     return render(request, 'datapanel/action/create.html', {'form': form})
 
 
@@ -33,10 +34,20 @@ def delete(request,id,aid):
 
 
 def view(request,id,aid):
+    project = request.user.participate_projects.get(id = id)
     action = Action.objects.get(id=aid)
-    return render(request, 'datapanel/action/view.html',{'action':action})
+    return render(request, 'datapanel/action/view.html',{'project':project,'action':action})
 
 def list(request,id):
     project = request.user.participate_projects.get(id = id)
-    action_list = Action.objects.filter(project_id=id)
-    return render(request, 'datapanel/action/list.html',{'project':project,'action_list':action_list})
+    project_actions = Action.objects.filter(project_id=id)
+    paginator = Paginator(project_actions, 2)
+    page = request.GET.get('page')
+    try:
+        action_list = paginator.page(page)
+    except PageNotAnInteger:
+        action_list = paginator.page(1)
+    except EmptyPage:
+        action_list = paginator.page(paginator.num_pages)
+    page_range = range(100)
+    return render(request, 'datapanel/action/list.html',{'project':project,'action_list':action_list,'page_range':page_range})

@@ -29,5 +29,23 @@
             {% endfor %}
             </tbody>
         </table>
+        <div class="pagination pagination-right">
+            <ul>
+                {% if action_list.has_previous %}
+                    <li>
+                        <a href="?page={{ action_list.previous_page_number }}">上一页</a>
+                    </li>
+                {% else %}
+                    <li class="disabled"><a>上一页</a></li>
+                {% endif %}
+                {% if action_list.has_next %}
+                    <li>
+                        <a href="?page={{ action_list.next_page_number }}">下一页</a>
+                    </li>
+                {% else %}
+                    <li class="disabled"><a>下一页</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 {% endblock content %}
