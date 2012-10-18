@@ -11,85 +11,54 @@
 	</div>
 	<div class="">
 	<ul class="nav nav-pills">
-		<!--<li class="dropdown" id="groupcate">
-			<a class="dropdown-toggle" data-toggle="dropdown" href="#groupcate">
-				{% if params.groupcate == 'L' %}
-					着陆页
-				{% elif params.groupcate == 'F' %}
-					第一次点击
-				{% elif params.groupcate == 'J' %}
-					跳出页
-				{% else %}
-					所有页面
-				{% endif %}
+		<li class="dropdown" id="conditions">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#conditions">
+				自定义条件
 				<b class="caret"></b>
 			</a>
 			<ul class="dropdown-menu">
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=A&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">所有页面</a>
+					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype={{params.datetype}}&condition_id=0">所有数据（无条件）</a>
 				</li>
+				{%for condition in conditions%}
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=L&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">着陆页</a>
+					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype={{params.datetype}}&condition_id={{condition.id}}">{{condition.name}}</a>
 				</li>
-				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=F&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">第一次点击</a>
-				</li>
-				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate=J&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">跳出页</a>
-				</li>
-			</ul>
-		</li>-->
-		<li class="dropdown" id="groupdate">
-			<a class="dropdown-toggle" data-toggle="dropdown" href="#groupdate">
-				{% if params.groupdate == 'hourline' %}
-					小时
-				{% elif params.groupdate == 'monthline' %}
-					月
-				{% elif params.groupdate == 'weekline' %}
-					周
-				{% else %}
-					天
-				{% endif %}
-				<b class="caret"></b>
-			</a>
-			<ul class="dropdown-menu">
-				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=hourline">小时</a>
-				</li>
-				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=dayline">天</a>
-				</li>
-				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=weekline">周</a>
-				</li>
-				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate=monthline">月</a>
-				</li>
+				{%endfor%}
 			</ul>
 		</li>
-		<li class="dropdown" id="datatype">
-			<a class="dropdown-toggle" data-toggle="dropdown" href="#datatype">
-				{% if params.datatype == "delay" %}
-					停留时间
+		<li class="dropdown" id="datetype">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#datetype">
+				{% if params.datetype == 'hourline' %}
+					按小时统计
+				{% elif params.datetype == 'monthline' %}
+					按月统计
+				{% elif params.datetype == 'weekline' %}
+					按周统计
 				{% else %}
-					访问量
+					按天统计
 				{% endif %}
 				<b class="caret"></b>
 			</a>
 			<ul class="dropdown-menu">
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype=click&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">访问量</a>
+					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=hourline&condition_id={{params.condition_id}}">按小时统计</a>
 				</li>
 				<li>
-					<a href="?grouptype={{params.grouptype}}&datatype=delay&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline}}&groupdate={{params.groupdate}}">停留时间</a>
+					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=dayline&condition_id={{params.condition_id}}">按天统计</a>
+				</li>
+				<li>
+					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=weekline&condition_id={{params.condition_id}}">按周统计</a>
+				</li>
+				<li>
+					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=monthline&condition_id={{params.condition_id}}">按月统计</a>
 				</li>
 			</ul>
 		</li>
 		<li class="navbar-form">
-			<input id="sd" type="text" class="input-small" value="" placeholder="间隔({{params.interval}}{% if params.groupdate == 'H' %}小时{% elif params.groupdate == 'M' %}月{% elif params.groupdate == 'W' %}周{% else %}天{% endif %})" />
+			<input id="sd" type="text" class="input-small" value="" placeholder="间隔({{params.interval}}{% if params.datetype == 'H' %}小时{% elif params.datetype == 'M' %}月{% elif params.datetype == 'W' %}周{% else %}天{% endif %})" />
 		</li>
 	</ul>
-
 	<table class="table table-striped table-hover table-bordered trackgroup-list">
 		<thead>
 			<tr>
@@ -113,17 +82,17 @@
 			<tr>
 				<td>
 					{% if params.timeline = 0 %}
-					<a class="btn disabled" href="#">
+					<a class="btn disabled pull-left" href="#">
 					<i class="icon-chevron-left"></i></a>
 					{% else %}
-					<a class="btn pull-left" href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline|add:-1}}&groupdate={{params.groupdate}}"><i class="icon-chevron-left"></i></a>
+					<a class="btn pull-left" href="?interval={{params.interval}}&timeline={{params.timeline|add:-1}}&datetype={{params.datetype}}"><i class="icon-chevron-left"></i></a>
 					{% endif %}
 				</td>
 				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>
-				<td><a class="btn pull-right" href="?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval={{params.interval}}&timeline={{params.timeline|add:1}}&groupdate={{params.groupdate}}"><i class="icon-chevron-right"></i></a></td>
+				<td><a class="btn pull-right" href="?interval={{params.interval}}&timeline={{params.timeline|add:1}}&datetype={{params.datetype}}"><i class="icon-chevron-right"></i></a></td>
 		</tbody>
 	</table>
 </div>
@@ -132,7 +101,7 @@
 $(document).ready(function(){
 	$("#sd").blur(function(){
 		if(parseInt($(this).val())){
-			var querystring = "?grouptype={{params.grouptype}}&datatype={{params.datatype}}&groupcate={{params.groupcate}}&interval="+$(this).val()+"&timeline={{params.timeline}}&groupdate={{params.groupdate}}";
+			var querystring = "?interval="+$(this).val()+"&timeline={{params.timeline}}&datetype={{params.datetype}}&condition_id={{params.condition_id}}";
 			window.location.href = querystring;
 		}
 		else{

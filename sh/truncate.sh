@@ -1,7 +1,7 @@
 #!/bin/bash
-/data/mysql/bin/mysql datapanel << EOFMYSQL
-truncate table datapanel_session;
-truncate table datapanel_track;
-truncate table datapanel_trackgroup;
+/data/mysql/bin/mysql << EOFMYSQL
+drop database datapanel;
+create database datapanel charset=utf8;
 EOFMYSQL
-echo "finished"
+echo "drop db finished"
+python ../manage.py syncdb
