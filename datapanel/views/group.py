@@ -54,6 +54,3 @@ def home(request, id):
     # process data
     return render(request, 'datapanel/group/home.html', {'project':project,'params':params,'times': times,'actions':actions,'conditions':conditions, 'data': data })
 
-def referer(request, id):
-    # deal with params
-    project = request.user.participate_projects.get(id = id)

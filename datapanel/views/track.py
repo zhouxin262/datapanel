@@ -54,10 +54,9 @@ def default(request):
         t.dateline = datetime.now(UTC())
         t.set_times()
         # set step
-        if prv_track:
-            t.step = prv_track.step+1
-        else:
-            t.step = 1
+        t.step = t.session.track_count + 1
+        session.track_count = session.track_count + 1
+        session.save()
         # todo : set timelength
         t.save()
 
@@ -93,9 +92,13 @@ def default(request):
         if t.param_display().has_key('referer_parsed'):
             r = Referer()
             r.session = session
-            r.site = t.param_display()['referer_site']
-            r.keyword = t.param_display()['referer_keyword']
-            r.url = t.param_display()['referer']
+            param = t.param_display()
+            r.site = param['referer_site']
+            r.url = param['referer']
+            if param.has_key('referer_keyword'):
+                r.keyword = param['referer_keyword']
+            else:
+                r.keyword = ''
             r.save()
 
     if request.GET.get('p', ''):

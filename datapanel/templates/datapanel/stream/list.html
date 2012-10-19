@@ -25,19 +25,19 @@
 				</h3>
 				<div>
 					<p>
-						{% if session.first_track.param_display.referer_parsed %}
-							来自 {{ session.first_track.param_display.referer_site }}
-							{%if session.first_track.param_display.referer_keyword%}
-								关键词：<a href="{{session.first_track.param_display.referer}}" title="{{session.first_track.param_display.referer}}">{{ session.first_track.param_display.referer_keyword }}</a>
+						{% if session.last_referer %}
+							来自 {{ session.last_referer.site }}
+							{%if session.last_referer.keyword%}
+								关键词：<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.keyword }}</a>
 							{% else %}
-								<a href="{{session.first_track.param_display.referer}}" title="{{session.first_track.param_display.referer}}">{{ session.first_track.param_display.referer|urlizetrunc:30 }}</a>
+								<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.url|urlizetrunc:30 }}</a>
 							{%endif%}
 						{% endif %}
 					</p>
 					<p>
 					着陆
 					<a href="{{session.first_track.url}}" title="{{session.first_track.url}}">{{session.first_track.action}}</a>
-					共浏览 <strong>{{session.track.count}}</strong> 个页面
+					共浏览 <strong>{{session.track_count}}</strong> 个页面
 					</p>
 				</div>
 			</li>

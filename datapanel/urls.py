@@ -13,6 +13,7 @@ urlpatterns = patterns('',
 
     url(r'^(?P<id>\d+)/stream/$', 'datapanel.views.stream.list', name='stream_list'),
     url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream.view', name='stream_view'),
+    url(r'^(?P<id>\d+)/referer/$', 'datapanel.views.stream.referer_list', name='referer_list'),
 
     url(r'^(?P<id>\d+)/group/$', 'datapanel.views.group.home', name='group_home'),
 

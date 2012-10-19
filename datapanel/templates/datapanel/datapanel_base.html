@@ -77,12 +77,11 @@
 		<a href="{%url stream_list project.id%}">访问路径</a>
 	</li>
 	{% endblock subnav-stream %}
+	{% block subnav-referer %}
 	<li>
-		<a href="#">Explore</a>
+		<a href="{%url referer_list project.id%}">来源分析</a>
 	</li>
-	<li>
-		<a href="#">Insight</a>
-	</li>
+	{% endblock subnav-referer %}
 	<li class="nav-header">设置</li>
     {% block subnav-setting  %}
 	<li>
