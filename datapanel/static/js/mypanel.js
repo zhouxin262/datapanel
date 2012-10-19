@@ -1,5 +1,5 @@
-//var host = '111.67.195.174';
-var host = '127.0.0.1:8000';
+var host = '111.67.195.174';
+//var host = '127.0.0.1:8000';
 var key = 'caccf5abd685f38ff89b5ad7bbdcc651';
 
 jx = {
