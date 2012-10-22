@@ -54,3 +54,18 @@ def home(request, id):
     # process data
     return render(request, 'datapanel/group/home.html', {'project':project,'params':params,'times': times,'actions':actions,'conditions':conditions, 'data': data })
 
+# def action(request, id):
+#     # deal with action
+#     project = request.user.participate_projects.get(id = id)
+#     args = {'session__project': project, groupby +'__contains': keyword}
+
+#     referers = Referer.objects.filter(**args).exclude(**{groupby:""}).values(groupby).annotate(c = Count('id')).order_by('-c')
+#     paginator = Paginator(referers, 25)
+#     page = request.GET.get('page')
+#     try:
+#         referer_list = paginator.page(page)
+#     except PageNotAnInteger:
+#         referer_list = paginator.page(1)
+#     except EmptyPage:
+#         referer_list = paginator.page(paginator.num_pages)
+#     return render(request, 'datapanel/stream/referer_list.html', {'project':project, 'referer_list':referer_list,'params':params})

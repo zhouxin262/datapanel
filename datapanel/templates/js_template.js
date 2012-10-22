@@ -1,5 +1,4 @@
-//var host = '111.67.195.174';
-var host = '127.0.0.1:8000';
+var host = '111.67.195.174';
 var key = '{{params.key}}';
 
 jx = {

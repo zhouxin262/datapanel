@@ -102,6 +102,33 @@ class Track(models.Model):
     weekline = models.DateTimeField(auto_now_add=False, verbose_name=u"周")
     monthline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
 
+    def set_value(self, name, value):
+        tv = TrackValue.objects.get_or_create(track=self, name=name)
+        tv[0].value = value
+        tv[0].save()
+        return tv[0]
+
+    def get_value(self, name):
+        try:
+            tv = TrackValue.objects.get(track=self, name=name)
+            return tv.value
+        except TrackValue.DoesNotExist:
+            return None
+
+    def set_condition_result(self, condition, result):
+        tcr = TrackConditionResult.objects.get_or_create(track = self, condition=condition)
+        tcr[0].result = result
+        tcr[0].save()
+        return tcr[0]
+
+    def get_condition_result(self, condition):
+        try:
+            tcr = TrackConditionResult.objects.get(track = self, condition=condition)
+            return tcr.result
+        except TrackConditionResult.DoesNotExist:
+            return None
+
+
     def action_display(self):
         return smart_decode(slef.action).encode('utf-8')
 
@@ -150,6 +177,28 @@ class TrackCondition(models.Model):
     project = models.ForeignKey(Project, related_name='trackcondition')
     name = models.CharField(max_length=20, verbose_name=u'条件命名')
 
+    def run_test(self, track):
+        test_result = False
+        for i, tester in enumerate(self.tracktester.all()):
+            result = False
+            if tester.test_operator == 'gt':
+                result = getattr(track, tester.col_name) > int(tester.test_value)
+            elif tester.test_operator == 'eq':
+                result = getattr(track, tester.col_name) == int(tester.test_value)
+            elif tester.test_operator == 'lt':
+                result = getattr(track, tester.col_name) < int(tester.test_value)
+
+            if i == 0:
+                test_result = result
+
+            if tester.operator == "AND":
+                test_result = test_result and result
+            else:
+                test_result = test_result or result
+
+        return test_result
+
+
 class TrackConditionTester(models.Model):
     """
     TrackConditionTester
@@ -185,6 +234,16 @@ class TrackGroupByClick(models.Model):
         if save:
             self.save()
         return self.value
+
+class TrackValue(models.Model):
+    track = models.ForeignKey(Track, related_name='value')
+    name = models.CharField(max_length=20, verbose_name=u'参数')
+    value = models.CharField(max_length=255, verbose_name=u'值')
+
+class TrackConditionResult(models.Model):
+    track = models.ForeignKey(Track, related_name='trackconditionresult')
+    condition = models.ForeignKey(TrackCondition, related_name='trackconditionresult', verbose_name=u'满足条件表达式')
+    result = models.BooleanField(verbose_name=u'条件比对结果', default=False)
 
 class SessionCondition(models.Model):
     """

@@ -3,7 +3,7 @@ import ast, time
 from datetime import datetime
 from django.http import HttpResponse
 from datapanel.utils import UTC
-from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByClick, Action
+from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByClick, Action, TrackValue
 
 def get_or_create_session(request):
     token = request.GET.get('k', -1)
@@ -35,7 +35,7 @@ def default(request):
         # filter actions
         try:
             prv_track = Track.objects.filter(session = session).order_by('-dateline')[0]
-            if prv_track.url == request.META.get('HTTP_REFERER',''):
+            if  prv_track.url == request.META.get('HTTP_REFERER','') and prv_track.action == request.GET.get('t',''):
                 # f5 refresh
                 return HttpResponse('', mimetype="application/javascript")
         except IndexError:
@@ -60,8 +60,8 @@ def default(request):
         # todo : set timelength
         if prv_track:
             timelength = t.dateline - prv_track.dateline
-            if timelength.seconds > 0 and timelength.seconds < 1800:
-                # half hour no move, definitely away from keyboard!
+            if timelength.seconds > 0 and timelength.seconds < 300:
+                # 5min no move, definitely away from keyboard!
                 prv_track.timelength = timelength.seconds
                 prv_track.save()
         t.timelength = 0
@@ -70,44 +70,32 @@ def default(request):
 
         for datetype in ['hourline', 'dayline', 'weekline', 'monthline']:
             conditions = TrackCondition.objects.filter(project = session.project)
-            print conditions
-            for i, condition in enumerate(conditions):
-                test_result = None
-                for tester in condition.tester.all():
-                    result = False
-                    if tester.test_operator == 'gt':
-                        result = getattr(t, tester.col_name) > int(tester.test_value)
-                    elif tester.test_operator == 'eq':
-                        result = getattr(t, tester.col_name) == int(tester.test_value)
-                    elif tester.test_operator == 'lt':
-                        result = getattr(t, tester.col_name) < int(tester.test_value)
-
-                    if i == 0:
-                        test_result = result
-                    if tester.operator == "AND":
-                        test_result = test_result and result
-                    else:
-                        test_result = test_result or result
-                    print
-                print condition.id, test_result
+            for condition in conditions:
+                test_result = condition.run_test(t)
+                t.set_condition_result(condition, test_result)
                 if test_result:
                     trackGroupByClick = TrackGroupByClick.objects.get_or_create(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition = condition)
                     trackGroupByClick[0].increase_value()
 
             trackGroupByClick = TrackGroupByClick.objects.get_or_create(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition=None)
             trackGroupByClick[0].increase_value()
-        # deal with referer
-        if t.param_display().has_key('referer_parsed'):
-            r = Referer()
-            r.session = session
-            param = t.param_display()
-            r.site = param['referer_site']
-            r.url = param['referer']
-            if param.has_key('referer_keyword'):
-                r.keyword = param['referer_keyword']
-            else:
-                r.keyword = ''
-            r.save()
+        # deal with param
+        if t.param_display():
+            for k,v in t.param_display().items():
+                t.set_value(k, v)
+
+            # deal with referer
+            if t.param_display().has_key('referer_parsed'):
+                r = Referer()
+                r.session = session
+                param = t.param_display()
+                r.site = param['referer_site']
+                r.url = param['referer']
+                if param.has_key('referer_keyword'):
+                    r.keyword = param['referer_keyword']
+                else:
+                    r.keyword = ''
+                r.save()
 
     if request.GET.get('p', ''):
         params = ast.literal_eval(request.GET.get('p', ''))
