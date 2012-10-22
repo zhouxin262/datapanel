@@ -149,25 +149,30 @@ class Track(models.Model):
     def param_display(self):
         try:
             param = ast.literal_eval(self.param)
-            if param.has_key('referer'):
-                parsed_url = urlparse.urlparse(param['referer'])
-                if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
-                    param['referer_site'] = parsed_url.netloc
-                    param['referer_parsed'] = True
-                    querystring = urlparse.parse_qs(parsed_url.query, True)
-                    if parsed_url.netloc.find('baidu') != -1:
-                        #baidu
-                        if querystring.has_key('wd'):
-                            param['referer_keyword'] = smart_decode(querystring['wd'][0])
-                        elif querystring.has_key('word'):
-                            param['referer_keyword'] = smart_decode(querystring['word'][0])
-                    if parsed_url.netloc.find('sogou') != -1:
-                        #sogou
-                        if querystring.has_key('query'):
-                            param['referer_keyword'] = smart_decode(querystring['query'][0])
             return param
         except:
             return None
+
+    def referer(self):
+        if self.param_display().has_key('referer'):
+            param = self.param_display()
+            parsed_url = urlparse.urlparse(param['referer'])
+            if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
+                param['referer_site'] = parsed_url.netloc
+                param['referer_parsed'] = True
+                querystring = urlparse.parse_qs(parsed_url.query, True)
+                if parsed_url.netloc.find('baidu') != -1:
+                    #baidu
+                    if querystring.has_key('wd'):
+                        param['referer_keyword'] = smart_decode(querystring['wd'][0])
+                    elif querystring.has_key('word'):
+                        param['referer_keyword'] = smart_decode(querystring['word'][0])
+                if parsed_url.netloc.find('sogou') != -1:
+                    #sogou
+                    if querystring.has_key('query'):
+                        param['referer_keyword'] = smart_decode(querystring['query'][0])
+                return param
+        return None
 
 class TrackCondition(models.Model):
     """

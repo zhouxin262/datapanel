@@ -73,5 +73,5 @@ def testerdelete(request,id,condition_id, tester_id):
 def testerlist(request,id, condition_id):
     project = request.user.participate_projects.get(id = id)
     condition = TrackCondition.objects.get(project=project, id = condition_id)
-    tester_list = condition.tester.all()
+    tester_list = condition.tracktester.all()
     return render(request, 'datapanel/condition/tester/list.html',{'project':project, 'condition': condition, 'tester_list':tester_list,})

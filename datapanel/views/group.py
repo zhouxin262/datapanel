@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.db.models import Count
 from django.core import serializers
 
-from datapanel.utils import UTC
+from datapanel.utils import now
 from datapanel.models import TrackGroupByClick, TrackCondition
 
 def home(request, id):
@@ -22,22 +22,22 @@ def home(request, id):
     times = []
     if datetype == 'hourline':
         for i in range(5):
-            t = datetime.now(UTC()).replace(minute=0, second=0, microsecond=0) - timedelta(hours=i*interval + timeline)
+            t = now().replace(minute=0, second=0, microsecond=0) - timedelta(hours=i*interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'dayline':
         for i in range(5):
-            t = datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i*interval + timeline)
+            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i*interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'weekline':
         for i in range(5):
-            t = datetime.now(UTC()).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=datetime.now(UTC()).weekday()) - timedelta(days=7*i*interval + timeline*7)
+            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=now().weekday()) - timedelta(days=7*i*interval + timeline*7)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'monthline':
         for i in range(5):
-            month = (datetime.now(UTC()).month + i*interval + timeline ) % 12
+            month = (now().month + i*interval + timeline ) % 12
             if month == 0:
                 month = 12
-            t= datetime.now(UTC()).replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+            t= now().replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions

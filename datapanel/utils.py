@@ -1,3 +1,4 @@
+from django.conf import settings
 from datetime import tzinfo, timedelta, datetime
 
 def smart_decode(s):
@@ -11,6 +12,12 @@ def smart_decode(s):
 
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
+
+def now():
+    if settings.USE_TZ:
+        return datetime.now(UTC())
+    else:
+        return datetime.now()
 
 class UTC(tzinfo):
     """UTC"""

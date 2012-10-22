@@ -2,7 +2,7 @@
 import ast, time
 from datetime import datetime
 from django.http import HttpResponse
-from datapanel.utils import UTC
+from datapanel.utils import now
 from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByClick, Action, TrackValue
 
 def get_or_create_session(request):
@@ -51,7 +51,7 @@ def default(request):
         t.action = request.GET.get('t','')
         t.url = request.META.get('HTTP_REFERER','')
         t.param = request.GET.get('p','')
-        t.dateline = datetime.now(UTC())
+        t.dateline = now()
         t.set_times()
         # set step
         t.step = t.session.track_count + 1
@@ -85,10 +85,10 @@ def default(request):
                 t.set_value(k, v)
 
             # deal with referer
-            if t.param_display().has_key('referer_parsed'):
+            if t.referer():
                 r = Referer()
                 r.session = session
-                param = t.param_display()
+                param = t.referer()
                 r.site = param['referer_site']
                 r.url = param['referer']
                 if param.has_key('referer_keyword'):

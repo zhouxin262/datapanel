@@ -6,21 +6,71 @@
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
 
-<form method="post" action="{% url django.contrib.auth.views.login %}">{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
-<p><a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="{% url registration_register %}">Need an account</a>?</p>
-
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
-
+<style type="text/css">
+.title {margin:15px 0; padding: 15px 120px; font-size:16px; font-weight: bold; border-bottom: 1px solid #ddd}
+.reset {margin:15px 0;}
+.actions {margin:15px 0; padding: 15px 120px; border-top: 1px solid #ddd}
+</style>
+<div id="signin" class="span6 well">
+    <div class="title">已有账号？请登录:</div>
+    <form action="{% url django.contrib.auth.views.login %}" method="post">
+        {%csrf_token%}
+            <input type="hidden" name="next" value="/">
+            <fieldset>
+                    <div class="clearfix offset1">
+                        <label for="iusername"><span>用户名:</span></label>
+                        <div class="input">
+                                {{ form.username }}
+                        </div>
+                    </div>
+                    <div class="clearfix offset1">
+                        <label for="ipassword"><span>密码:</span></label>
+                        <div class="input">
+                                {{ form.password }}
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <input type="hidden" name="next" value="{{ next }}" />
+                        <input tabindex="3" class="btn-primary btn " type="submit" value="登 录">
+                        <p class="reset">忘记密码？<a tabindex="4" href="{% url auth_password_reset %}" title="忘记密码">点击找回</a></p>
+                    </div>
+            </fieldset>
+    </form>
+</div>
+<div id="signup" class="span5 well">
+    <div class="title">免费注册！</div>
+    <form action="{% url registration_register %}" method="post" class="form-stacked">
+        {%csrf_token%}
+            <fieldset style="margin-left:100px">
+                    <div class="clearfix">
+                            <label for="isignup_username">用户名:</label>
+                            <div class="input">
+                                    <input id="id_username" type="text" class="required" name="username" maxlength="30">
+                            </div>
+                    </div>
+                    <div class="clearfix">
+                            <label for="isignup_email">Email:</label>
+                            <div class="input">
+                                    <input id="id_email" type="text" class="required" name="email" maxlength="75">
+                            </div>
+                    </div>
+                    <div class="clearfix">
+                            <label for="isignup_password">密码:</label>
+                            <div class="input">
+                                    <input id="id_password1" type="password" class="required" name="password1">
+                            </div>
+                    </div>
+                    <div class="clearfix">
+                            <label for="isignup_password">重复密码:</label>
+                            <div class="input">
+                                    <input id="id_password2" type="password" class="required" name="password2">
+                            </div>
+                    </div>
+                    <div class="actions" style="margin-left:-100px;padding-left:100px">
+                        <input tabindex="9" class="btn btn-success" type="submit" value="创建账号，发送激活Email">
+                    </div>
+            </fieldset>
+    </form>
+</div>
+<script>$("#id_username").focus();</script>
 {% endblock %}
