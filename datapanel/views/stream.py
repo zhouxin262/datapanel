@@ -8,18 +8,18 @@ from datapanel.models import Referer
 def list(request, id):
     project = request.user.participate_projects.get(id = id)
 
-    # #排序
-    # order = request.GET.get('order', 't')
-    # if order == 'c':
-    #     project_sessions = project.session.all().annotate(c=Count('track')).order_by('-c')
-    # else:
-    #     project_sessions = project.session.all().annotate(c=Count('track')).order_by('-end_time')
+    #排序
+    order = request.GET.get('order', 't')
+    if order == 'c':
+        project_sessions = project.session.all().order_by('-track_count')
+    else:
+        project_sessions = project.session.all().order_by('-id')
 
     #过滤
     # param_filter = request.GET.get('filter', '')
     # if param_filter:
     #     project_sessions = project_sessions.filter(param_contains = param_filter)
-    project_sessions = project.session.all().order_by('-id')
+
     paginator = Paginator(project_sessions, 25)
     page = request.GET.get('page')
     try:
@@ -45,7 +45,8 @@ def referer_list(request, id):
     # deal with params
     project = request.user.participate_projects.get(id = id)
     args = {'session__project': project, groupby +'__contains': keyword}
-    referers = Referer.objects.filter(**args).values(groupby).annotate(c = Count('id')).order_by('-c')
+    #exlude_args =
+    referers = Referer.objects.filter(**args).exclude(**{groupby:""}).values(groupby).annotate(c = Count('id')).order_by('-c')
     paginator = Paginator(referers, 25)
     page = request.GET.get('page')
     try:

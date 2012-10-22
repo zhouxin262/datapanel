@@ -95,7 +95,7 @@ class Track(models.Model):
     # mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
     # is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
     step = models.IntegerField(max_length=50,null=False,default=0)
-    # timelength = models.IntegerField(max_length=50, null=False, default=0)
+    timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
     hourline = models.DateTimeField(auto_now_add=False, verbose_name=u"小时")
     dayline = models.DateTimeField(auto_now_add=False, verbose_name=u"天")
@@ -147,7 +147,7 @@ class TrackCondition(models.Model):
     TrackCondition
     only support 'equal' condition for now
     """
-    project = models.ForeignKey(Project, related_name='condition')
+    project = models.ForeignKey(Project, related_name='trackcondition')
     name = models.CharField(max_length=20, verbose_name=u'条件命名')
 
 class TrackConditionTester(models.Model):
@@ -158,7 +158,7 @@ class TrackConditionTester(models.Model):
     OPERATOR_CHOICES = (('OR', 'OR'), ('AND', 'AND'))
     TESTEROPERATOR_CHOICES = (('gt', '大于'), ('eq', '等于'), ('lt', '小于'))
     COLNAME_CHOICES = (('action', '动作名称'), ('step', '操作步骤'), ('mark', '标志'))
-    condition = models.ForeignKey(TrackCondition, related_name='tester')
+    condition = models.ForeignKey(TrackCondition, related_name='tracktester')
     operator = models.CharField(max_length=20, verbose_name="与或关系", choices=OPERATOR_CHOICES)
     col_name = models.CharField(max_length=20, verbose_name=u'Track列名', choices=COLNAME_CHOICES)
     test_operator = models.CharField(max_length=255, verbose_name=u'运算符', choices=TESTEROPERATOR_CHOICES)
@@ -185,3 +185,25 @@ class TrackGroupByClick(models.Model):
         if save:
             self.save()
         return self.value
+
+class SessionCondition(models.Model):
+    """
+    SessionCondition
+    """
+    project = models.ForeignKey(Project, related_name='sessioncondition')
+    name = models.CharField(max_length=20,verbose_name=u'条件命名')
+
+class SessionConditionTester(models.Model):
+    """
+    TrackConditionTester
+    should be regex tester.
+    """
+    OPERATOR_CHOICES = (('OR', 'OR'), ('AND', 'AND'))
+    TESTEROPERATOR_CHOICES = (('gt', '大于'), ('eq', '等于'), ('lt', '小于'))
+    COLNAME_CHOICES = (('action', '动作名称'), ('param_payway', '操作步骤'), ('mark', '标志'))
+    condition = models.ForeignKey(SessionCondition, related_name='sessiontester')
+    operator = models.CharField(max_length=20, verbose_name="与或关系", choices=OPERATOR_CHOICES)
+    col_name = models.CharField(max_length=20, verbose_name=u'Track列名', choices=COLNAME_CHOICES)
+    test_operator = models.CharField(max_length=255, verbose_name=u'运算符', choices=TESTEROPERATOR_CHOICES)
+    test_value = models.CharField(max_length=255, verbose_name=u'值') # 以后考虑改成正则表达式
+

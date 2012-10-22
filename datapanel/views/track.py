@@ -58,7 +58,15 @@ def default(request):
         session.track_count = session.track_count + 1
         session.save()
         # todo : set timelength
+        if prv_track:
+            timelength = t.dateline - prv_track.dateline
+            if timelength.seconds > 0 and timelength.seconds < 1800:
+                # half hour no move, definitely away from keyboard!
+                prv_track.timelength = timelength.seconds
+                prv_track.save()
+        t.timelength = 0
         t.save()
+
 
         for datetype in ['hourline', 'dayline', 'weekline', 'monthline']:
             conditions = TrackCondition.objects.filter(project = session.project)
