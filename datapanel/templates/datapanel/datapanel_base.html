@@ -60,6 +60,11 @@
 		<a href="{%url group_home project.id%}">网页分析</a>
 	</li>
 	{% endblock subnav-group %}
+	{% block subnav-track %}
+	<li>
+		<a href="{%url track_list project.id%}">访问量分析</a>
+	</li>
+	{% endblock subnav-track %}
 	<li>
 		<a href="#">转化路径</a>
 	</li>

@@ -19,6 +19,9 @@ def now():
     else:
         return datetime.now()
 
+def today_str(format="%Y-%m-%d"):
+    return now().strftime(format)
+
 class UTC(tzinfo):
     """UTC"""
 

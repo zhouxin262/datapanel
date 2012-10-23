@@ -245,6 +245,10 @@ class TrackValue(models.Model):
     name = models.CharField(max_length=20, verbose_name=u'参数')
     value = models.CharField(max_length=255, verbose_name=u'值')
 
+    class Meta:
+        unique_together = (('track', 'name'), )
+
+
 class TrackConditionResult(models.Model):
     track = models.ForeignKey(Track, related_name='trackconditionresult')
     condition = models.ForeignKey(TrackCondition, related_name='trackconditionresult', verbose_name=u'满足条件表达式')

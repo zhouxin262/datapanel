@@ -1,9 +1,50 @@
 #coding=utf8
-import ast, time
+import ast, time, md5
 from datetime import datetime
 from django.http import HttpResponse
-from datapanel.utils import now
+from django.shortcuts import render
+from django.db.models import Count
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+
+from datapanel.utils import now, today_str
 from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByClick, Action, TrackValue
+
+@cache_page(60 * 5)
+def list(request, id):
+    project = request.user.participate_projects.get(id = id)
+
+    value_names = cache.get(id + '_trackvalue_names', 'DoesNotExist')
+    if value_names == 'DoesNotExist':
+        value_names = TrackValue.objects.filter(track__session__project = project).distinct().values('name')
+        cache.set(id + '_trackvalue_names', value_names)
+
+    start_date = request.GET.get('start_date', today_str())
+    end_date = request.GET.get('end_date', today_str())
+    groupby = request.GET.get('groupby', 'referer')
+    value = request.GET.get('value', 'action')
+
+    querystr = 'start_date=%s&end_date=%s&groupby=%s&value=%s' % (start_date, end_date, groupby, value)
+    params = {'start_date':start_date, 'end_date':end_date, 'groupby':groupby, 'value':value, 'querystr':querystr}
+    args = {'track__session__project':project, 'name': groupby, 'value__isnull': False, 'track__dateline__gte':start_date, 'track__dateline__lte':end_date}
+
+    tracks = TrackValue.objects.filter(**args).values('track__' + value, 'value').annotate(c = Count('value')).order_by('-c')
+
+    paginator = Paginator(tracks, 25)
+    page = request.GET.get('page')
+
+    try:
+        track_list = paginator.page(page)
+    except PageNotAnInteger:
+        track_list = paginator.page(1)
+    except EmptyPage:
+        track_list = paginator.page(paginator.num_pages)
+    return render(request, 'datapanel/track/list.html', {'project':project,
+        'value_names':value_names,
+        'params':params,
+        'track_list':track_list})
+
 
 def get_or_create_session(request):
     token = request.GET.get('k', -1)

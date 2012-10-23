@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count
+from django.views.decorators.cache import cache_page
 
 from datapanel.models import Referer
 
@@ -37,6 +38,7 @@ def view(request, id, sid):
     track_flow = session.track.all().order_by('-dateline')
     return render(request, 'datapanel/stream/view.html', {'project':project,'track_flow':track_flow})
 
+@cache_page(60 * 5)
 def referer_list(request, id):
     groupby = request.GET.get('groupby', 'keyword')
     keyword = request.GET.get('keyword', '')
