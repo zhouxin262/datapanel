@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/delete/$', 'datapanel.views.project.delete', name='project_delete'),
     url(r'^(?P<id>\d+)/setting/$', 'datapanel.views.project.setting', name='project_setting'),
 
-    url(r'^(?P<id>\d+)/track/$', 'datapanel.views.track.list', name='track_list'),
+    # url(r'^(?P<id>\d+)/track/$', 'datapanel.views.track.list', name='track_list'),
     # url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream.view', name='stream_view'),
     url(r'^(?P<id>\d+)/track/groupby_value/$', 'datapanel.views.track.groupby_value', name='track_groupby_value'),
     url(r'^(?P<id>\d+)/track/get_url_by_value/(?P<name>\w+)/(?P<value>\w+)/$', 'datapanel.views.track.get_url_by_value', name='track_get_url_by_value'),

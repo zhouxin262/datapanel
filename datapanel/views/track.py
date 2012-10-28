@@ -13,40 +13,33 @@ from django.contrib.auth.views import redirect_to_login
 from datapanel.utils import now, today_str
 from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByCondition, Action, TrackValue, TrackGroupByValue
 
-@cache_page(60 * 5)
-def list(request, id):
-    project = request.user.participate_projects.get(id = id)
 
-    value_names = cache.get(id + '_trackvalue_names', 'DoesNotExist')
-    if value_names == 'DoesNotExist':
-        value_names = TrackGroupByValue.objects.filter(project = project).distinct().values('name')
-        cache.set(id + '_trackvalue_names', value_names)
-
-    start_date = request.GET.get('start_date', today_str())
-    end_date = request.GET.get('end_date', today_str())
-    groupby = request.GET.get('groupby', 'referer')
-    value = request.GET.get('value', 'action')
-
-    querystr = 'start_date=%s&end_date=%s&groupby=%s&value=%s' % (start_date, end_date, groupby, value)
-    params = {'start_date':start_date, 'end_date':end_date, 'groupby':groupby, 'value':value, 'querystr':querystr}
-    args = {'track__session__project':project, 'name': groupby, 'value__isnull': False, 'track__dateline__gte':start_date, 'track__dateline__lte':end_date}
-
-    tracks = TrackValue.objects.filter(**args).values('track__' + value, 'value').annotate(c = Count('value')).order_by('-c')
-
-    paginator = Paginator(tracks, 25)
-    page = request.GET.get('page')
-
+def list_by_value(request, id, name = None, value = None):
     try:
-        track_list = paginator.page(page)
-    except PageNotAnInteger:
-        track_list = paginator.page(1)
-    except EmptyPage:
-        track_list = paginator.page(paginator.num_pages)
-    return render(request, 'datapanel/track/list.html', {'project':project,
-        'value_names':value_names,
-        'params':params,
-        'track_list':track_list})
+        project = request.user.participate_projects.get(id = id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
 
+    args = {'track__session__project': project }
+    if name:
+        args['name'] = name
+    if value:
+        args['value'] = value
+
+    tracks = TrackValue.objects.filter(**args)
+
+    paginator = Paginator(tracks, 30)
+    page = request.GET.get('page')
+    try:
+        track_flow = paginator.page(page)
+    except PageNotAnInteger:
+        track_flow = paginator.page(1)
+    except EmptyPage:
+        track_flow = paginator.page(paginator.num_pages)
+
+    return render(request, 'datapanel/track/list.html', {'project':project,'track_flow':track_flow})
+
+@cache_page(60 * 5)
 def groupby_value(request, id):
     try:
         project = request.user.participate_projects.get(id = id)
@@ -67,19 +60,19 @@ def groupby_value(request, id):
     # deal with time range
     times = []
     if datetype == 'hour':
-        for i in range(7)[::-1]:
+        for i in range(7):
             t = now().replace(minute=0, second=0, microsecond=0) - timedelta(hours=i*interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'day':
-        for i in range(7)[::-1]:
+        for i in range(7):
             t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i*interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'week':
-        for i in range(7)[::-1]:
+        for i in range(7):
             t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=now().weekday()) - timedelta(days=7*i*interval + timeline*7)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'month':
-        for i in range(7)[::-1]:
+        for i in range(7):
             year = now().year - ((i*interval + timeline) / 12)
             month = (now().month - i*interval + timeline ) % 12
             if month == 0:
