@@ -1,7 +1,6 @@
 #coding=utf-8
 import ast, time, md5
 from datetime import datetime, timedelta
-from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.db.models import Count

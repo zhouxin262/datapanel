@@ -3,7 +3,6 @@ import time
 from datetime import datetime, timedelta
 
 from django.shortcuts import render
-from django.core import serializers
 from django.contrib.auth.views import redirect_to_login
 
 from datapanel.utils import now
