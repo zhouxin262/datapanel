@@ -46,7 +46,7 @@ def home(request, id):
     actions = [a['action'] for a in TrackGroupByCondition.objects.filter(project=project).values('action').distinct().order_by('action')]
     # deal with conditions
     conditions = TrackCondition.objects.filter(project=project)
-    args = {'project': project, 'dateline__in': [t[1] for t in times], 'datetype': datetype + 'line'}
+    args = {'project': project, 'datetype': datetype + 'line'}
     if condition_id == 0:
         args['condition__isnull'] = True
     else:
@@ -59,7 +59,7 @@ def home(request, id):
             try:
                 args.update({'action':action, 'dateline': t[1]})
                 data[i]['data'].append((t[1], TrackGroupByCondition.objects.get(**args).value))
-            except:
+            except TrackGroupByCondition.DoesNotExist:
                 data[i]['data'].append((t[1], 0))
     return render(request, 'datapanel/group/home.html', {'project':project,'params':params,'times': times,'actions':actions,'conditions':conditions, 'data': data })
 
