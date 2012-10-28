@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.cache import cache
+from django.core import serializers
 from django.views.decorators.cache import cache_page
 from django.contrib.auth.views import redirect_to_login
 
@@ -66,19 +67,19 @@ def groupby_value(request, id):
     # deal with time range
     times = []
     if datetype == 'hour':
-        for i in range(7):
+        for i in range(7)[::-1]:
             t = now().replace(minute=0, second=0, microsecond=0) - timedelta(hours=i*interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'day':
-        for i in range(7):
+        for i in range(7)[::-1]:
             t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i*interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'week':
-        for i in range(7):
+        for i in range(7)[::-1]:
             t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=now().weekday()) - timedelta(days=7*i*interval + timeline*7)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'month':
-        for i in range(7):
+        for i in range(7)[::-1]:
             month = (now().month + i*interval + timeline ) % 12
             if month == 0:
                 month = 12
@@ -87,17 +88,8 @@ def groupby_value(request, id):
 
     # deal with actions
     actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name).values('value').distinct().order_by('value')]
-    args = {'project': project, 'datetype': datetype + 'line', 'name': name}
-
-    data = []
-    for i, action in enumerate(actions):
-        data.append({'label': action, 'data': []})
-        for j, t in enumerate(times):
-            try:
-                args.update({'name': name, 'value':action, 'dateline': t[1]})
-                data[i]['data'].append((t[1], TrackGroupByValue.objects.get(**args).count))
-            except TrackGroupByValue.DoesNotExist :
-                data[i]['data'].append((t[1], 0))
+    args = {'project': project, 'dateline__in': [t[1] for t in times], 'datetype': datetype + 'line', 'name': name}
+    data = serializers.serialize("json",TrackGroupByValue.objects.filter(**args), fields=('value','dateline','count'))
 
     # process data
     return render(request, 'datapanel/track/groupby_value.html', {'project':project,'params':params,'times': times,'actions':actions,'value_names':value_names, 'data': data })
