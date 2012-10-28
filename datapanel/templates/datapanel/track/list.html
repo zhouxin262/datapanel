@@ -1,7 +1,10 @@
 {%extends 'datapanel/datapanel_base.html'%}
+{% block title %}
+	{{project.name}} - 访问量参数分析
+{% endblock title %}
 {% block subnav-track %}
 <li class="active">
-	<a href="{%url stream_list project.id%}">访问量分析</a>
+	<a href="{%url stream_list project.id%}">访问量参数分析</a>
 </li>
 {% endblock subnav-track %}
 {% block content %}

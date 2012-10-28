@@ -5,15 +5,15 @@
 	<ul class="nav">
 		{% if project %}
 			<li class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">项目 - {{project.name}}</a>
-			<ul class="dropdown-menu">
-					{% for p in user.participate_projects.all %}
-					<li if="" project.id="=" p.id="" class="active" endif="">
-						<a href="{%url project_home p.id%}">{{p.name}}</a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">项目 - {{project.name}}</a>
+				<ul class="dropdown-menu">
+						{% for p in user.participate_projects.all %}
+						<li if="" project.id="=" p.id="" class="active" endif="">
+							<a href="{%url project_home p.id%}">{{p.name}}</a>
+						</li>
+						{% endfor %}
 					</li>
-					{% endfor %}
-				</li>
-			</ul>
+				</ul>
 			</li>
 		{% endif %}
 	</ul>
@@ -62,7 +62,7 @@
 	{% endblock subnav-group %}
 	{% block subnav-track %}
 	<li>
-		<a href="{%url track_list project.id%}">访问量分析</a>
+		<a href="{%url track_groupby_value project.id%}">访问量参数分析</a>
 	</li>
 	{% endblock subnav-track %}
 	<li>

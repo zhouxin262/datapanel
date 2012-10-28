@@ -3,6 +3,7 @@ from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+
 from datapanel.forms import ConditionForm, ConditionTesterForm
 from datapanel.models import TrackCondition, TrackConditionTester
 

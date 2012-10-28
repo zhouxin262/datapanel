@@ -1,4 +1,7 @@
 {%extends 'datapanel/datapanel_base.html'%}
+{% block title %}
+{{project.name}} - 访问路径
+{% endblock title %}
 {% block subnav-stream %}
 <li class="active">
 	<a href="{%url stream_list project.id%}">访问路径</a>
@@ -25,14 +28,14 @@
 				</h3>
 				<div>
 					<p>
-						{% if session.last_referer %}
-							来自 {{ session.last_referer.site }}
-							{%if session.last_referer.keyword%}
-								关键词：<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.keyword }}</a>
-							{% else %}
-								<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.url|urlizetrunc:30 }}</a>
-							{%endif%}
-						{% endif %}
+						{% if session.last_referer.referer_site %}
+						来自 {{ session.last_referer.referer_site }}
+						{%if session.last_referer.referer_keyword%}
+							关键词：<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.referer_keyword }}</a>
+						{% else %}
+							<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.url|urlizetrunc:30 }}</a>
+						{%endif%}
+						{%endif%}
 					</p>
 					<p>
 					着陆
@@ -52,14 +55,14 @@
 		 	</li>
 		  	{% if session_list.has_previous %}
 		    <li>
-		    	<a href="?{{querystr}}&page={{ session_list.previous_page_number }}">上一页</a>
+		    	<a href="?{{params.querystr}}&page={{ session_list.previous_page_number }}">上一页</a>
 		    </li>
 		    {% else %}
 		    <li class="disabled"><a>上一页</a></li>
 		    {% endif %}
 		    {% if session_list.has_next %}
 		    <li>
-		    	<a href="?{{querystr}}&page={{ session_list.next_page_number }}">下一页</a>
+		    	<a href="?{{params.querystr}}&page={{ session_list.next_page_number }}">下一页</a>
 		    </li>
 		    {% else %}
 		    <li class="disabled"><a>下一页</a></li>
@@ -70,22 +73,30 @@
 	<div class="span2">
 		<form class="form-horizontal">
 		<p>
+			排序
+	  	</p>
+		<p>
 	      <select name="order">
-	      	<option value="t">排序（默认按时间排序</option>
 	      	<option value="t">按时间排序</option>
 	      	<option value="c">按浏览页面数量排序</option>
 	      </select>
 	  	</p>
-		<!--<p>
-	      <select name="filter">
-	      	<option value="">来源（默认所有）</option>
-	      	<option value="b">来自百度</option>
-	      </select>
-	  	</p>-->
+		<p>
+			浏览页面数大于
+	  	</p>
+		<p>
+	      <input name="track_count__gt" type="input" class="input-small" >
+	  	</p>
 		<p>
 	      <button type="submit" class="btn">确定</button>
 	  	</p>
 		</form>
 	</div>
 </div>
+<script>
+	$(function(){
+		$("select[name=order]").val('{{params.order}}');
+		$("input[name=track_count__gt]").val('{{params.track_count__gt}}');
+	});
+</script>
 {% endblock content %}

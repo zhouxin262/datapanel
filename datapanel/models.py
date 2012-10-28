@@ -36,6 +36,8 @@ class Action(models.Model):
 class Session(models.Model):
     """
     User sessions
+    ALTER TABLE `datapanel`.`datapanel_session`
+    ADD INDEX `datapanel_session_trackcount` (`track_count` ASC) ;
     """
     project = models.ForeignKey(Project, related_name='session')
     sn = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
@@ -50,25 +52,25 @@ class Session(models.Model):
 
     def first_track(self):
         try:
-            return self.track.filter().order_by('dateline')[0]
+            return self.track.filter().order_by('id')[0]
         except IndexError:
             return None
 
     def last_track(self):
         try:
-            return self.track.filter().order_by('-dateline')[0]
+            return self.track.filter().order_by('-id')[0]
         except IndexError:
             return None
 
     def first_referer(self):
         try:
-            return self.referer.filter().order_by('dateline')[0]
+            return TrackValue.objects.filter(name='referer_site', track__session = self).order_by('track__id')[0].track.param_display()
         except IndexError:
             return None
 
     def last_referer(self):
         try:
-            return self.referer.filter().order_by('-dateline')[0]
+            return TrackValue.objects.filter(name='referer_site', track__session = self).order_by('-track__id')[0].track.param_display()
         except IndexError:
             return None
 
@@ -103,10 +105,13 @@ class Track(models.Model):
     monthline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
 
     def set_value(self, name, value):
-        tv = TrackValue.objects.get_or_create(track=self, name=name)
-        tv[0].value = value
-        tv[0].save()
-        return tv[0]
+        try:
+            tv = TrackValue.objects.get_or_create(track=self, name=name)
+            tv[0].value = value
+            tv[0].save()
+            return tv[0]
+        except:
+            return None
 
     def get_value(self, name):
         try:
@@ -149,17 +154,9 @@ class Track(models.Model):
     def param_display(self):
         try:
             param = ast.literal_eval(self.param)
-            return param
-        except:
-            return None
-
-    def referer(self):
-        if self.param_display().has_key('referer'):
-            param = self.param_display()
             parsed_url = urlparse.urlparse(param['referer'])
             if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
                 param['referer_site'] = parsed_url.netloc
-                param['referer_parsed'] = True
                 querystring = urlparse.parse_qs(parsed_url.query, True)
                 if parsed_url.netloc.find('baidu') != -1:
                     #baidu
@@ -171,8 +168,21 @@ class Track(models.Model):
                     #sogou
                     if querystring.has_key('query'):
                         param['referer_keyword'] = smart_decode(querystring['query'][0])
-                return param
-        return None
+            return param
+        except:
+            return None
+
+    def prev_track(self):
+        try:
+            return self.session.track.filter(id__lt=self.id)[0]
+        except:
+            return None
+
+    def next_track(self):
+        try:
+            return self.session.track.filter(id__gt=self.id).order_by('id')[0]
+        except:
+            return None
 
 class TrackCondition(models.Model):
     """
@@ -218,12 +228,14 @@ class TrackConditionTester(models.Model):
     test_operator = models.CharField(max_length=255, verbose_name=u'运算符', choices=TESTEROPERATOR_CHOICES)
     test_value = models.CharField(max_length=255, verbose_name=u'值') # 以后考虑改成正则表达式
 
-class TrackGroupByClick(models.Model):
+class TrackGroupByCondition(models.Model):
     """
     Brand new Trackgroup only contained data grouped by action, hour, count
     removed other kinds of data such as: url, average timelength
+
+    ALTER TABLE `datapanel`.`datapanel_trackgroupbyclick` RENAME TO  `datapanel`.`datapanel_trackgroupbycondition` ;
     """
-    project = models.ForeignKey(Project, related_name='trackgroup')
+    project = models.ForeignKey(Project, related_name='trackgroupbycondition')
     action = models.CharField(max_length=255, verbose_name=u'事件', default='')
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
     value = models.IntegerField(u'统计数值', null=True)
@@ -247,6 +259,27 @@ class TrackValue(models.Model):
 
     class Meta:
         unique_together = (('track', 'name'), )
+
+class TrackGroupByValue(models.Model):
+    """
+    TrackGroupbyValue, likes TrackGroupByCondition
+    """
+    project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
+    name = models.CharField(max_length=255, verbose_name=u'参数名', default='')
+    value = models.IntegerField(u'参数值', null=True)
+    datetype = models.CharField(u'统计时间', null=True, max_length=12)
+    count = models.IntegerField(u'统计数值', null=True)
+    dateline = models.IntegerField(verbose_name=u"时间")
+
+    def increase_value(self, save=True):
+        if self.count:
+            self.count = self.count+1
+        else:
+            self.count = 1
+
+        if save:
+            self.save()
+        return self.count
 
 
 class TrackConditionResult(models.Model):

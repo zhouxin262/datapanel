@@ -1,15 +1,17 @@
-#coding=utf8
+#coding=utf-8
 import ast, time, md5
-from datetime import datetime
-from django.http import HttpResponse
+from datetime import datetime, timedelta
+from django.core import serializers
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
+from django.contrib.auth.views import redirect_to_login
 
 from datapanel.utils import now, today_str
-from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByClick, Action, TrackValue
+from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByCondition, Action, TrackValue, TrackGroupByValue
 
 @cache_page(60 * 5)
 def list(request, id):
@@ -17,7 +19,7 @@ def list(request, id):
 
     value_names = cache.get(id + '_trackvalue_names', 'DoesNotExist')
     if value_names == 'DoesNotExist':
-        value_names = TrackValue.objects.filter(track__session__project = project).distinct().values('name')
+        value_names = TrackGroupByValue.objects.filter(project = project).distinct().values('name')
         cache.set(id + '_trackvalue_names', value_names)
 
     start_date = request.GET.get('start_date', today_str())
@@ -44,6 +46,64 @@ def list(request, id):
         'value_names':value_names,
         'params':params,
         'track_list':track_list})
+
+def groupby_value(request, id):
+    try:
+        project = request.user.participate_projects.get(id = id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+
+    # deal with value_names
+    value_names = cache.get(id + '_trackvalue_names', 'DoesNotExist')
+    if value_names == 'DoesNotExist':
+        value_names = TrackGroupByValue.objects.filter(project = project).distinct().values('name')
+        cache.set(id + '_trackvalue_names', value_names)
+
+    datetype = request.GET.get('datetype','day')
+    name = request.GET.get('name', value_names[0]['name'])
+    interval = int(request.GET.get('interval',1))
+    timeline = int(request.GET.get('timeline',0))
+    params = {'datetype':datetype,'interval':interval,'timeline':timeline,'name':name}
+    # deal with time range
+    times = []
+    if datetype == 'hour':
+        for i in range(7)[::-1]:
+            t = now().replace(minute=0, second=0, microsecond=0) - timedelta(hours=i*interval + timeline)
+            times.append((t, int(time.mktime(t.timetuple()))))
+    elif datetype == 'day':
+        for i in range(7)[::-1]:
+            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i*interval + timeline)
+            times.append((t, int(time.mktime(t.timetuple()))))
+    elif datetype == 'week':
+        for i in range(7)[::-1]:
+            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=now().weekday()) - timedelta(days=7*i*interval + timeline*7)
+            times.append((t, int(time.mktime(t.timetuple()))))
+    elif datetype == 'month':
+        for i in range(7)[::-1]:
+            month = (now().month + i*interval + timeline ) % 12
+            if month == 0:
+                month = 12
+            t= now().replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+            times.append((t, int(time.mktime(t.timetuple()))))
+
+    # deal with actions
+    actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name).values('value').distinct().order_by('value')]
+    args = {'project': project, 'dateline__in': [t[1] for t in times], 'datetype': datetype + 'line', 'name': name}
+    data = serializers.serialize("json",TrackGroupByValue.objects.filter(**args), fields=('value','dateline','count'))
+
+    # process data
+    return render(request, 'datapanel/track/groupby_value.html', {'project':project,'params':params,'times': times,'actions':actions,'value_names':value_names, 'data': data })
+
+def get_url_by_value(request, id, name, value):
+    try:
+        project = request.user.participate_projects.get(id = id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+
+    ts = TrackValue.objects.filter(track__session__project = project, name = name, value = value)[:1]
+    if ts:
+        return HttpResponseRedirect(ts[0].track.url)
+
 
 
 def get_or_create_session(request):
@@ -98,45 +158,39 @@ def default(request):
         t.step = t.session.track_count + 1
         session.track_count = session.track_count + 1
         session.save()
-        # todo : set timelength
+        # set timelength
         if prv_track:
             timelength = t.dateline - prv_track.dateline
-            if timelength.seconds > 0 and timelength.seconds < 300:
-                # 5min no move, definitely away from keyboard!
-                prv_track.timelength = timelength.seconds
+            if timelength.seconds < 900:
+                # 15min no move, definitely away from keyboard!
+                prv_track.timelength = timelength.seconds + 1
                 prv_track.save()
         t.timelength = 0
         t.save()
 
+        # deal with param
+        if t.param_display():
+            for k,v in t.param_display().items():
+                if k not in ('referer', ):
+                    t.set_value(k, v)
 
         for datetype in ['hourline', 'dayline', 'weekline', 'monthline']:
+            if t.param_display():
+                for k,v in t.param_display().items():
+                    if k not in ('referer', ):
+                        trackGroupByValue = TrackGroupByValue.objects.get_or_create(project = s[0].project, datetype=datetype, name=k, value=v, dateline=time.mktime(getattr(t, datetype).timetuple()))
+                        trackGroupByValue[0].increase_value()
+
             conditions = TrackCondition.objects.filter(project = session.project)
             for condition in conditions:
                 test_result = condition.run_test(t)
                 t.set_condition_result(condition, test_result)
                 if test_result:
-                    trackGroupByClick = TrackGroupByClick.objects.get_or_create(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition = condition)
-                    trackGroupByClick[0].increase_value()
+                    tg = TrackGroupByCondition.objects.get_or_create(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition = condition)
+                    tg[0].increase_value()
 
-            trackGroupByClick = TrackGroupByClick.objects.get_or_create(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition=None)
-            trackGroupByClick[0].increase_value()
-        # deal with param
-        if t.param_display():
-            for k,v in t.param_display().items():
-                t.set_value(k, v)
-
-            # deal with referer
-            if t.referer():
-                r = Referer()
-                r.session = session
-                param = t.referer()
-                r.site = param['referer_site']
-                r.url = param['referer']
-                if param.has_key('referer_keyword'):
-                    r.keyword = param['referer_keyword']
-                else:
-                    r.keyword = ''
-                r.save()
+            tg = TrackGroupByCondition.objects.get_or_create(project = s[0].project, datetype=datetype, action=t.action, dateline=time.mktime(getattr(t, datetype).timetuple()), condition=None)
+            tg[0].increase_value()
 
     if request.GET.get('p', ''):
         params = ast.literal_eval(request.GET.get('p', ''))
