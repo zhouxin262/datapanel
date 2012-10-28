@@ -266,7 +266,7 @@ class TrackGroupByValue(models.Model):
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
     name = models.CharField(max_length=255, verbose_name=u'参数名', default='')
-    value = models.IntegerField(u'参数值', null=True)
+    value = models.CharField(u'参数值', max_length=255, null=True)
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
     count = models.IntegerField(u'统计数值', null=True)
     dateline = models.IntegerField(verbose_name=u"时间")
