@@ -13,32 +13,6 @@ from django.contrib.auth.views import redirect_to_login
 from datapanel.utils import now, today_str
 from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByCondition, Action, TrackValue, TrackGroupByValue
 
-
-def list_by_value(request, id, name = None, value = None):
-    try:
-        project = request.user.participate_projects.get(id = id)
-    except AttributeError:
-        return redirect_to_login(request.get_full_path())
-
-    args = {'track__session__project': project }
-    if name:
-        args['name'] = name
-    if value:
-        args['value'] = value
-
-    tracks = TrackValue.objects.filter(**args)
-
-    paginator = Paginator(tracks, 30)
-    page = request.GET.get('page')
-    try:
-        track_flow = paginator.page(page)
-    except PageNotAnInteger:
-        track_flow = paginator.page(1)
-    except EmptyPage:
-        track_flow = paginator.page(paginator.num_pages)
-
-    return render(request, 'datapanel/track/list.html', {'project':project,'track_flow':track_flow})
-
 @cache_page(60 * 5)
 def groupby_value(request, id):
     try:
@@ -81,10 +55,19 @@ def groupby_value(request, id):
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions
-    actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name).values('value').distinct().order_by('value')]
-    args = {'project': project, 'dateline__in': [t[1] for t in times], 'datetype': datetype + 'line', 'name': name}
-    data = serializers.serialize("json",TrackGroupByValue.objects.filter(**args), fields=('value','dateline','count'))
+    actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
+    args = {'project': project, 'datetype': datetype + 'line', 'name': name}
 
+    data = []
+    for i, action in enumerate(actions):
+        print action
+        data.append({'label': action, 'data': []})
+        for j, t in enumerate(times):
+            try:
+                args.update({'value':action, 'dateline': t[1]})
+                data[i]['data'].append((t[1], TrackGroupByValue.objects.get(**args).count))
+            except TrackGroupByValue.DoesNotExist :
+                data[i]['data'].append((t[1], 0))
     # process data
     return render(request, 'datapanel/track/groupby_value.html', {'project':project,'params':params,'times': times,'actions':actions,'value_names':value_names, 'data': data })
 
