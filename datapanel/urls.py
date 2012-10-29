@@ -39,6 +39,11 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/update/$', 'datapanel.views.funnel.update', name='funnel_update'),
     url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/delete/$', 'datapanel.views.funnel.delete', name='funnel_delete'),
 
+    url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/action/$', 'datapanel.views.funnel.actionlist', name='funnel_actionlist'),
+    url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/action/create/$', 'datapanel.views.funnel.actioncreate', name='funnel_actioncreate'),
+    url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/action/(?P<action_id>\d+)/update/$', 'datapanel.views.funnel.actionupdate', name='funnel_actionupdate'),
+    url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/action/(?P<action_id>\d+)/delete/$', 'datapanel.views.funnel.actiondelete', name='funnel_actiondelete'),
+
     url(r'^(?P<id>\d+)/condition/$', 'datapanel.views.condition.list', name='condition_list'),
     url(r'^(?P<id>\d+)/condition/create/$', 'datapanel.views.condition.create', name='condition_create'),
     url(r'^(?P<id>\d+)/condition/(?P<condition_id>\d+)/update/$', 'datapanel.views.condition.update', name='condition_update'),

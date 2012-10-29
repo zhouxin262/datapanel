@@ -1,10 +1,12 @@
 {%extends 'datapanel/datapanel_base.html'%}
-
-{% block subnav-condition %}
+{% block title %}
+{{project.name}} - 转化路径
+{% endblock title %}
+{% block subnav-funnel %}
     <li class="active">
-        <a href="{%url condition_list project.id%}">条件设定</a>
+        <a href="{%url funnel_home project.id%}">转化路径</a>
     </li>
-{% endblock subnav-condition %}
+{% endblock subnav-funnel %}
 {% block content %}
 <div class="well span10">
 	<form action="" method="post" class="form-horizontal">

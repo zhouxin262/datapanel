@@ -39,15 +39,15 @@ class ConditionTesterForm(BootstrapModelForm):
 class FunnelForm(BootstrapModelForm):
     class Meta:
         layout = (
-            Fieldset(u"转化路径设定", "name" ),
+            Fieldset(u"", "name" ),
             )
         model = Funnel
         exclude = ('project')
 
-class FunnelTesterForm(BootstrapModelForm):
+class FunnelActionForm(BootstrapModelForm):
     class Meta:
         layout = (
-            Fieldset(u"条件设定", "operator", "col_name", "test_operator", "test_value"),
+            Fieldset(u"", "action", "order",),
             )
         model = FunnelAction
         exclude = ('funnel')

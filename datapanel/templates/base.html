@@ -9,10 +9,10 @@
 	{% block cssblock %}{% endblock cssblock %}
 	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.time.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dataTables.min.js"></script>
+	{% block jsblock %}{% endblock jsblock %}
 	<title>{%block title%}{%endblock%}</title>
 </head>
 

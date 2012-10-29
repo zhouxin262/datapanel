@@ -33,6 +33,9 @@ class Action(models.Model):
     xpath = models.CharField(max_length=255, verbose_name=u'控件', null=True,  blank=True)
     event = models.CharField(max_length=255, verbose_name=u'事件', null=True, blank=True)
 
+    def __unicode__(self):
+        return self.name
+
 class Session(models.Model):
     """
     User sessions

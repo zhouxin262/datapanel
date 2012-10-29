@@ -1,7 +1,13 @@
 {%extends 'datapanel/datapanel_base.html'%}
+{% block jsblock %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.categories.js"></script>
+{% endblock jsblock %}
+{% block title %}
+{{project.name}} - 转化路径
+{% endblock title %}
 {% block subnav-funnel %}
     <li class="active">
-        <a href="{%url condition_list project.id%}">转化路径</a>
+        <a href="{%url funnel_home project.id%}">转化路径</a>
     </li>
 {% endblock subnav-funnel %}
 {% block content %}
@@ -9,6 +15,42 @@
         <div class="page-header">
             <h1>{{project.name}} / 转化路径</h1>
         </div>
-        <a class="btn" href="{%url condition_create project.id%}">添加条件</a>
+        <div class="">
+            <ul class="nav nav-pills">
+                <li class="dropdown" id="funnels">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#funnels">
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {%for f in funnel_list%}
+                        <li>
+                            <a href="?funnel_id={{f.id}}">{{f.name}}</a>
+                        </li>
+                        {%endfor%}
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div id="placeholder" style="width:969px;height:300px;"></div>
+        <a class="btn" href="{%url funnel_create project.id%}">添加路径</a>
     </div>
+    <script type="text/javascript">
+    $(function () {
+        $("#funnels").find("a.dropdown-toggle").html('{{params.funnel}}<b class="caret"></b>');
+        var data = {{data|safe}};
+
+        $.plot($("#placeholder"), [ data ], {
+            series: {
+                bars: {
+                    show: true,
+                    barWidth: 0.6,
+                    align: "center" }
+            },
+            xaxis: {
+                mode: "categories",
+                tickLength: 0
+            }
+        });
+    });
+    </script>
 {% endblock content %}
