@@ -91,15 +91,18 @@
         <div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>
     </div>
     <script type="text/javascript">
+        {% for session in sessions %}
+            ticks[{{forloop.counter|add:-1}}] = [-{{session.1}}, '{{session.0|date:"H:i\<\b\r\/\>Y/m/d"|safe}}'];
+        {% endfor %}
         $('.dropdown-toggle').dropdown();
         $('.datepicker').datepicker();
         var d1 = [];
-        for (var i = 0; i < 14; i += 0.5)
+        for (var i = 0; i < 100; i += 0.5)
             d1.push([i, Math.sin(i)]);
         $.plot($("#placeholder"), [d1], {
             yaxis: { min: 0 },
             grid: { hoverable: true, clickable: true },
-{#            xaxis: { ticks:ticks },#}
+            xaxis: { ticks:ticks },
             series: {
                 lines: { show: true },
                 points: { show: true }

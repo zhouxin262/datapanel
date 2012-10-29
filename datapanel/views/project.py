@@ -1,9 +1,11 @@
 #coding=utf-8
+from django.db.models import Count
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 from datapanel.forms import ProjectForm
+from datapanel.models import Session
 
 def create(request):
     form = ProjectForm()
@@ -24,7 +26,8 @@ def create(request):
 def home(request, id):
     project = request.user.participate_projects.get(id = id)
     project.save()
-    return render(request, 'datapanel/project/index.html', {'project' : project, })
+
+    return render(request, 'datapanel/project/index.html', {'project' : project,'sessions': ''})
 
 def setting(request, id):
     project = request.user.participate_projects.get(id = id)
