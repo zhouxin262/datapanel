@@ -1,15 +1,15 @@
-{%extends 'datapanel/datapanel_base.html'%}
+{% extends 'datapanel/datapanel_base.html' %}
 {% block subnav-home %}
-<li class="active">
-	<a href="{%url project_home project.id%}">网站概况</a>
-</li>
+    <li class="active">
+        <a href="{% url project_home project.id %}">网站概况</a>
+    </li>
 {% endblock subnav-home %}
 {% block content %}
-<div class=" span10 well">
-	<div class="page-header">
-		<h1>{{project.name}} / 网站概况</h1>
-	</div>
-	<!--<ul class="nav nav-pills">
+    <div class=" span10">
+        <div class="page-header">
+            <h1>{{ project.name }} / 网站概况</h1>
+        </div>
+        <!--<ul class="nav nav-pills">
 		<li>
 			<input id="sd" type="text" class="datepicker input-small" value="2012-08-01" data-date-format="yyyy-mm-dd">
 			-
@@ -68,84 +68,42 @@
 		<li>pv: {{data.pv}}</li>
 		<li>uv: {{data.uv}}</li>
 	</ul>-->
-	<h2 class="pull-left">访问量</h2>
-	<ul class="nav nav-pills">
-		<li class="dropdown pull-right" id="menu3">
-			<a class="dropdown-toggle" data-toggle="dropdown" href="#menu3">
-				总访问量
-				<b class="caret"></b>
-			</a>
-			<ul class="dropdown-menu">
-				<li>
-					<a href="#">独立访问量</a>
-				</li>
-				<li>
-					<a href="#">总访问量</a>
-				</li>
-				<li>
-					<a href="#">平均访问量</a>
-				</li>
-			</ul>
-		</li>
-	</ul>
-
-	<table class="table">
-		<thead>
-			<tr>
-				<th>动作</th>
-				<th>今天</th>
-				<th>8月7日</th>
-				<th>7月31日</th>
-				<th>7月24日</th>
-				<th>7月17日</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td>首页</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-			</tr>
-			<tr>
-				<td>分类</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-			</tr>
-			<tr>
-				<td>产品</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-			</tr>
-			<tr>
-				<td>购物车</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-			</tr>
-			<tr>
-				<td>支付</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-				<td>0</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-<script type="text/javascript">
-$('.dropdown-toggle').dropdown();
-$('.datepicker').datepicker();
-</script>
+        <h2 class="pull-left">访问量</h2>
+        <ul class="nav nav-pills">
+            <li class="dropdown pull-right" id="menu3">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#menu3">
+                    总访问量
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#">独立访问量</a>
+                    </li>
+                    <li>
+                        <a href="#">总访问量</a>
+                    </li>
+                    <li>
+                        <a href="#">平均访问量</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>
+    </div>
+    <script type="text/javascript">
+        $('.dropdown-toggle').dropdown();
+        $('.datepicker').datepicker();
+        var d1 = [];
+        for (var i = 0; i < 14; i += 0.5)
+            d1.push([i, Math.sin(i)]);
+        $.plot($("#placeholder"), [d1], {
+            yaxis: { min: 0 },
+            grid: { hoverable: true, clickable: true },
+{#            xaxis: { ticks:ticks },#}
+            series: {
+                lines: { show: true },
+                points: { show: true }
+            }
+        });
+    </script>
 {% endblock content %}
