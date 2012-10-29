@@ -16,7 +16,7 @@ urlpatterns = patterns('',
     # url(r'^(?P<id>\d+)/track/$', 'datapanel.views.track.list', name='track_list'),
     # url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream.view', name='stream_view'),
     url(r'^(?P<id>\d+)/track/groupby_value/$', 'datapanel.views.track.groupby_value', name='track_groupby_value'),
-    url(r'^(?P<id>\d+)/track/get_url_by_value/(?P<name>\w+)/(?P<value>\w+)/$', 'datapanel.views.track.get_url_by_value', name='track_get_url_by_value'),
+    url(r'^(?P<id>\d+)/track/get_url_by_value/$', 'datapanel.views.track.get_url_by_value', name='track_get_url_by_value'),
 
     url(r'^(?P<id>\d+)/stream/$', 'datapanel.views.stream.list', name='stream_list'),
     url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream.view', name='stream_view'),

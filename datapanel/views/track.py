@@ -13,7 +13,6 @@ from django.contrib.auth.views import redirect_to_login
 from datapanel.utils import now, today_str
 from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByCondition, Action, TrackValue, TrackGroupByValue
 
-@cache_page(60 * 5)
 def groupby_value(request, id):
     try:
         project = request.user.participate_projects.get(id = id)
@@ -23,7 +22,7 @@ def groupby_value(request, id):
     # deal with value_names
     value_names = cache.get(id + '_trackvalue_names', 'DoesNotExist')
     if value_names == 'DoesNotExist':
-        value_names = TrackGroupByValue.objects.filter(project = project).distinct().values('name')
+        value_names = TrackGroupByValue.objects.filter(project = project).exclude(name__startswith='referer').distinct().values('name')
         cache.set(id + '_trackvalue_names', value_names)
 
     datetype = request.GET.get('datetype','day')
@@ -55,31 +54,36 @@ def groupby_value(request, id):
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions
-    actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
-    args = {'project': project, 'datetype': datetype + 'line', 'name': name}
+    # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
+    timestamps = [t[1] for t in times]
+    args = {'project': project, 'datetype': datetype + 'line', 'name': name, 'dateline__in': timestamps}
+    trackGroupByValues = TrackGroupByValue.objects.filter(**args).order_by('value', 'dateline')
+    data = {}
+    for trackGroupByValue in trackGroupByValues:
+        if not data.has_key(trackGroupByValue.value):
+            data[trackGroupByValue.value] = {'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
+        data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
+    return render(request, 'datapanel/track/groupby_value.html', {'project':project,'params':params,'times': times,'value_names':value_names, 'data': data })
 
-    data = []
-    for i, action in enumerate(actions):
-        print action
-        data.append({'label': action, 'data': []})
-        for j, t in enumerate(times):
-            try:
-                args.update({'value':action, 'dateline': t[1]})
-                data[i]['data'].append((t[1], TrackGroupByValue.objects.get(**args).count))
-            except TrackGroupByValue.DoesNotExist :
-                data[i]['data'].append((t[1], 0))
-    # process data
-    return render(request, 'datapanel/track/groupby_value.html', {'project':project,'params':params,'times': times,'actions':actions,'value_names':value_names, 'data': data })
-
-def get_url_by_value(request, id, name, value):
+def groupby_action(request, id):
     try:
         project = request.user.participate_projects.get(id = id)
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
+def get_url_by_value(request, id):
+    try:
+        project = request.user.participate_projects.get(id = id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+    name = request.GET.get('name', '')
+    value = request.GET.get('value', '')
+
     ts = TrackValue.objects.filter(track__session__project = project, name = name, value = value)[:1]
     if ts:
         return HttpResponseRedirect(ts[0].track.url)
+    else:
+        return HttpResponse('403 forbidden') 
 
 
 
