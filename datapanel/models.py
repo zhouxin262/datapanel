@@ -332,3 +332,9 @@ class FunnelAction(models.Model):
     funnel = models.ForeignKey(Funnel, related_name='action')
     order = models.IntegerField()
     action = models.ForeignKey(Action, related_name='funnelaction')
+
+class SessionGroupByTime(models.Model):
+    project = models.ForeignKey(Project, related_name='sessiongroupbytime')
+    datetype = models.CharField(u'统计类型', null=True, max_length=12)
+    value = models.IntegerField(u'统计数值', null=True)
+    dateline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
