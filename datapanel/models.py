@@ -38,6 +38,8 @@ class Session(models.Model):
     User sessions
     ALTER TABLE `datapanel`.`datapanel_session`
     ADD INDEX `datapanel_session_trackcount` (`track_count` ASC) ;
+
+    ALTER TABLE `datapanel`.`datapanel_session` ADD COLUMN `stream_str` TEXT NULL  AFTER `ipaddress` ;
     """
     project = models.ForeignKey(Project, related_name='session')
     sn = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
@@ -49,6 +51,7 @@ class Session(models.Model):
     user_referer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
+    stream_str = models.TextField(verbose_name=u'访问流') # for calculate the convert ratio
 
     def first_track(self):
         try:
@@ -80,32 +83,19 @@ class Session(models.Model):
         prev_track = None
         for t in self.track.all().order_by('id'):
             if prev_track:
-                if t.action == prev_track.action:
-                    #tracks[0][1] = "aaaaa"
-                    tracks[-1][1] += "<span class='repeat'>*</span>"
-                else:
+                if (prev_track.timelength == 0 or prev_track.timelength > 300) and (t.dateline - prev_track.dateline).seconds > 300:
+                    tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline - prev_track.dateline).seconds / 60 )
                     tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
+                else:
+                    if t.action == prev_track.action:
+                        #tracks[0][1] = "aaaaa"
+                        tracks[-1][1] += "<span class='repeat'>*</span>"
+                    else:
+                        tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
             else:
                 tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
             prev_track = t
         return "".join(["<li class='stream-block background-%02d'>%s</li>" % ((actions.index(t[0]) + 1) * 7 % 30, t[1]) for t in tracks])
-
-class Stream(models.Model):
-    """
-    User stream
-    """
-    session = models.ForeignKey(Session, related_name='stream')
-    stream_str = models.TextField()
-
-class Referer(models.Model):
-    """
-    User referer parsed by Track param_display
-    """
-    session = models.ForeignKey(Session, related_name='referer', verbose_name=u'用户会话')
-    site = models.CharField(max_length=255, verbose_name=u'site', default='')
-    keyword = models.CharField(max_length=255, verbose_name=u'keyword', default='')
-    url = models.CharField(max_length=255, verbose_name=u'url ', default='')
-    dateline = models.DateTimeField(auto_now_add=True)
 
 class Track(models.Model):
     """
@@ -331,3 +321,11 @@ class SessionConditionTester(models.Model):
     test_operator = models.CharField(max_length=255, verbose_name=u'运算符', choices=TESTEROPERATOR_CHOICES)
     test_value = models.CharField(max_length=255, verbose_name=u'值') # 以后考虑改成正则表达式
 
+class Funnel(models.Model):
+    project = models.ForeignKey(Project, related_name='funnel')
+    name = models.CharField(u'命名', max_length=20)
+
+class FunnelAction(models.Model):
+    funnel = models.ForeignKey(Funnel, related_name='action')
+    order = models.IntegerField()
+    action = models.ForeignKey(Action, related_name='funnelaction')

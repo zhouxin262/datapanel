@@ -1,0 +1,18 @@
+{%extends 'datapanel/datapanel_base.html'%}
+{% block subnav-condition %}
+    <li class="active">
+        <a href="{%url condition_list project.id%}">条件设定</a>
+    </li>
+{% endblock subnav-condition %}
+{% block content %}
+<div class="well span10">
+	<form action="" method="post" class="form-horizontal">
+		{%csrf_token%}
+    	{{ form }}
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">新 建</button>
+			<button type="submit" class="btn">取 消</button>
+		</div>
+	</form>
+</div>
+{% endblock content %}

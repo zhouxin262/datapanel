@@ -65,9 +65,16 @@
 		<a href="{%url track_groupby_value project.id%}">访问量参数分析</a>
 	</li>
 	{% endblock subnav-track %}
+	{% block subnav-referer %}
 	<li>
-		<a href="#">转化路径</a>
+		<a href="{%url track_groupby_referer project.id%}">来源分析</a>
 	</li>
+	{% endblock subnav-referer %}
+	{% block subnav-funnel %}
+	<li>
+		<a href="{%url funnel_home project.id%}">转化路径</a>
+	</li>
+	{% endblock subnav-funnel %}
 	<li>
 		<a href="#">忠诚度</a>
 	</li>
@@ -82,11 +89,6 @@
 		<a href="{%url stream_list project.id%}">访问路径</a>
 	</li>
 	{% endblock subnav-stream %}
-	{% block subnav-referer %}
-	<li>
-		<a href="{%url referer_list project.id%}">来源分析</a>
-	</li>
-	{% endblock subnav-referer %}
 	<li class="nav-header">设置</li>
     {% block subnav-setting  %}
 	<li>

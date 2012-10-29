@@ -6,7 +6,7 @@ from django.views.decorators.cache import cache_page
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 
-from datapanel.models import Referer, Action
+from datapanel.models import Action
 
 def list(request, id):
     try:
@@ -76,6 +76,7 @@ def view(request, id, sid):
         project = request.user.participate_projects.get(id = id)
     except AttributeError:
         return redirect_to_login(request.get_full_path())
+
     session = project.session.get(id=sid)
     tracks = session.track.all().order_by('dateline')
 
@@ -88,24 +89,3 @@ def view(request, id, sid):
     except EmptyPage:
         track_flow = paginator.page(paginator.num_pages)
     return render(request, 'datapanel/stream/view.html', {'project':project,'track_flow':track_flow})
-
-@cache_page(60 * 5)
-def referer_list(request, id):
-    groupby = request.GET.get('groupby', 'keyword')
-    keyword = request.GET.get('keyword', '')
-    querystr = 'groupby=%s&keyword=%s' % (groupby, keyword)
-    params = {'groupby':groupby , 'keyword':keyword, 'querystr':querystr}
-    # deal with params
-    project = request.user.participate_projects.get(id = id)
-    args = {'session__project': project, groupby +'__contains': keyword}
-    #exlude_args =
-    referers = Referer.objects.filter(**args).exclude(**{groupby:""}).values(groupby).annotate(c = Count('id')).order_by('-c')
-    paginator = Paginator(referers, 25)
-    page = request.GET.get('page')
-    try:
-        referer_list = paginator.page(page)
-    except PageNotAnInteger:
-        referer_list = paginator.page(1)
-    except EmptyPage:
-        referer_list = paginator.page(paginator.num_pages)
-    return render(request, 'datapanel/stream/referer_list.html', {'project':project, 'referer_list':referer_list,'params':params})

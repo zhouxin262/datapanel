@@ -19,11 +19,12 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/track/groupby_action/$', 'datapanel.views.track.groupby_action', name='track_groupby_action'),
     url(r'^(?P<id>\d+)/track/groupby_referer/$', 'datapanel.views.track.groupby_referer', name='track_groupby_referer'),
     url(r'^(?P<id>\d+)/track/get_url_by_value/$', 'datapanel.views.track.get_url_by_value', name='track_get_url_by_value'),
+    url(r'^(?P<id>\d+)/track/get_referer_url/$', 'datapanel.views.track.get_referer_url', name='track_get_referer_url'),
 
     url(r'^(?P<id>\d+)/stream/list/$', 'datapanel.views.stream.list', name='stream_list'),
     url(r'^(?P<id>\d+)/stream/$', 'datapanel.views.stream.stream', name='stream_stream'),
     url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream.view', name='stream_view'),
-    url(r'^(?P<id>\d+)/referer/$', 'datapanel.views.stream.referer_list', name='referer_list'),
+    # url(r'^(?P<id>\d+)/funnel/$', 'datapanel.views.stream.funnel', name='stream_funnel'),
 
     url(r'^(?P<id>\d+)/group/$', 'datapanel.views.group.home', name='group_home'),
 
@@ -31,6 +32,12 @@ urlpatterns = patterns('',
     url(r'^(?P<id>\d+)/action/create/$', 'datapanel.views.action.create', name='action_create'),
     url(r'^(?P<id>\d+)/action/(?P<aid>\d+)/update/$', 'datapanel.views.action.update', name='action_update'),
     url(r'^(?P<id>\d+)/action/(?P<aid>\d+)/delete/$', 'datapanel.views.action.delete', name='action_delete'),
+
+    url(r'^(?P<id>\d+)/funnel/$', 'datapanel.views.funnel.home', name='funnel_home'),
+    url(r'^(?P<id>\d+)/funnel/list/$', 'datapanel.views.funnel.list', name='funnel_list'),
+    url(r'^(?P<id>\d+)/funnel/create/$', 'datapanel.views.funnel.create', name='funnel_create'),
+    url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/update/$', 'datapanel.views.funnel.update', name='funnel_update'),
+    url(r'^(?P<id>\d+)/funnel/(?P<funnel_id>\d+)/delete/$', 'datapanel.views.funnel.delete', name='funnel_delete'),
 
     url(r'^(?P<id>\d+)/condition/$', 'datapanel.views.condition.list', name='condition_list'),
     url(r'^(?P<id>\d+)/condition/create/$', 'datapanel.views.condition.create', name='condition_create'),

@@ -11,7 +11,7 @@ from django.views.decorators.cache import cache_page
 from django.contrib.auth.views import redirect_to_login
 
 from datapanel.utils import now, today_str
-from datapanel.models import Project, Session, Track, Referer, TrackCondition, TrackGroupByCondition, Action, TrackValue, TrackGroupByValue
+from datapanel.models import Project, Session, Track, TrackCondition, TrackGroupByCondition, Action, TrackValue, TrackGroupByValue
 
 def groupby_referer(request, id):
     try:
@@ -53,14 +53,39 @@ def groupby_referer(request, id):
     # deal with actions
     # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
     timestamps = [t[1] for t in times]
-    args = {'project': project, 'datetype': datetype + 'line', 'name': name, 'dateline__in': timestamps}
+    args = {'project': project, 'datetype': datetype + 'line', 'name': name, 'dateline__in': timestamps, 'count__gt': 10}
     trackGroupByValues = TrackGroupByValue.objects.filter(**args).order_by('value', 'dateline')
     data = {}
     for trackGroupByValue in trackGroupByValues:
         if not data.has_key(trackGroupByValue.value):
             data[trackGroupByValue.value] = {'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
-    return render(request, 'datapanel/track/groupby_value.html', {'project':project,'params':params,'times': times, 'value_names':value_names, 'data': data })
+    return render(request, 'datapanel/track/groupby_referer.html', {'project':project,'params':params,'times': times, 'value_names':value_names, 'data': data })
+
+def get_referer_url(request, id):
+    try:
+        project = request.user.participate_projects.get(id = id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+
+    name = request.GET.get('name', '')
+    value = request.GET.get('value', '')
+
+    if name == 'referer_site':
+        return HttpResponseRedirect('http://' + value)
+    else:
+        ts = TrackValue.objects.filter(track__session__project = project, name = name, value = value).order_by('-id')[:1]
+        if ts:
+            return HttpResponseRedirect(ts[0].track.param_display()['referer'])
+        else:
+            return HttpResponse('403 forbidden')
+
+    ts = TrackValue.objects.filter(track__session__project = project, name = name, value = value)[:1]
+    if ts:
+        return HttpResponseRedirect(ts[0].track.url)
+    else:
+        return HttpResponse('403 forbidden')
+
 
 def groupby_value(request, id):
     try:
@@ -185,7 +210,6 @@ def get_url_by_value(request, id):
         return HttpResponse('403 forbidden')
 
 
-
 def get_or_create_session(request):
     token = request.GET.get('k', -1)
     # 客户服务器访问，可带客户的客户session_key
@@ -241,10 +265,12 @@ def default(request):
         # set timelength
         if prv_track:
             timelength = t.dateline - prv_track.dateline
-            if timelength.seconds < 900:
-                # 15min no move, definitely away from keyboard!
-                prv_track.timelength = timelength.seconds + 1
-                prv_track.save()
+            # don't care the break
+            # if timelength.seconds < 900:
+            # 15min no move, definitely away from keyboard!
+            #
+            prv_track.timelength = timelength.seconds + 1
+            prv_track.save()
         t.timelength = 0
         t.save()
 
