@@ -16,9 +16,12 @@ urlpatterns = patterns('',
     # url(r'^(?P<id>\d+)/track/$', 'datapanel.views.track.list', name='track_list'),
     # url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream.view', name='stream_view'),
     url(r'^(?P<id>\d+)/track/groupby_value/$', 'datapanel.views.track.groupby_value', name='track_groupby_value'),
+    url(r'^(?P<id>\d+)/track/groupby_action/$', 'datapanel.views.track.groupby_action', name='track_groupby_action'),
+    url(r'^(?P<id>\d+)/track/groupby_referer/$', 'datapanel.views.track.groupby_referer', name='track_groupby_referer'),
     url(r'^(?P<id>\d+)/track/get_url_by_value/$', 'datapanel.views.track.get_url_by_value', name='track_get_url_by_value'),
 
-    url(r'^(?P<id>\d+)/stream/$', 'datapanel.views.stream.list', name='stream_list'),
+    url(r'^(?P<id>\d+)/stream/list/$', 'datapanel.views.stream.list', name='stream_list'),
+    url(r'^(?P<id>\d+)/stream/$', 'datapanel.views.stream.stream', name='stream_stream'),
     url(r'^(?P<id>\d+)/stream/(?P<sid>\d+)/$', 'datapanel.views.stream.view', name='stream_view'),
     url(r'^(?P<id>\d+)/referer/$', 'datapanel.views.stream.referer_list', name='referer_list'),
 

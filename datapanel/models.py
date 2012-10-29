@@ -74,6 +74,29 @@ class Session(models.Model):
         except IndexError:
             return None
 
+    def get_stream_display(self):
+        actions = [action.name for action in Action.objects.filter(project=self.project)]
+        tracks = []
+        prev_track = None
+        for t in self.track.all().order_by('id'):
+            if prev_track:
+                if t.action == prev_track.action:
+                    #tracks[0][1] = "aaaaa"
+                    tracks[-1][1] += "<span class='repeat'>*</span>"
+                else:
+                    tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
+            else:
+                tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
+            prev_track = t
+        return "".join(["<li class='stream-block background-%02d'>%s</li>" % ((actions.index(t[0]) + 1) * 7 % 30, t[1]) for t in tracks])
+
+class Stream(models.Model):
+    """
+    User stream
+    """
+    session = models.ForeignKey(Session, related_name='stream')
+    stream_str = models.TextField()
+
 class Referer(models.Model):
     """
     User referer parsed by Track param_display

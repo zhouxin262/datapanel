@@ -11,16 +11,19 @@
 </li>
 {% endblock subnav-stream %}
 {% block content %}
+<style>
+
+</style>
 <div class="span10">
 	<div class="page-header">
 		<h1>{{project.name}} / 访问路径</h1>
 	</div>
 	<div class="span8">
 		<ul class="nav nav-tabs">
-			<li class="active">
+			<li>
 				<a href="{%url stream_list project.id %}">列表</a>
 			</li>
-			<li>
+			<li class="active">
 				<a href="{%url stream_stream project.id %}">平铺</a>
 			</li>
 		</ul>
@@ -38,21 +41,9 @@
 				<small class="pull-right">{{session.end_time|timesince}}前</small>
 				</h3>
 				<div>
-					<p>
-						{% if session.last_referer.referer_site %}
-						来自 {{ session.last_referer.referer_site }}
-						{%if session.last_referer.referer_keyword%}
-							关键词：<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.referer_keyword }}</a>
-						{% else %}
-							<a href="{{session.last_referer.url}}" title="{{session.last_referer.url}}">{{ session.last_referer.url|urlizetrunc:30 }}</a>
-						{%endif%}
-						{%endif%}
-					</p>
-					<p>
-					着陆
-					<a href="{{session.first_track.url}}" title="{{session.first_track.url}}">{{session.first_track.action}}</a>
-					共浏览 <strong>{{session.track_count}}</strong> 个页面
-					</p>
+					<ul class="event-cluster">
+					{{session.get_stream_display|safe}}
+					</ul>
 				</div>
 			</li>
 			{% endfor %}
@@ -108,6 +99,9 @@
 	$(function(){
 		$("select[name=order]").val('{{params.order}}');
 		$("input[name=track_count__gt]").val('{{params.track_count__gt}}');
+		$.each($(".event-cluster"), function(){
+
+		});
 	});
 </script>
 {% endblock content %}

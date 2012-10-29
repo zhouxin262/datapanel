@@ -6,7 +6,7 @@ from django.views.decorators.cache import cache_page
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 
-from datapanel.models import Referer
+from datapanel.models import Referer, Action
 
 def list(request, id):
     try:
@@ -37,6 +37,38 @@ def list(request, id):
     except EmptyPage:
         session_list = paginator.page(paginator.num_pages)
     return render(request, 'datapanel/stream/list.html', {'project':project,
+        'session_list': session_list, 'params': params})
+
+def stream(request, id):
+    try:
+        project = request.user.participate_projects.get(id = id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+
+    #过滤
+    track_count__gt = int(request.GET.get('track_count__gt', 3))
+    project_sessions = project.session.filter(track_count__gt = track_count__gt)
+
+    #排序
+    order = request.GET.get('order', 't')
+    if order == 'c':
+        project_sessions = project_sessions.order_by('-track_count')
+    else:
+        project_sessions = project_sessions.order_by('-id')
+
+    querystr = 'track_count__gt=%d&order=%s' % (track_count__gt, order)
+    params = {'order':order, 'track_count__gt':track_count__gt, 'querystr': querystr}
+
+    paginator = Paginator(project_sessions, 15)
+    page = request.GET.get('page')
+    try:
+        session_list = paginator.page(page)
+    except PageNotAnInteger:
+        session_list = paginator.page(1)
+    except EmptyPage:
+        session_list = paginator.page(paginator.num_pages)
+
+    return render(request, 'datapanel/stream/stream.html', {'project':project,
         'session_list': session_list, 'params': params})
 
 def view(request, id, sid):

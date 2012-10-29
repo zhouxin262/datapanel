@@ -17,18 +17,14 @@
 	</div>
 	<div class="">
 	<ul class="nav nav-pills">
-		<li class="dropdown" id="conditions">
-			<a class="dropdown-toggle" data-toggle="dropdown" href="#conditions">
-				自定义条件
+		<li class="dropdown" id="name">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#name">
 				<b class="caret"></b>
 			</a>
 			<ul class="dropdown-menu">
-				<li>
-					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype={{params.datetype}}&name={{value_names.0.name}}">{{value_names.0.name}}（默认）</a>
-				</li>
 				{%for name in value_names%}
 				<li>
-					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype={{params.datetype}}&name={{name.name}}">{{name.name}}</a>
+					<a data-id="{{name.name}}" href="?interval={{params.interval}}&timeline=0&datetype={{params.datetype}}&name={{name.name}}">{{name.name}}</a>
 				</li>
 				{%endfor%}
 			</ul>
@@ -48,16 +44,16 @@
 			</a>
 			<ul class="dropdown-menu">
 				<li>
-					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=hour&name={{params.name}}">按小时统计</a>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=hour&name={{params.name}}">按小时统计</a>
 				</li>
 				<li>
-					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=day&name={{params.name}}">按天统计</a>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=day&name={{params.name}}">按天统计</a>
 				</li>
 				<li>
-					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=week&name={{params.name}}">按周统计</a>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=week&name={{params.name}}">按周统计</a>
 				</li>
 				<li>
-					<a href="?interval={{params.interval}}&timeline={{params.timeline}}&datetype=month&name={{params.name}}">按月统计</a>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=month&name={{params.name}}">按月统计</a>
 				</li>
 			</ul>
 		</li>
@@ -70,7 +66,6 @@
 		<thead>
 			<tr>
 				<th class="action">
-					{{params.name}}
 				</th>
 				{% for t in times %}
 					<th>{{t.0|date:"H:i\<\b\r\/\>Y/m/d"|safe}}</th>
@@ -117,6 +112,7 @@ $(document).ready(function(){
 			$(this).val(1).blur();
 		}
 	});
+    $("#name").find("a.dropdown-toggle").html('{{params.name}}<b class="caret"></b>');
     $('#datatables').dataTable({
         "bPaginate": false,
         "bLengthChange": false,

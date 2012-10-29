@@ -5,7 +5,7 @@ from datetime import tzinfo, timedelta, datetime
 from django.core.management.base import LabelCommand
 from django.db.models import Count
 
-from datapanel.models import Track, Project, TrackGroupByCondition, TrackGroupByValue, TrackValue
+from datapanel.models import Stream, Session, Track, Project, TrackGroupByCondition, TrackGroupByValue, TrackValue
 
 """
 A management command for statistics
@@ -39,6 +39,21 @@ class Command(LabelCommand):
                 for datetype in ['hourline', 'dayline', 'weekline', 'monthline']:
                     tg = TrackGroupByValue.objects.get_or_create(project=t.track.session.project, datetype=datetype, name=t.name, value=t.value, dateline=time.mktime(getattr(t.track, datetype).timetuple()))
                     tg[0].increase_value()
+
+
+        elif label == 'stream':
+            c = Session.objects.count()
+            print c
+            for s in Session.objects.all()[:100]:
+                stream_str = ""
+                for t in s.track.filter():
+                    stream_str += t.action + ';'
+                if stream_str:
+                    stream = Stream()
+                    stream.session = s
+                    stream.stream_str = stream_str
+                    stream.save()
+
 
         elif label == 'trackvalue':
             c = Track.objects.count()
