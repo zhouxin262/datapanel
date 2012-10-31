@@ -7,10 +7,11 @@ from django.shortcuts import render, get_object_or_404
 from datapanel.forms import ConditionForm, ConditionTesterForm
 from datapanel.models import TrackCondition, TrackConditionTester
 
-def create(request,id):
+
+def create(request, id):
     project = request.user.participate_projects.get(id = id)
     form = ConditionForm()
-    if request.method=="POST":
+    if request.method == "POST":
         form = ConditionForm(request.POST)
         if form.is_valid():
             condition = form.save(commit=False)

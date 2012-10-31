@@ -53,7 +53,7 @@ def groupby_referer(request, id):
     # deal with actions
     # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
     timestamps = [t[1] for t in times]
-    args = {'project': project, 'datetype': datetype + 'line', 'name': name, 'dateline__in': timestamps, 'count__gt': 10}
+    args = {'project': project, 'datetype': datetype + 'line', 'name': name, 'dateline__in': timestamps, 'count__gt': 20}
     trackGroupByValues = TrackGroupByValue.objects.filter(**args).order_by('value', 'dateline')
     data = {}
     for trackGroupByValue in trackGroupByValues:
@@ -130,7 +130,7 @@ def groupby_value(request, id):
     # deal with actions
     # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
     timestamps = [t[1] for t in times]
-    args = {'project': project, 'datetype': datetype + 'line', 'name': name, 'dateline__in': timestamps}
+    args = {'project': project, 'datetype': datetype + 'line', 'name': name, 'dateline__in': timestamps, 'count__gt': 10}
     trackGroupByValues = TrackGroupByValue.objects.filter(**args).order_by('value', 'dateline')
     data = {}
     for trackGroupByValue in trackGroupByValues:
@@ -188,7 +188,7 @@ def groupby_action(request, id):
     for action in Action.objects.filter(project = project):
         data[action.name] = {'label': action.name, 'data': [(i, 0) for i in timestamps]}
 
-    for trackGroupByCondition in TrackGroupByCondition.objects.filter(**args).order_by('action', 'dateline'):
+    for trackGroupByCondition in TrackGroupByCondition.objects.filter(**args).order_by('action', 'dateline')[:100]:
         data[trackGroupByCondition.action]['data'][timestamps.index(trackGroupByCondition.dateline)] = ((trackGroupByCondition.dateline, trackGroupByCondition.value))
 
     # deal with conditions

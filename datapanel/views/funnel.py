@@ -1,4 +1,5 @@
 #coding=utf-8
+from datetime import datetime
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -16,6 +17,9 @@ def home(request,id):
         return redirect_to_login(request.get_full_path())
     params = {}
 
+    start_date = request.GET.get('s', datetime.today().strftime("%Y-%m-%d"))
+    end_date = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
+
     funnel_list = Funnel.objects.filter(project=project)
 
     if not funnel_list:
@@ -30,11 +34,15 @@ def home(request,id):
 
     params['funnel'] = f.name
 
+    args = {'track_count__gt': 1, 'end_time__gte': start_date, 'start_time__lte': end_date}
+    print args
+
     y = [a.action.name for a in f.action.filter().order_by('order')]
     funnel_actions = [";".join(y[:i+1]) for i in range(len(y))]
     data = []
     for funnel_action in funnel_actions:
-        data.append([y[funnel_actions.index(funnel_action)], Session.objects.filter(stream_str__contains = funnel_action, track_count__gt = 1).count()])
+        args['stream_str__contains'] = funnel_action
+        data.append([y[funnel_actions.index(funnel_action)], Session.objects.filter(**args).count()])
     data = simplejson.dumps(data)
     return render(request, 'datapanel/funnel/home.html',{'project':project,'data':data, 'funnel_list':funnel_list, 'params':params})
 
