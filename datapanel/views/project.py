@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 from datapanel.forms import ProjectForm
-from datapanel.models import Session
+from datapanel.models import Session, SessionGroupByTime
 
 def create(request):
     form = ProjectForm()
@@ -26,8 +26,9 @@ def create(request):
 def home(request, id):
     project = request.user.participate_projects.get(id = id)
     project.save()
-
-    return render(request, 'datapanel/project/index.html', {'project' : project,'sessions': ''})
+    datetype = request.GET.get('datetype','hourline')
+    sbt = SessionGroupByTime.objects.filter(project= project,datetype=datetype)
+    return render(request, 'datapanel/project/index.html', {'project' : project,'sbt': sbt})
 
 def setting(request, id):
     project = request.user.participate_projects.get(id = id)

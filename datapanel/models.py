@@ -54,7 +54,7 @@ class Session(models.Model):
     user_referer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
-    stream_str = models.TextField(verbose_name=u'访问流') # for calculate the convert ratio
+#    stream_str = models.TextField(verbose_name=u'访问流') # for calculate the convert ratio
 
     def first_track(self):
         try:
