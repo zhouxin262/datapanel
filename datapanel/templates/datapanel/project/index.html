@@ -45,12 +45,12 @@
         {% endfor %}
         $('.dropdown-toggle').dropdown();
         $('.datepicker').datepicker();
-        $.plot($("#placeholder"), [d1], {
+        $.plot($("#placeholder"), [ {label:"访问量",data:d1}], {
             yaxis:{ min:0 },
             grid:{ hoverable:true, clickable:true },
             xaxis:{ show:false},
             series:{
-                lines:{ show:true },
+                lines:{ show:true, fill: true },
                 points:{ show:true }
             }
         });
