@@ -32,7 +32,7 @@ class Command(LabelCommand):
                 tt = Track.objects.filter(id__gt = last_id)[i: i + 1000]
                 for t in tt:
                     for datetype in ['hour', 'day', 'week', 'month']:
-                        key = '%d|%d|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), t.action, datetype)
+                        key = '%d|%d|%d|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), t.action.id, datetype)
                         if key not in action_dict:
                             action_dict[key] = 1
                         else:
@@ -50,11 +50,11 @@ class Command(LabelCommand):
             for k, v in action_dict.items():
                 project_id = k.split("|")[0]
                 dateline = k.split("|")[1]
-                action = k.split("|")[2]
+                action_id = k.split("|")[2]
                 datetype = k.split("|")[3]
                 ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
                    datetype=datetype,
-                   action=action,
+                   action_id=action_id,
                    dateline=dateline)
                 ta[0].count += v
                 ta[0].save()
