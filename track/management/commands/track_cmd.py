@@ -5,6 +5,7 @@ from django.core.management.base import LabelCommand
 
 from session.models import Session
 from track.models import Track, TrackValue, TrackGroupByAction, TrackGroupByValue
+from datapanel.models import CmdSerialNumber
 
 """
 A management command for statistics
@@ -15,16 +16,20 @@ class Command(LabelCommand):
     help = "byaction"
 
     def handle_label(self, label, **options):
-        if label == 'groupby':
+        if label == 'group':
+            cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'trackgroup', class_name='Track')
+            last_id = cmdSerialNumber[0].last_id
+
             action_dict = {}
             value_dict = {}
-            c = Track.objects.filter().count()
+            c = Track.objects.filter(id__gt = last_id).count()
             _s = datetime.now()
             for i in range(0, c, 1000):
                 # 1000 lines a time
                 used_time = (datetime.now() - _s).seconds
-                print i, c, used_time
-                tt = Track.objects.filter()[i: i + 1000]
+                if used_time:
+                    print i, c, used_time, '%d seconds left' % ((c-i)/(i/used_time))
+                tt = Track.objects.filter(id__gt = last_id)[i: i + 1000]
                 for t in tt:
                     for datetype in ['hour', 'day', 'week', 'month']:
                         key = '%d|%d|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), t.action, datetype)
@@ -35,23 +40,24 @@ class Command(LabelCommand):
 
                         if datetype != 'hour':
                             for trackvalue in t.value.filter():
-                                key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
-                                if key not in value_dict:
-                                    value_dict[key] = 1
-                                else:
-                                    value_dict[key] += 1
+                                if trackvalue.name != 'referer':
+                                    key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
+                                    if key not in value_dict:
+                                        value_dict[key] = 1
+                                    else:
+                                        value_dict[key] += 1
 
             for k, v in action_dict.items():
                 project_id = k.split("|")[0]
                 dateline = k.split("|")[1]
                 action = k.split("|")[2]
                 datetype = k.split("|")[3]
-                t = TrackGroupByAction(project_id=project_id,
-                                       datetype=datetype,
-                                       action=action,
-                                       dateline=dateline,
-                                       count=v)
-                t[0].save()
+                ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
+                   datetype=datetype,
+                   action=action,
+                   dateline=dateline)
+                ta[0].count += v
+                ta[0].save()
 
             for k, v in value_dict.items():
                 project_id = k.split("|")[0]
@@ -59,13 +65,18 @@ class Command(LabelCommand):
                 name = k.split("|")[2]
                 value = k.split("|")[3]
                 datetype = k.split("|")[4]
-                t = TrackGroupByValue(project_id=project_id,
-                                      datetype=datetype,
-                                      name=name,
-                                      value=value,
-                                      dateline=dateline,
-                                      count=v)
-                t[0].save()
+                tv = TrackGroupByValue.objects.get_or_create(project_id=project_id,
+                      datetype=datetype,
+                      name=name,
+                      value=value,
+                      dateline=dateline)
+                tv[0].count += v
+                tv[0].save()
+
+            # update the last_id which has been grouped
+            cmdSerialNumber[0].last_id = t.id
+            cmdSerialNumber[0].save()
+
 
         elif label == 'value':
             c = Session.objects.filter().count()

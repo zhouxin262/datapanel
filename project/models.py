@@ -22,8 +22,11 @@ class Project(models.Model):
         return self.name
 
     def add_action(self, name, url):
-        a = Action(project=self, name=name, url=url)
-        a.save()
+        a = Action.objects.get_or_create(project=self, name=name)
+        if a[1]:
+            a[0].url=url
+            a[0].save()
+        return a[0]
 
 
 class Action(models.Model):

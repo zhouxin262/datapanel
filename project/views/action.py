@@ -17,7 +17,7 @@ def create(request,id):
             action.project = project
             action.save()
             return HttpResponseRedirect(reverse('action_list', args=[id]))
-    return render(request, 'datapanel/action/create.html', {'project':project,'form': form})
+    return render(request, 'project/action/create.html', {'project':project,'form': form})
 
 def update(request,id,aid):
     project = request.user.participate_projects.get(id = id)
@@ -28,7 +28,7 @@ def update(request,id,aid):
         if form.is_valid():
             action = form.save()
             return HttpResponseRedirect(reverse('action_view', args=[action.id]))
-    return render(request, 'datapanel/action/update.html',{'project':project,'form': form})
+    return render(request, 'project/action/update.html',{'project':project,'form': form})
 
 def delete(request,id,aid):
     action = Action.objects.get(id=aid)
@@ -47,4 +47,4 @@ def list(request,id):
     except EmptyPage:
         action_list = paginator.page(paginator.num_pages)
     page_range = range(100)
-    return render(request, 'datapanel/action/list.html',{'project':project,'action_list':action_list,'page_range':page_range})
+    return render(request, 'project/action/list.html',{'project':project,'action_list':action_list,'page_range':page_range})

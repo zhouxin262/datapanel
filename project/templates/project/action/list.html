@@ -1,0 +1,52 @@
+{%extends 'datapanel/datapanel_base.html'%}
+{% block subnav-action %}
+    <li class="active">
+        <a href="{%url action_list project.id%}">行为设置</a>
+    </li>
+{% endblock subnav-action %}
+{% block content %}
+    <div class="span10">
+        <div class="page-header">
+            <a class="btn pull-right" href="{%url action_create project.id%}">添加行为</a>
+            <h1>{{project.name}} / action</h1>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="action">行为名称</th>
+                <th>URL正则</th>
+                <th>控件</th>
+                <th>事件</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for action in action_list %}
+                <tr>
+                    <td class="action">{{action.name}}</td>
+                    <td>{{action.url}}</td>
+                    <td>{{action.dom}}</td>
+                    <td>{{action.event}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination pagination-right">
+            <ul>
+                {% if action_list.has_previous %}
+                    <li>
+                        <a href="?page={{ action_list.previous_page_number }}">上一页</a>
+                    </li>
+                {% else %}
+                    <li class="disabled"><a>上一页</a></li>
+                {% endif %}
+                {% if action_list.has_next %}
+                    <li>
+                        <a href="?page={{ action_list.next_page_number }}">下一页</a>
+                    </li>
+                {% else %}
+                    <li class="disabled"><a>下一页</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+{% endblock content %}

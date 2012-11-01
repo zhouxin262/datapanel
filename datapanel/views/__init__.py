@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from project.models import Project
 from session.models import Session
 from track.models import Track
+from datapanel.models import CmdSerialNumber
 from datapanel.utils import now
 
 
@@ -26,6 +27,8 @@ def server_info(request):
     html += '<br/>project_count: %d' % Project.objects.filter().count()
     html += '<br/>session_count: %d' % Session.objects.filter().count()
     html += '<br/>track_count: %d' % Track.objects.filter().count()
+    for cmdSerialNumber in CmdSerialNumber.objects.filter():
+        html += '<br/>%s: %d of %s' % (cmdSerialNumber.name, cmdSerialNumber.last_id, cmdSerialNumber.class_name)
     return HttpResponse(html)
 
 
@@ -66,9 +69,12 @@ def t(request):
         except IndexError:
             prv_track = None
 
+        # if action does not exist then add it
+        action = session.project.add_action(request.GET.get('t', ''), request.META.get('HTTP_REFERER', ''))
+
         t = Track()
         t.session = session
-        t.action = request.GET.get('t', '')
+        t.action = action
         t.url = request.META.get('HTTP_REFERER', '')
         t.param = request.GET.get('p', '')
         t.dateline = now()
@@ -76,8 +82,6 @@ def t(request):
 
         session.track_count = session.track_count + 1
         session.save()
-
-        session.project.add_action(t.action, t.url)
 
         # deal with param
         if t.param_display():

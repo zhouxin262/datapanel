@@ -21,7 +21,7 @@ def create(request):
             project.participants.add(request.user)
             project.save()
             return HttpResponseRedirect(reverse('project_home', args=[project.id]))
-    return render(request, 'datapanel/project/create.html', {'form': form})
+    return render(request, 'project/create.html', {'form': form})
 
 
 def home(request, id):
@@ -29,12 +29,12 @@ def home(request, id):
     project.save()
     datetype = request.GET.get('datetype', 'hourline')
     sbt = SessionGroupByTime.objects.filter(project=project, datetype=datetype)
-    return render(request, 'datapanel/project/index.html', {'project': project, 'sbt': sbt})
+    return render(request, 'project/index.html', {'project': project, 'sbt': sbt})
 
 
 def setting(request, id):
     project = request.user.participate_projects.get(id=id)
-    return render(request, 'datapanel/project/setting.html', {'project': project})
+    return render(request, 'project/setting.html', {'project': project})
 
 
 def delete(request, id):

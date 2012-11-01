@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from django.db import models
 
-from project.models import Project
+from project.models import Project, Action
 from session.models import Session
 from datapanel.utils import smart_decode
 
@@ -15,7 +15,7 @@ class Track(models.Model):
     User behavior action track
     """
     session = models.ForeignKey(Session, related_name='track', verbose_name=u'用户会话')
-    action = models.CharField(max_length=255, verbose_name=u'事件', default='')
+    action = models.ForeignKey(Action, related_name='track', verbose_name=u'事件')
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
     xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
     event = models.CharField(max_length=255, verbose_name=u'event', default='')
@@ -124,7 +124,7 @@ class TrackGroupByAction(models.Model):
     action = models.CharField(max_length=255, verbose_name=u'事件', default='')
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
     dateline = models.IntegerField(verbose_name=u"时间")
-    count = models.IntegerField(u'统计数值', null=True)
+    count = models.IntegerField(u'统计数值', null=True, default=0)
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
     class Meta:
@@ -140,7 +140,7 @@ class TrackGroupByValue(models.Model):
     value = models.CharField(u'参数值', max_length=255, null=True)
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
     dateline = models.IntegerField(verbose_name=u"时间", max_length=13)
-    count = models.IntegerField(u'统计数值', null=True)
+    count = models.IntegerField(u'统计数值', null=True, default=0)
 
     class Meta:
         unique_together = (('project', 'name', 'value', 'datetype', 'dateline'), )
