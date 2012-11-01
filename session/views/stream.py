@@ -32,7 +32,7 @@ def list(request, id):
         session_list = paginator.page(1)
     except EmptyPage:
         session_list = paginator.page(paginator.num_pages)
-    return render(request, 'datapanel/stream/list.html', {'project': project,
+    return render(request, 'session/stream/list.html', {'project': project,
                                                           'session_list': session_list, 'params': params})
 
 
@@ -65,7 +65,7 @@ def tile(request, id):
     except EmptyPage:
         session_list = paginator.page(paginator.num_pages)
 
-    return render(request, 'datapanel/stream/stream.html', {'project': project,
+    return render(request, 'session/stream/tile.html', {'project': project,
                                                             'session_list': session_list, 'params': params})
 
 
@@ -86,4 +86,4 @@ def view(request, id, sid):
         track_flow = paginator.page(1)
     except EmptyPage:
         track_flow = paginator.page(paginator.num_pages)
-    return render(request, 'datapanel/stream/view.html', {'project': project, 'track_flow': track_flow})
+    return render(request, 'session/stream/view.html', {'project': project, 'track_flow': track_flow})

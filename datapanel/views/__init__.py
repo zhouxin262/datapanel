@@ -74,6 +74,11 @@ def t(request):
         t.dateline = now()
         t.save()
 
+        session.track_count = session.track_count + 1
+        session.save()
+
+        session.project.add_action(t.action, t.url)
+
         # deal with param
         if t.param_display():
             for k, v in t.param_display().items():

@@ -12,7 +12,7 @@ jx = {
             p.referer = document.referrer;
         }
         var params = this.params(p);
-        var url = 'http://'+host+'/track/?k='+key+'&t=' + encodeURIComponent(t) + '&p=' + encodeURIComponent(params);
+        var url = 'http://'+host+'/t/?k='+key+'&t=' + encodeURIComponent(t) + '&p=' + encodeURIComponent(params);
         return this.load(url, null, 'jsonp');
     },
 	//Create a xmlHttpRequest object - this is the constructor.

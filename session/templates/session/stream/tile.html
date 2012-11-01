@@ -1,0 +1,107 @@
+{%extends 'datapanel/datapanel_base.html'%}
+{% block cssblock %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/stream.css">
+{% endblock cssblock %}
+{% block title %}
+{{project.name}} - 访问路径
+{% endblock title %}
+{% block subnav-stream %}
+<li class="active">
+	<a href="{%url stream_list project.id%}">访问路径</a>
+</li>
+{% endblock subnav-stream %}
+{% block content %}
+<style>
+
+</style>
+<div class="span10">
+	<div class="page-header">
+		<h1>{{project.name}} / 访问路径</h1>
+	</div>
+	<div class="span8">
+		<ul class="nav nav-tabs">
+			<li>
+				<a href="{%url stream_list project.id %}">列表</a>
+			</li>
+			<li class="active">
+				<a href="{%url stream_tile project.id %}">平铺</a>
+			</li>
+		</ul>
+		<ul class="unstyled session-list">
+			{% for session in session_list %}
+			<li>
+				<h3>
+                <a href="{%url stream_view project.id session.id%}">
+					{% if session.username %}
+					{{ session.username }}
+					{% else %}
+					Guest #{{session.id}}
+					{% endif %}
+				</a>
+				<small class="pull-right">{{session.end_time|timesince}}前</small>
+				</h3>
+				<div>
+					<ul class="event-cluster">
+					{{session.get_stream_display|safe}}
+					</ul>
+				</div>
+			</li>
+			{% endfor %}
+		</ul>
+		<div class="pagination pagination-right">
+		 <input type="text" class="input-small pull-left" >
+		 <button type="submit" class="btn pull-left" id="btn_goto_page">跳转</button>
+		  <ul>
+		  	<li class="disabled">
+		 	<a>{{ session_list.number }} / {{ session_list.paginator.num_pages }}</a>
+		 	</li>
+		  	{% if session_list.has_previous %}
+		    <li>
+		    	<a href="?{{params.querystr}}&page={{ session_list.previous_page_number }}">上一页</a>
+		    </li>
+		    {% else %}
+		    <li class="disabled"><a>上一页</a></li>
+		    {% endif %}
+		    {% if session_list.has_next %}
+		    <li>
+		    	<a href="?{{params.querystr}}&page={{ session_list.next_page_number }}">下一页</a>
+		    </li>
+		    {% else %}
+		    <li class="disabled"><a>下一页</a></li>
+		    {% endif %}
+		  </ul>
+		</div>
+	</div>
+	<div class="span2">
+		<form class="form-horizontal">
+		<p>
+			排序
+	  	</p>
+		<p>
+	      <select name="order">
+	      	<option value="t">按时间排序</option>
+	      	<option value="c">按浏览页面数量排序</option>
+	      </select>
+	  	</p>
+		<p>
+			浏览页面数大于
+	  	</p>
+		<p>
+	      <input name="track_count__gt" type="input" class="input-small" >
+	  	</p>
+		<p>
+	      <button type="submit" class="btn">确定</button>
+	  	</p>
+		</form>
+	</div>
+</div>
+<script>
+	$(function(){
+		$("select[name=order]").val('{{params.order}}');
+		$("input[name=track_count__gt]").val('{{params.track_count__gt}}');
+		$.each($(".event-cluster"), function(){
+
+		});
+	});
+</script>
+{% endblock content %}

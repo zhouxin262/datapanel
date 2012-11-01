@@ -21,6 +21,9 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+    def add_action(self, name, url):
+        a = Action(project=self, name=name, url=url)
+        a.save()
 
 
 class Action(models.Model):
@@ -35,3 +38,6 @@ class Action(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        unique_together = (('name', 'project'),)

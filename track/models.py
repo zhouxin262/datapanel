@@ -19,7 +19,7 @@ class Track(models.Model):
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
     xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
     event = models.CharField(max_length=255, verbose_name=u'event', default='')
-    param = models.TextField(verbose_name=u'参数', default='')
+    # param = models.TextField(verbose_name=u'参数', default='')
     # mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
     # is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
     step = models.IntegerField(max_length=50, null=False, default=0)
@@ -136,10 +136,10 @@ class TrackGroupByValue(models.Model):
     TrackGroupbyValue, likes TrackGroupByCondition
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
-    name = models.CharField(max_length=255, verbose_name=u'参数名', default='')
+    name = models.CharField(max_length=20, verbose_name=u'参数名', default='')
     value = models.CharField(u'参数值', max_length=255, null=True)
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
-    dateline = models.IntegerField(verbose_name=u"时间")
+    dateline = models.IntegerField(verbose_name=u"时间", max_length=13)
     count = models.IntegerField(u'统计数值', null=True)
 
     class Meta:
