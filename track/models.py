@@ -70,6 +70,11 @@ class Track(models.Model):
         else:
             return None
 
+    def referer(self):
+        return {'referer': self.get_value('referer'),
+            'referer_site': self.get_value('referer_site'),
+            'referer_keyword': self.get_value('referer_keyword')}
+
     def param_display(self):
         try:
             param = ast.literal_eval(smart_decode(self.param))

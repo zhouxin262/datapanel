@@ -149,7 +149,7 @@ def action(request, id):
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions
-    actions = [a['action'] for a in TrackGroupByAction.objects.filter(project=project).values('action').distinct().order_by('action')]
+    actions = [a.name for a in project.action.order_by('name')]
 
     timestamps = [t[1] for t in times]
     args = {'project': project, 'datetype': datetype, 'dateline__in': timestamps}
@@ -164,7 +164,7 @@ def action(request, id):
 
     print args
     for trackGroupByAction in TrackGroupByAction.objects.filter(**args).order_by('action', 'dateline'):
-        data[trackGroupByAction.action]['data'][timestamps.index(trackGroupByAction.dateline)] = ((trackGroupByAction.dateline, trackGroupByAction.count))
+        data[trackGroupByAction.action.name]['data'][timestamps.index(trackGroupByAction.dateline)] = ((trackGroupByAction.dateline, trackGroupByAction.count))
 
     # # deal with conditions
     # conditions = TrackCondition.objects.filter(project=project)

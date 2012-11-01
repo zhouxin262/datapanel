@@ -35,17 +35,15 @@ class Session(models.Model):
         except IndexError:
             return None
 
-    # def first_referer(self):
-    #     try:
-    #         return TrackValue.objects.filter(name='referer_site', track__session=self).order_by('track__id')[0].track.param_display()
-    #     except IndexError:
-    #         return None
-
-    # def last_referer(self):
-    #     try:
-    #         return TrackValue.objects.filter(name='referer_site', track__session=self).order_by('-track__id')[0].track.param_display()
-    #     except IndexError:
-    #         return None
+    def first_referer(self):
+        try:
+            track = self.first_track()
+            referer_site = track.get_value('referer_site')
+            referer_keyword = track.get_value('referer_keyword')
+            referer = track.get_value('referer')
+            return {'referer_site':referer_site, 'referer_keyword':referer_keyword, 'referer':referer}
+        except:
+            return None
 
     def get_stream_display(self):
         actions = [action.name for action in self.project.action.filter().order_by('id')]
@@ -55,15 +53,15 @@ class Session(models.Model):
             if prev_track:
                 if (prev_track.timelength == 0 or prev_track.timelength > 300) and (t.dateline - prev_track.dateline).seconds > 300:
                     tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline - prev_track.dateline).seconds / 60)
-                    tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
+                    tracks.append([t.action.name, "<span class='type-name'>%s</span>" % t.action.name])
                 else:
                     if t.action == prev_track.action:
                         #tracks[0][1] = "aaaaa"
                         tracks[-1][1] += "<span class='repeat'>*</span>"
                     else:
-                        tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
+                        tracks.append([t.action.name, "<span class='type-name'>%s</span>" % t.action.name])
             else:
-                tracks.append([t.action, "<span class='type-name'>%s</span>" % t.action])
+                tracks.append([t.action.name, "<span class='type-name'>%s</span>" % t.action.name])
             prev_track = t
         return "".join(["<li class='stream-block background-%02d'>%s</li>" % ((actions.index(t[0]) + 1) * 7 % 30, t[1]) for t in tracks])
 
