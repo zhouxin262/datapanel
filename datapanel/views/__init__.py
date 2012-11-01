@@ -9,6 +9,7 @@ from session.models import Session
 from track.models import Track
 from datapanel.models import CmdSerialNumber
 from datapanel.utils import now
+from track.caches import add_track
 
 
 def index(request):
@@ -79,6 +80,9 @@ def t(request):
         t.param = request.GET.get('p', '')
         t.dateline = now()
         t.save()
+
+        # add_track to update the cache data
+        add_track(t)
 
         session.track_count = session.track_count + 1
         session.save()

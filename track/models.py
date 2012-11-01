@@ -121,7 +121,7 @@ class TrackGroupByAction(models.Model):
     ALTER TABLE `datapanel`.`datapanel_trackgroupbyclick` RENAME TO  `datapanel`.`datapanel_trackgroupbycondition` ;
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyaction')
-    action = models.CharField(max_length=255, verbose_name=u'事件', default='')
+    action = models.ForeignKey(Action, related_name='trackgroupbyaction', verbose_name=u'事件')
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
     dateline = models.IntegerField(verbose_name=u"时间")
     count = models.IntegerField(u'统计数值', null=True, default=0)
