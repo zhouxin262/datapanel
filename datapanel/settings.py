@@ -127,6 +127,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'bootstrap',
     'datapanel',
+    'project',
+    'session',
+    'track',
+    'funnel',
     'registration',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
