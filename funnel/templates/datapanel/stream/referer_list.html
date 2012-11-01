@@ -1,0 +1,79 @@
+{%extends 'datapanel/datapanel_base.html'%}
+{% block title %}
+{{project.name}} - 来源分析
+{% endblock title %}
+{% block subnav-referer %}
+<li class="active">
+	<a href="{%url referer_list project.id%}">来源分析</a>
+</li>
+{% endblock subnav-referer %}
+{% block content %}
+<div class="span10">
+	<div class="page-header">
+		<h1>{{project.name}} / 访问路径</h1>
+	</div>
+	<div class="span8">
+		<table class="table table-striped table-bordered">
+			<tr>
+				<th>
+					Group
+				</th>
+				<th>
+					数量
+				</th>
+			</tr>
+			{% for referer in referer_list %}
+			<tr>
+				<td>{%firstof referer.site referer.keyword%}</td>
+				<td>{{referer.c}}</td>
+			</tr>
+			{% endfor %}
+		</table>
+		<div class="pagination pagination-right">
+		 <input type="text" class="input-small pull-left" >
+		 <button type="submit" class="btn pull-left" id="btn_goto_page">跳转</button>
+		  <ul>
+		  	<li class="disabled">
+		 	<a>{{ referer_list.number }} / {{ referer_list.paginator.num_pages }}</a>
+		 	</li>
+		  	{% if referer_list.has_previous %}
+		    <li>
+		    	<a href="?{{params.querystr}}&page={{ referer_list.previous_page_number }}">上一页</a>
+		    </li>
+		    {% else %}
+		    <li class="disabled"><a>上一页</a></li>
+		    {% endif %}
+		    {% if referer_list.has_next %}
+		    <li>
+		    	<a href="?{{params.querystr}}&page={{ referer_list.next_page_number }}">下一页</a>
+		    </li>
+		    {% else %}
+		    <li class="disabled"><a>下一页</a></li>
+		    {% endif %}
+		  </ul>
+		</div>
+	</div>
+	<div class="span2">
+		<form class="form-horizontal">
+		<p>
+	      <select name="groupby">
+	      	<option value="keyword">按关键词统计</option>
+	      	<option value="site">按网站统计</option>
+	      </select>
+	  	</p>
+		<p>
+	      <input type="text" name="keyword" value="" placeholder="关键词过滤" />
+	  	</p>
+		<p>
+	      <button type="submit" class="btn">确定</button>
+	  	</p>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$('select[name=groupby]').val('{{params.groupby}}');
+	$('input[name=keyword]').val('{{params.keyword}}');
+});
+</script>
+{% endblock content %}

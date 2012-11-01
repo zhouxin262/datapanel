@@ -1,0 +1,39 @@
+{%extends 'datapanel/datapanel_base.html'%}
+{% block title %}
+{{project.name}} - 转化路径
+{% endblock title %}
+{% block subnav-funnel %}
+    <li class="active">
+        <a href="{%url funnel_home project.id%}">转化路径</a>
+    </li>
+{% endblock subnav-funnel %}
+{% block content %}
+    <div class="span10">
+        <div class="page-header">
+            <h1>{{project.name}} / 转化路径</h1>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="">转化路径</th>
+                <th class="">排序</th>
+                <th class="">名称</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for action in action_list %}
+                <tr>
+                    <td>{{action.funnel.name}}</td>
+                    <td>{{action.order}}</td>
+                    <td>{{action.action}}</td>
+                    <td><a href='{%url funnel_actionupdate project.id action.funnel.id action.id%}'>编辑</a> |
+                        <a href='{%url funnel_actiondelete project.id action.funnel.id action.id%}'>删除</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a class="btn" href="{%url funnel_actioncreate project.id funnel.id%}">添加动作</a>
+        <a class="btn" href="{%url funnel_list project.id%}">返回</a>
+    </div>
+{% endblock content %}

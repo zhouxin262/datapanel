@@ -1,0 +1,125 @@
+{%extends 'datapanel/datapanel_base.html'%}
+{% block title %}
+    {{project.name}} - 访问量参数分析
+{% endblock title %}
+{% block subnav-track %}
+<li class="active">
+    <a href="{%url track_groupby_value project.id%}">访问量参数分析</a>
+</li>
+{% endblock subnav-track %}
+{% block content %}
+<style>
+.red {color:red};
+</style>
+<div class=" span10">
+	<div class="page-header">
+		<h1>{{project.name}} / 访问量参数分析</h1>
+	</div>
+	<div class="">
+	<ul class="nav nav-pills">
+		<li class="dropdown" id="name">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#name">
+				<b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu">
+				{%for name in value_names%}
+				<li>
+					<a data-id="{{name.name}}" href="?interval={{params.interval}}&timeline=0&datetype={{params.datetype}}&name={{name.name}}">{{name.name}}</a>
+				</li>
+				{%endfor%}
+			</ul>
+		</li>
+		<li class="dropdown" id="datetype">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#datetype">
+				{% if params.datetype == 'hour' %}
+					按小时统计
+				{% elif params.datetype == 'month' %}
+					按月统计
+				{% elif params.datetype == 'week' %}
+					按周统计
+				{% else %}
+					按天统计
+				{% endif %}
+				<b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu">
+				<li>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=hour&name={{params.name}}">按小时统计</a>
+				</li>
+				<li>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=day&name={{params.name}}">按天统计</a>
+				</li>
+				<li>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=week&name={{params.name}}">按周统计</a>
+				</li>
+				<li>
+					<a href="?interval={{params.interval}}&timeline=0&datetype=month&name={{params.name}}">按月统计</a>
+				</li>
+			</ul>
+		</li>
+		<li class="navbar-form">
+			<input id="sd" type="text" class="input-small" value="" placeholder="间隔({{params.interval}}{% if params.datetype == 'H' %}小时{% elif params.datetype == 'M' %}月{% elif params.datetype == 'W' %}周{% else %}天{% endif %})" />
+		</li>
+	</ul>
+    <!--<div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>-->
+	<table class="table table-striped table-hover table-bordered trackgroup-list" id="datatables">
+		<thead>
+			<tr>
+				<th class="action">
+				</th>
+				{% for t in times %}
+					<th>{{t.0|date:"H:i\<\b\r\/\>Y/m/d"|safe}}</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in data.values %}
+			<tr>
+			<td class="action"><a href="{%url track_get_url_by_value project.id %}?name={{params.name}}&value={{row.label}}" target="_blank">{{row.label}}</a></td>
+			{% for value in row.data %}
+				<td data-id="{{row.label}}_{{value.0}}">{{value.1}}</td>
+			{% endfor %}
+			</tr>
+			{% endfor %}
+
+		</tbody>
+	</table>
+    <table class="table table-striped table-hover table-bordered trackgroup-list">
+        <tr>
+            <td>
+                {% if params.timeline = 0 %}
+                    <a class="btn disabled pull-left" href="#">
+                        <i class="icon-chevron-left"></i></a>
+                {% else %}
+                <a class="btn pull-left" href="?interval={{params.interval}}&timeline={{params.timeline|add:-1}}&datetype={{params.datetype}}"><i class="icon-chevron-left"></i></a>
+                {% endif %}
+            </td>
+            <td>
+                    <a class="btn pull-right" href="?interval={{params.interval}}&timeline={{params.timeline|add:1}}&datetype={{params.datetype}}"><i class="icon-chevron-right"></i></a>
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#sd").blur(function(){
+		if(parseInt($(this).val())){
+			var querystring = "?interval="+$(this).val()+"&timeline={{params.timeline}}&datetype={{params.datetype}}&condition_id={{params.condition_id}}";
+			window.location.href = querystring;
+		}
+		else{
+			$(this).val(1).blur();
+		}
+	});
+    $("#name").find("a.dropdown-toggle").html('{{params.name}}<b class="caret"></b>');
+    $('#datatables').dataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bInfo": false,
+        "bFilter": false,
+        "bAutoWidth": false
+    });
+});
+</script>
+{% endblock content %}
