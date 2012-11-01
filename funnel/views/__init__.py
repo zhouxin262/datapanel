@@ -6,8 +6,9 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.views import redirect_to_login
 from django.utils import simplejson
 
-from datapanel.forms import FunnelForm
-from datapanel.models import Funnel, Session
+from funnel.forms import FunnelForm
+from session.models import Session
+from funnel.models import Funnel
 
 
 def home(request, id):

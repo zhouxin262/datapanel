@@ -2,7 +2,8 @@
 import os, sys
 from django.db.models import Max
 import datetime
-from datapanel.models import Session, SessionGroupByTime, Project
+from session.models import Session, SessionGroupByTime
+from project.models import Project
 
 def session_tj(request):
 #    sgbt_max = SessionGroupByTime.objects.all().aggregate(Max('id'))

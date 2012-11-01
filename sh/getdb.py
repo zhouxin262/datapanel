@@ -1,9 +1,11 @@
 import urllib
+import tarfile
 from datetime import datetime
 url = "http://111.67.195.174/sh/db.tar.gz"
 file = "db.tar.gz"
 _prev = 0
 _s = datetime.now()
+cmd = 'mysql.exe --host=localhost --user=root --port=3306 --default-character-set=utf8 --comments --database=datapanel < "db.dmp"'
 
 
 def reporthook(blocks_read, block_size, total_size):
@@ -22,3 +24,12 @@ def reporthook(blocks_read, block_size, total_size):
 
 if __name__ == '__main__':
     urllib.urlretrieve(url, file, reporthook)
+    tar = tarfile.open(file)
+    names = tar.getnames()
+    for name in names:
+        tar.extract(name)
+    tar.close()
+    import os
+    os.system('del db.tar.gz')
+    os.system(cmd)
+    print "finished"

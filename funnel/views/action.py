@@ -4,8 +4,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.views import redirect_to_login
 
-from datapanel.forms import FunnelActionForm
-from datapanel.models import Action, Funnel, FunnelAction
+from project.models import Action
+from funnel.forms import FunnelActionForm
+from funnel.models import Funnel, FunnelAction
 
 
 def create(request, id, funnel_id):
