@@ -41,7 +41,7 @@
         var d1 = [];
         {% for sb in sbt %}
             d1.push(['{{forloop.counter|add:-1}}', {{ sb.value }}]);
-            ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"H:i\<\b\r\/\>Y/m/d"|safe}}'];
+            ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"Y/m/d\<\b\r\/\>H:i"|safe}}'];
         {% endfor %}
         $('.dropdown-toggle').dropdown();
         $('.datepicker').datepicker();
