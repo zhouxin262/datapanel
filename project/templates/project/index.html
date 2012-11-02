@@ -48,7 +48,7 @@
         $.plot($("#placeholder"), [ {label:"访问量",data:d1}], {
             yaxis:{ min:0 },
             grid:{ hoverable:true, clickable:true },
-            xaxis:{ show:false},
+            xaxis:{ ticks:ticks,show:true},
             series:{
                 lines:{ show:true, fill: true },
                 points:{ show:true }
