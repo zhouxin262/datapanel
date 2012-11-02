@@ -2,7 +2,7 @@
 from django.db import models
 
 from project.models import Project
-
+from datetime import timedelta
 
 class Session(models.Model):
     """
@@ -64,9 +64,22 @@ class Session(models.Model):
             prev_track = t
         return "".join(["<li class='stream-block background-%02d'>%s</li>" % ((actions.index(t[0]) + 1) * 7 % 30, t[1]) for t in tracks])
 
+    def get_time(self, datetype):
+        if self.start_time:
+            self.hour = self.start_time.replace(minute=0, second=0, microsecond=0)
+            self.day = self.start_time.replace(hour=0, minute=0, second=0, microsecond=0)
+            self.week = self.start_time.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=self.start_time.weekday())
+            self.month = self.start_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            return getattr(self, datetype)
+        else:
+            return None
 
 class SessionGroupByTime(models.Model):
     project = models.ForeignKey(Project, related_name='sessiongroupbytime')
     datetype = models.CharField(u'统计类型', null=True, max_length=12)
     value = models.IntegerField(u'统计数值', null=True)
     dateline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
+    class Meta:
+        unique_together = (('datetype', 'dateline'),)
+
+

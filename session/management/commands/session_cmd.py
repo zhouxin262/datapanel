@@ -3,6 +3,7 @@ import os, sys
 from django.db.models import Max
 import datetime
 from django.core.management.base import NoArgsCommand
+from datapanel.models import CmdSerialNumber
 from project.models import Project
 from session.models import SessionGroupByTime, Session
 
@@ -10,40 +11,48 @@ from session.models import SessionGroupByTime, Session
 class Command(NoArgsCommand):
 
     def handle(self, *args, **options):
-        sgbt_max = SessionGroupByTime.objects.all().aggregate(Max('id'))
+        cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'sessiongroupbytime', class_name='Session')
+        last_id = cmdSerialNumber[0].last_id
         projects = Project.objects.all()
         for project in projects:
-            sessions = Session.objects.filter(project = project).order_by('start_time')
-            i = 0
-            j = 0
+            sessions = Session.objects.filter(project = project,id__gt = last_id).order_by('start_time')
             start_time = sessions[0].start_time
-            hourline = start_time.strftime('%Y%m%d%H')
-            dayline = start_time.strftime('%Y%m%d')
-            for s in sessions[1:]:
-                s_hourline = s.start_time.strftime('%Y%m%d%H')
-                s_dayline = s.start_time.strftime('%Y%m%d')
-                if s_hourline == hourline:
-                    i += 1
+            hour_value = 0
+            day_value = 0
+            week_value = 0
+            month_value = 0
+            hour = sessions[0].get_time("hour")
+            day = sessions[0].get_time("day")
+            week = sessions[0].get_time("week")
+            month = sessions[0].get_time("month")
+            for s in sessions:
+                s_hour = s.get_time("hour")
+                s_day = s.get_time("day")
+                s_week = s.get_time("week")
+                s_month = s.get_time("month")
+                if s_hour == hour:
+                    hour_value += 1
                 else:
-                    sessionGroupByTime = SessionGroupByTime()
-                    sessionGroupByTime.project = project
-                    sessionGroupByTime.datetype = "hourline"
-                    sessionGroupByTime.dateline = start_time.replace(minute=0, second=0, microsecond=0)
-                    sessionGroupByTime.value = i
-                    sessionGroupByTime.save()
-                    j = j +i
-                    i= 0
-                    hourline = s_hourline
-                    start_time = s.start_time
-                if s_dayline != dayline:
-                    sessionGroupByTime = SessionGroupByTime()
-                    sessionGroupByTime.project = project
-                    sessionGroupByTime.datetype = "dayline"
-                    sessionGroupByTime.dateline = start_time-datetime.timedelta(days=1)
-                    sessionGroupByTime.value = j
-                    sessionGroupByTime.save()
-                    j = 0
-                    dayline = s_dayline
-                    start_time = s.start_time
+                    SessionGroupByTime.objects.get_or_create(project=project,datetype="hour",dateline=hour,value = hour_value)
+                    day_value += hour_value
+                    hour_value= 0
+                    hour = s_hour
+                if s_day != day:
+                    SessionGroupByTime.objects.get_or_create(project=project,datetype="day",dateline=day,value = day_value)
+                    week_value += day_value
+                    day_value = 0
+                    day = s_day
+                if s_week != week:
+                    SessionGroupByTime.objects.get_or_create(project=project,datetype="week",dateline=week,value = week_value)
+                    month_value += day_value
+                    week_value = 0
+                    week = s_week
+                if s_month != month:
+                    SessionGroupByTime.objects.get_or_create(project=project,datetype="month",dateline=month,value = month_value)
+                    month_value = 0
+                    month = s_month
+
+                cmdSerialNumber[0].last_id = s.id
+                cmdSerialNumber[0].save()
 
 

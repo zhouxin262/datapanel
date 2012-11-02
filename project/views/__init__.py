@@ -27,7 +27,7 @@ def create(request):
 def home(request, id):
     project = request.user.participate_projects.get(id=id)
     project.save()
-    datetype = request.GET.get('datetype', 'hourline')
+    datetype = request.GET.get('datetype', 'hour')
     sbt = SessionGroupByTime.objects.filter(project=project, datetype=datetype)
     return render(request, 'project/index.html', {'project': project, 'sbt': sbt})
 
