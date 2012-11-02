@@ -55,6 +55,8 @@ def get_or_create_session(request):
 
 
 def t(request):
+    response = HttpResponse(mimetype="application/x-javascript")
+    response["P3P"] = "CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR";
     if not request.session.session_key:
         request.session.flush()
         request.session.save()
@@ -68,7 +70,7 @@ def t(request):
             prv_track = Track.objects.filter(session=session).order_by('-dateline')[0]
             if prv_track.url == request.META.get('HTTP_REFERER', '') and prv_track.action == request.GET.get('t', ''):
                 # f5 refresh
-                return HttpResponse('', mimetype="application/x-javascript")
+                return response
         except IndexError:
             prv_track = None
 
@@ -105,5 +107,6 @@ def t(request):
     if s[1]:
         # 新开的session，在客户服务器上存一个，需要配合
         response_data = 'jx.callback({mp_act:"set_session", mb_session_key: "%s"});' % s[0].sn
-        return HttpResponse(response_data, mimetype="application/x-javascript")
-    return HttpResponse('', mimetype="application/x-javascript")
+        response.write(response_data)
+        return response
+    return response
