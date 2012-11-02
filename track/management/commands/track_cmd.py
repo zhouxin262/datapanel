@@ -48,35 +48,35 @@ class Command(LabelCommand):
                                     else:
                                         value_dict[key] += 1
 
-            for k, v in action_dict.items():
-                project_id = k.split("|")[0]
-                dateline = k.split("|")[1]
-                action_id = k.split("|")[2]
-                datetype = k.split("|")[3]
-                ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
-                   datetype=datetype,
-                   action_id=action_id,
-                   dateline=dateline)
-                ta[0].count += v
-                ta[0].save()
+                for k, v in action_dict.items():
+                    project_id = k.split("|")[0]
+                    dateline = k.split("|")[1]
+                    action_id = k.split("|")[2]
+                    datetype = k.split("|")[3]
+                    ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
+                       datetype=datetype,
+                       action_id=action_id,
+                       dateline=dateline)
+                    ta[0].count += v
+                    ta[0].save()
 
-            for k, v in value_dict.items():
-                project_id = k.split("|")[0]
-                dateline = k.split("|")[1]
-                name = k.split("|")[2]
-                value = k.split("|")[3]
-                datetype = k.split("|")[4]
-                tv = TrackGroupByValue.objects.get_or_create(project_id=project_id,
-                      datetype=datetype,
-                      name=name,
-                      value=value,
-                      dateline=dateline)
-                tv[0].count += v
-                tv[0].save()
+                for k, v in value_dict.items():
+                    project_id = k.split("|")[0]
+                    dateline = k.split("|")[1]
+                    name = k.split("|")[2]
+                    value = k.split("|")[3]
+                    datetype = k.split("|")[4]
+                    tv = TrackGroupByValue.objects.get_or_create(project_id=project_id,
+                          datetype=datetype,
+                          name=name,
+                          value=value,
+                          dateline=dateline)
+                    tv[0].count += v
+                    tv[0].save()
 
-            # update the last_id which has been grouped
-            cmdSerialNumber[0].last_id = t.id
-            cmdSerialNumber[0].save()
+                # update the last_id which has been grouped
+                cmdSerialNumber[0].last_id = t.id
+                cmdSerialNumber[0].save()
 
 
         elif label == 'value':
