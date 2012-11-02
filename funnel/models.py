@@ -19,3 +19,4 @@ class Swipe(models.Model):
     project = models.ForeignKey(Funnel, related_name='swipes')
     from_action = models.ForeignKey(Action, related_name='swipe_from')
     to_action = models.ForeignKey(Action, related_name='swipe_to')
+
