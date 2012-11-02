@@ -29,5 +29,5 @@ urlpatterns = patterns('',
                        )
 
 urlpatterns += patterns('django.views.generic.simple',
-                        (r'^js/(?P<key>\w+)/$', 'direct_to_template', {'template': 'js_template.js', 'mimetype': "application/javascript"}),
+                        (r'^js/(?P<key>\w+)/$', 'direct_to_template', {'template': 'js_template.js', 'mimetype': "text/javascript"}),
                         )
