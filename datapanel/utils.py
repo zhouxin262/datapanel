@@ -4,14 +4,16 @@ from datetime import tzinfo, timedelta, datetime
 
 def smart_decode(s):
     try:
-        return s.decode('utf-8', 'strict')
+        # '%u5973%u4EBA%u6210%u4EBA%u7528%u54C1' for sogou sb unicode
+        return "".join([unichr(int(i, 16)) for i in s.split('%u')[1:]])
     except:
-        codings = ['gbk','gb18030','gb2312','cp936', 'big5']
-        for coding in codings:
+        try:
+            return s.decode('utf-8', 'strict')
+        except:
             try:
-                return s.decode(coding, 'strict' )
-            except UnicodeDecodeError:
-                    return ''
+                return s.decode('gbk', 'strict')
+            except:
+                return ''
 
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
