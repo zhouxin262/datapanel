@@ -82,7 +82,7 @@ def t(request):
         t.save()
 
         # add_track to update the cache data
-        add_track(t)
+        # add_track(t)
 
         session.track_count = session.track_count + 1
         session.save()
