@@ -10,6 +10,7 @@ from track.models import Track
 from datapanel.models import CmdSerialNumber
 from datapanel.utils import now
 from track.caches import add_track
+from funnel.models import Swipe
 
 
 def index(request):
@@ -28,6 +29,7 @@ def server_info(request):
     html += '<br/>project_count: %d' % Project.objects.filter().count()
     html += '<br/>session_count: %d' % Session.objects.filter().count()
     html += '<br/>track_count: %d' % Track.objects.filter().count()
+    html += '<br/>swipe_count: %d' % Swipe.objects.filter().count()
     for cmdSerialNumber in CmdSerialNumber.objects.filter():
         html += '<br/>%s: %d of %s' % (cmdSerialNumber.name, cmdSerialNumber.last_id, cmdSerialNumber.class_name)
     return HttpResponse(html)

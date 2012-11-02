@@ -93,7 +93,7 @@ class Track(models.Model):
 
     def prev_track(self):
         try:
-            return self.session.track.filter(id__lt=self.id)[0]
+            return self.session.track.filter(id__lt=self.id).order_by('-id')[0]
         except:
             return None
 

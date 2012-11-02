@@ -5,10 +5,11 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.views import redirect_to_login
 from django.utils import simplejson
+from django.db.models import Count
 
 from funnel.forms import FunnelForm
 from session.models import Session
-from funnel.models import Funnel
+from funnel.models import Funnel, Swipe
 
 
 def home(request, id):
@@ -38,13 +39,21 @@ def home(request, id):
     args = {'track_count__gt': 1, 'end_time__gte': start_date, 'start_time__lte': end_date}
     print args
 
-    y = [a.action.name for a in f.action.filter().order_by('order')]
-    funnel_actions = [";".join(y[:i + 1]) for i in range(len(y))]
+    from_action = None
+    for funnel_action in f.action.filter().order_by('order'):
+        args = {'project': project}
+        if from_action:
+            args['from_action'] = from_action.action
+        args['to_action'] = funnel_action.action
+        print funnel_action.action.id, args, Swipe.objects.filter(**args).aggregate(Count('session'))
+
+        from_action = funnel_action
+    # funnel_actions = [";".join(y[:i + 1]) for i in range(len(y))]
     data = []
-    for funnel_action in funnel_actions:
-        args['stream_str__contains'] = funnel_action
-        data.append([y[funnel_actions.index(funnel_action)], Session.objects.filter(**args).count()])
-    data = simplejson.dumps(data)
+    # for funnel_action in funnel_actions:
+    #     args['stream_str__contains'] = funnel_action
+    #     data.append([y[funnel_actions.index(funnel_action)], Session.objects.filter(**args).count()])
+    # data = simplejson.dumps(data)
     return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
 
 
