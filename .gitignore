@@ -130,4 +130,6 @@ pip-log.txt
 cache
 *.tar.gz
 *.tar
-*.zip
+*.zip*.tmp
+*.dmp
+*.tar.gz
