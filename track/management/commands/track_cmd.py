@@ -16,6 +16,7 @@ class Command(LabelCommand):
     help = "byaction"
 
     def handle_label(self, label, **options):
+        print label, '====started====', datetime.now()
         if label == 'group':
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'trackgroup', class_name='Track')
             last_id = cmdSerialNumber[0].last_id
@@ -95,3 +96,5 @@ class Command(LabelCommand):
                                     TrackValue(track=t, name=k, value=v).save()
                                 except:
                                     print t.id
+
+        print label, '====finished====', datetime.now()
