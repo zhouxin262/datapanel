@@ -59,12 +59,11 @@ jx = {
         url += now;
 
         if(format == 'jsonp') {
-            var head = document.getElementsByTagName("head")[0];
+            var head = document.getElementsByTagName ("head")[0] || document.documentElement;
             var script = document.createElement("script");
             script.src = url;
-            script.type = 'text/javascript';
             script.charset = 'utf-8';
-            head.appendChild(script);
+            head.insertBefore(script, head.firstChild);
             return undefined;
         }
 
