@@ -9,7 +9,7 @@ jx = {
     },
     push: function(t, p) {
         if(!p.referer){
-            p.referer = document.referrer;
+            p.referer = document.referrer | "";
         }
         var params = this.params(p);
         var url = 'http://'+host+'/t/?k='+key+'&t=' + encodeURIComponent(t) + '&p=' + encodeURIComponent(params);
