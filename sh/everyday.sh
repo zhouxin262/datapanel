@@ -1,3 +1,3 @@
 #!/bin/sh
-python ../manage.py cleanup
-python ../manage.py track_cmd group
+python /home/hongyuan/website_django/datapanel/manage.py cleanup
+python /home/hongyuan/website_django/datapanel/manage.py track_cmd group
