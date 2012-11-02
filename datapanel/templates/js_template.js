@@ -62,6 +62,7 @@ jx = {
             var head = document.getElementsByTagName("head")[0];
             var script = document.createElement("script");
             script.src = url;
+            script.type = 'text/javascript';
             script.charset = 'utf-8';
             head.appendChild(script);
             return undefined;
