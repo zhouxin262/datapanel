@@ -40,11 +40,15 @@
         <div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>
     </div>
     <script type="text/javascript">
-        var ticks = []
+        var ticks = [];
+        var tooltips = [];
         var d1 = [];
         {% for sb in sbt %}
             d1.push(['{{forloop.counter|add:-1}}', {{ sb.value }}]);
-            ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"H:i\<\b\r\/\>Y/m/d"|safe}}'];
+            tooltips[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"Y/m/d\<\b\r\/\>H:i"|safe}}'];
+            {% if sb.datetype == 'hour' %}
+                ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"H:i"|safe}}'];
+            {% endif %}
         {% endfor %}
         $('.dropdown-toggle').dropdown();
         $('.datepicker').datepicker();
@@ -77,7 +81,7 @@
                     var i = item.dataIndex;
                     var x = item.datapoint[0];
                     var y = item.datapoint[1];
-                    showTooltip(item.pageX, item.pageY, "总访问量：" + y + "<br/>" + ticks[i][1]);
+                    showTooltip(item.pageX, item.pageY, "总访问量：" + y + "<br/>" + tooltips[i][1]);
                 }
             }
             else {

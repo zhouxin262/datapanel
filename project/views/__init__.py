@@ -1,4 +1,5 @@
 #coding=utf-8
+from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -25,7 +26,10 @@ def create(request):
 
 
 def home(request, id):
-    project = request.user.participate_projects.get(id=id)
+    try:
+        project = request.user.participate_projects.get(id=id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
     project.save()
     datetype = request.GET.get('datetype', 'hour')
     sbt = SessionGroupByTime.objects.filter(project=project, datetype=datetype)
