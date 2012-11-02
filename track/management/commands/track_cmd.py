@@ -74,9 +74,9 @@ class Command(LabelCommand):
                     tv[0].count += v
                     tv[0].save()
 
-            # update the last_id which has been grouped
-            cmdSerialNumber[0].last_id = t.id
-            cmdSerialNumber[0].save()
+                # update the last_id which has been grouped
+                cmdSerialNumber[0].last_id = t.id
+                cmdSerialNumber[0].save()
 
 
         elif label == 'value':
