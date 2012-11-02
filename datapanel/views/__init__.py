@@ -1,5 +1,6 @@
 #coding=utf-8
 import ast
+from datetime import datetime, timedelta
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
@@ -25,10 +26,12 @@ def index(request):
 
 def server_info(request):
     from django.contrib.sessions.models import Session as DjangoSession
+    e = datetime.now()
+    s = datetime.now() - timedelta(seconds=60)
     html = 'django_session_count: %d' % DjangoSession.objects.filter().count()
     html += '<br/>project_count: %d' % Project.objects.filter().count()
-    html += '<br/>session_count: %d' % Session.objects.filter().count()
-    html += '<br/>track_count: %d' % Track.objects.filter().count()
+    html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().count(), Session.objects.filter(start_time__range=[s,e]).count())
+    html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().count(), Track.objects.filter(dateline__range=[s,e]).count())
     html += '<br/>swipe_count: %d' % Swipe.objects.filter().count()
     for cmdSerialNumber in CmdSerialNumber.objects.filter():
         html += '<br/>%s: %d of %s' % (cmdSerialNumber.name, cmdSerialNumber.last_id, cmdSerialNumber.class_name)
