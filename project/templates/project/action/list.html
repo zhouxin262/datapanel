@@ -15,8 +15,7 @@
             <tr>
                 <th class="action">行为名称</th>
                 <th>URL正则</th>
-                <th>控件</th>
-                <th>事件</th>
+                <th>操作</th>
             </tr>
             </thead>
             <tbody>
@@ -24,8 +23,7 @@
                 <tr>
                     <td class="action">{{action.name}}</td>
                     <td>{{action.url}}</td>
-                    <td>{{action.dom}}</td>
-                    <td>{{action.event}}</td>
+                    <td><a href="{%url action_delete action.project.id action.id%}">删除</a></td>
                 </tr>
             {% endfor %}
             </tbody>

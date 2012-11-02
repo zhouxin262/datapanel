@@ -19,15 +19,9 @@ def get_referer_url(request, id):
     else:
         ts = TrackValue.objects.filter(track__session__project=project, name=name, value=value).order_by('-id')[:1]
         if ts:
-            return HttpResponseRedirect(ts[0].track.param_display()['referer'])
+            return HttpResponseRedirect(ts[0].track.get_value('referer'))
         else:
             return HttpResponse('403 forbidden')
-
-    ts = TrackValue.objects.filter(track__session__project=project, name=name, value=value)[:1]
-    if ts:
-        return HttpResponseRedirect(ts[0].track.url)
-    else:
-        return HttpResponse('403 forbidden')
 
 
 def get_url_by_value(request, id):
