@@ -33,26 +33,34 @@ class Command(NoArgsCommand):
                 if s_hour == hour:
                     hour_value += 1
                 else:
-                    SessionGroupByTime.objects.get_or_create(project=project,datetype="hour",dateline=hour,value = hour_value)
+                    sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="hour",dateline=hour)
+                    sgbt[0].value += hour_value
+                    sgbt[0].save()
                     day_value += hour_value
                     hour_value= 0
                     hour = s_hour
                 if s_day != day:
-                    SessionGroupByTime.objects.get_or_create(project=project,datetype="day",dateline=day,value = day_value)
+                    sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="day",dateline=day)
+                    sgbt[0].value += day_value
+                    sgbt[0].save()
                     week_value += day_value
                     day_value = 0
                     day = s_day
                 if s_week != week:
-                    SessionGroupByTime.objects.get_or_create(project=project,datetype="week",dateline=week,value = week_value)
+                    sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="week",dateline=week)
+                    sgbt[0].value += week_value
+                    sgbt[0].save()
                     month_value += day_value
                     week_value = 0
                     week = s_week
                 if s_month != month:
-                    SessionGroupByTime.objects.get_or_create(project=project,datetype="month",dateline=month,value = month_value)
+                    sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="month",dateline=month)
+                    sgbt[0].value += month_value
+                    sgbt[0].save()
                     month_value = 0
                     month = s_month
 
-            cmdSerialNumber[0].last_id = s.id
-            cmdSerialNumber[0].save()
+                cmdSerialNumber[0].last_id = s.id
+                cmdSerialNumber[0].save()
 
 
