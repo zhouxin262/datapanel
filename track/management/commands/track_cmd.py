@@ -21,8 +21,6 @@ class Command(LabelCommand):
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'trackgroup', class_name='Track')
             last_id = cmdSerialNumber[0].last_id
 
-            action_dict = {}
-            value_dict = {}
             c = Track.objects.filter(id__gt = last_id).count()
             _s = datetime.now()
             for i in range(0, c, 1000):
@@ -31,6 +29,10 @@ class Command(LabelCommand):
                 if used_time:
                     print i, c, used_time, '%d seconds left' % ((c-i)/(i/used_time))
                 tt = Track.objects.filter(id__gt = last_id)[i: i + 1000]
+
+
+                action_dict = {}
+                value_dict = {}
                 for t in tt:
                     for datetype in ['hour', 'day', 'week', 'month']:
                         key = '%d|%d|%d|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), t.action.id, datetype)

@@ -52,7 +52,7 @@ class Command(NoArgsCommand):
                     month_value = 0
                     month = s_month
 
-                cmdSerialNumber[0].last_id = s.id
-                cmdSerialNumber[0].save()
+            cmdSerialNumber[0].last_id = s.id
+            cmdSerialNumber[0].save()
 
 
