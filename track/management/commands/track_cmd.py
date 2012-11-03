@@ -86,22 +86,13 @@ class Command(LabelCommand):
             cmdSerialNumber[0].save()
             TrackGroupByAction.objects.filter().delete()
             TrackGroupByValue.objects.filter().delete()
-        elif label == 'value':
-            c = Session.objects.filter().count()
-            _s = datetime.now()
-            for i in range(0, c, 1000):
-                # 1000 lines a time
-                used_time = (datetime.now() - _s).seconds
-                print i, c, used_time
-                ss = Session.objects.filter()[i: i + 1000]
 
-                for s in ss:
-                    for t in s.track.filter().order_by('id'):
-                        if t.param_display():
-                            for k, v in t.param_display().items():
-                                try:
-                                    TrackValue(track=t, name=k, value=v).save()
-                                except:
-                                    print t.id
+        elif label == 'value':
+            # deal with sogou unicode bug
+            tvs = TrackValue.objects.filter(value__startswith = '%u')
+            for tv in tvs:
+                print tv.id
+                tv.value = "".join([unichr(int(i, 16)) for i in tv.value.split('%u')[1:]])
+                tv.save()
 
         print label, '====finished====', datetime.now()
