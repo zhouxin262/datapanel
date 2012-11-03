@@ -80,7 +80,12 @@ class Command(LabelCommand):
                 cmdSerialNumber[0].last_id = t.id
                 cmdSerialNumber[0].save()
 
-
+        elif label == 'truncate':
+            cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'trackgroup', class_name='Track')
+            cmdSerialNumber[0].last_id = 0
+            cmdSerialNumber[0].save()
+            TrackGroupByAction.objects.filter().delete()
+            TrackGroupByValue.objects.filter().delete()
         elif label == 'value':
             c = Session.objects.filter().count()
             _s = datetime.now()
