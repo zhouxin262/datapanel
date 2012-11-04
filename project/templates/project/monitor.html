@@ -145,7 +145,7 @@
         // Update the random dataset at 25FPS for a smoothly-animating chart
 
         setInterval(function updateRandom() {
-            if true_value > 0 {
+            if (true_value > 0) {
                 series[0].data = getRandomData();
                 plot.setData(series);
                 plot.draw();
