@@ -1,5 +1,5 @@
 #coding=utf-8
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
@@ -20,7 +20,7 @@ def home(request, id):
         return redirect_to_login(request.get_full_path())
     params = {}
 
-    start_date = request.GET.get('s', datetime.today(day-1).strftime("%Y-%m-%d"))
+    start_date = request.GET.get('s', (datetime.today() - timedelta(day=1)).strftime("%Y-%m-%d"))
     end_date = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
 
     funnel_list = Funnel.objects.filter(project=project)
