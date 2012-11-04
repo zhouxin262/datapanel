@@ -10,6 +10,7 @@ from django.db.models import Count
 from funnel.forms import FunnelForm
 from session.models import Session
 from funnel.models import Funnel, Swipe
+from track.models import Track
 
 
 def home(request, id):
@@ -36,17 +37,24 @@ def home(request, id):
 
     params['funnel'] = f.name
 
-    # args = {'track_count__gt': 1, 'end_time__gte': start_date, 'start_time__lte': end_date}
     # print args
 
     from_action = None
     data = []
     for funnel_action in f.action.filter().order_by('order'):
-        args = {'project': project}
         if from_action:
+            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            args['project'] = project
             args['from_action'] = from_action.action
-        args['to_action'] = funnel_action.action
-        data.append([funnel_action.action.name, Swipe.objects.filter(**args).aggregate(Count('session'))['session__count']])
+            args['to_action'] = funnel_action.action
+            data.append([funnel_action.action.name, Swipe.objects.filter(**args).aggregate(Count('session'))['session__count']])
+        else:
+            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            args['session__project'] = project
+            args['session__track_count__gte'] = 2
+            args['action'] = funnel_action.action
+            data.append([funnel_action.action.name, Track.objects.filter(**args).aggregate(Count('session'))['session__count']])
+
         from_action = funnel_action
     data = simplejson.dumps(data)
     return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
