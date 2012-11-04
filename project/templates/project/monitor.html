@@ -66,8 +66,8 @@
             }
 
             while (data.length < maximum) {
-                var previous = data.length ? data[data.length - 1] : 50;
-                var y = true_value + Math.random() * 10 - 5;
+                var previous = data.length ? data[data.length - 1] : true_value;
+                var y = previous + Math.random() * 10 - 5;
                 //if(data.length % 40 == 0){y = true_value}
                 data.push(y < 0 ? 0 : y > 300 ? 300 : y);
             }
@@ -145,14 +145,14 @@
         // Update the random dataset at 25FPS for a smoothly-animating chart
 
         setInterval(function updateRandom() {
-            if (true_value > 0) {
+            if true_value > 0 {
                 series[0].data = getRandomData();
                 plot.setData(series);
                 plot.draw();
             }
         }, 40);
 
-        setInterval(get_value, 1000);
+        setInterval(get_value, 3000);
     });
     </script>
 {% endblock content %}
