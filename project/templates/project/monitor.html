@@ -48,10 +48,15 @@
         // this gives us a nice high-res plot while avoiding more than one point per pixel.
 
         var maximum = container.outerWidth() / 2 || 300;
-
+        var true_value = 0;
         //
 
         var data = [];
+        function get_value() {
+            $.get('/project/{{project.id}}/monitor/?track=1', function(data){
+                true_value = parseInt(data);
+            });
+        }
 
         function getRandomData() {
 
@@ -61,7 +66,8 @@
 
             while (data.length < maximum) {
                 var previous = data.length ? data[data.length - 1] : 50;
-                var y = previous + Math.random() * 10 - 5;
+                var y = true_value + Math.random() * 10 - 5;
+                //if(data.length % 40 == 0){y = true_value}
                 data.push(y < 0 ? 0 : y > 100 ? 100 : y);
             }
 
@@ -143,6 +149,7 @@
             plot.draw();
         }, 40);
 
+        setInterval(get_value, 1000);
     });
     </script>
 {% endblock content %}
