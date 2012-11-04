@@ -68,7 +68,7 @@
                 var previous = data.length ? data[data.length - 1] : 50;
                 var y = true_value + Math.random() * 10 - 5;
                 //if(data.length % 40 == 0){y = true_value}
-                data.push(y < 0 ? 0 : y > 100 ? 100 : y);
+                data.push(y < 0 ? 0 : y > 300 ? 300 : y);
             }
 
             // zip the generated y values with the x values
@@ -118,7 +118,7 @@
             },
             yaxis: {
                 min: 0,
-                max: 110
+                max: 310
             },
             legend: {
                 show: true
