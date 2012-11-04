@@ -17,23 +17,26 @@ class Command(LabelCommand):
 
     def handle_label(self, label, **options):
         print label, '====started====', datetime.now()
-        if label == 'group':
+        if label == 'update':
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'trackgroup', class_name='Track')
             last_id = cmdSerialNumber[0].last_id
 
             c = Track.objects.filter(id__gt = last_id).count()
             _s = datetime.now()
-            for i in range(0, c, 1000):
-                # 1000 lines a time
+            for i in range(0, c, 3000):
+                # 3000 lines a time
                 used_time = (datetime.now() - _s).seconds
                 if used_time:
                     print i, c, used_time, '%d seconds left' % ((c-i)/(i/used_time))
-                tt = Track.objects.filter(id__gt = last_id)[i: i + 1000]
+                tt = Track.objects.filter(id__gt = last_id)[i: i + 3000]
 
 
                 action_dict = {}
                 value_dict = {}
                 for t in tt:
+                    t.set_from_track()
+                    t.set_prev_timelength()
+
                     for datetype in ['hour', 'day', 'week', 'month']:
                         key = '%d|%d|%d|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), t.action.id, datetype)
                         if key not in action_dict:

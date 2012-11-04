@@ -13,12 +13,14 @@ from datapanel.utils import smart_decode
 class Track(models.Model):
     """
     User behavior action track
+    ALTER TABLE `datapanel`.`track_track` DROP COLUMN `event` , DROP COLUMN `xpath` , ADD COLUMN `from_track` INT NOT NULL DEFAULT 0  AFTER `url` ;
     """
     session = models.ForeignKey(Session, related_name='track', verbose_name=u'用户会话')
     action = models.ForeignKey(Action, related_name='track', verbose_name=u'事件')
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
-    xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
-    event = models.CharField(max_length=255, verbose_name=u'event', default='')
+    from_track = models.ForeignKey("Track")
+    # xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
+    # event = models.CharField(max_length=255, verbose_name=u'event', default='')
     # param = models.TextField(verbose_name=u'参数', default='')
     # mark = models.SmallIntegerField(max_length=2, verbose_name=u'统计参数', null=False, default=0)
     # is_landing = models.SmallIntegerField(max_length=1, verbose_name=u'是否landing', null=False, default=0)
@@ -102,6 +104,46 @@ class Track(models.Model):
             return self.session.track.filter(id__gt=self.id).order_by('id')[0]
         except:
             return None
+
+    def set_from_track(self, save=True):
+        probably_from_tracks = self.session.track.filter(id__lt=self.id,
+            url=self.get_value('referer')).order_by('id')
+        if not probably_from_tracks:
+            probably_from_tracks = self.session.track.filter(id__lt=self.id).order_by('-id')
+        if probably_from_tracks:
+            self.from_track = probably_from_tracks[0]
+        else:
+            self.from_track = self
+
+        if save:
+            self.save()
+        return self.from_track
+
+    def set_timelength(self, save = True):
+        next_track = self.next_track()
+        # set timelength
+        if next_track:
+            timelength = next_track.dateline - self.dateline
+            # don't care the break
+            # if timelength.seconds < 900:
+            # 15min no move, definitely away from keyboard!
+            #
+            self.timelength = timelength.seconds + 1
+            if save:
+                self.save()
+
+    def set_prev_timelength(self, save = True):
+        prev_track = self.prev_track()
+        # set timelength
+        if prev_track:
+            timelength = self.dateline - prev_track.dateline
+            # don't care the break
+            # if timelength.seconds < 900:
+            # 15min no move, definitely away from keyboard!
+            #
+            prev_track.timelength = timelength.seconds + 1
+            if save:
+                prev_track.save()
 
 
 class TrackValue(models.Model):

@@ -18,8 +18,8 @@ class Command(NoArgsCommand):
     def handle_noargs(self, **options):
         print 'funnel', '====started====', datetime.now()
         cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'swipe', class_name='Track')
-        #last_id = cmdSerialNumber[0].last_id
-        last_id = 0
+        last_id = cmdSerialNumber[0].last_id
+        # last_id = 0
 
         c = Track.objects.filter(id__gt = last_id).count()
         _s = datetime.now()
@@ -41,7 +41,9 @@ class Command(NoArgsCommand):
                     swipe.project = t.session.project
                     swipe.session = t.session
                     swipe.from_action = probably_from_track.action
-                    swipe.to_action = t.action
+                    swipe.action = t.action
+                    swipe.from_track = probably_from_track
+                    swipe.track = t
                     swipe.dateline = t.dateline
                     swipes.append(swipe)
                 except IndexError:

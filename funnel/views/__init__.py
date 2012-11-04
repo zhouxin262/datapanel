@@ -9,8 +9,9 @@ from django.db.models import Count
 
 from funnel.forms import FunnelForm
 from session.models import Session
-from funnel.models import Funnel, Swipe
+from funnel.models import Funnel
 from track.models import Track
+from project.models import Action
 
 
 def home(request, id):
@@ -43,13 +44,15 @@ def home(request, id):
     data = []
     for funnel_action in f.action.filter().order_by('order'):
         if from_action:
-            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            #args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            args = {}
             args['project'] = project
             args['from_action'] = from_action.action
             args['to_action'] = funnel_action.action
             data.append([funnel_action.action.name, Swipe.objects.filter(**args).aggregate(Count('session'))['session__count']])
         else:
-            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            #args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            args = {}
             args['session__project'] = project
             args['action'] = funnel_action.action
             data.append([funnel_action.action.name, Track.objects.filter(**args).aggregate(Count('session'))['session__count']])
@@ -58,6 +61,38 @@ def home(request, id):
     data = simplejson.dumps(data)
     return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
 
+
+def get_regular_funnel(project, action = None):
+    funnel = [action, ]
+    count = 1
+    # from_action = Action.objects.get(id = 4)
+    while count:
+        if funnel[-1]:
+            args = {}
+            # args['project'] = project
+            for j, from_action in enumerate(funnel[::-1]):
+                args["__".join(["from_track__swipe" for k in range(j+1)]) + "__action_id"] = from_action.id
+            # print args
+            swipe = Swipe.objects.filter(**args).exclude(action__in = funnel).values('action').annotate(c = Count('id')).order_by('-c')
+        else:
+            swipe = Swipe.objects.filter(project = project).values('action').annotate(c = Count('id')).order_by('-c')
+        print args
+        print Swipe.objects.filter(**args)
+        if swipe and swipe[0]['c'] != 0:
+            funnel.append(Action.objects.get(id = swipe[0]['action']))
+            count = swipe[0]['c']
+        else:
+            count = 0
+    return funnel
+
+def intel(request, id):
+    try:
+        project = request.user.participate_projects.get(id=id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+    action = Action.objects.get(id = 4)
+    print get_regular_funnel(project, action)
+    return render(request, 'datapanel/funnel/intel.html')
 
 def create(request, id):
     try:
@@ -104,6 +139,7 @@ def delete(request, id, funnel_id):
 
 
 def list(request, id):
+
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
