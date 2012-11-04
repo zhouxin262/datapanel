@@ -20,7 +20,7 @@ def home(request, id):
         return redirect_to_login(request.get_full_path())
     params = {}
 
-    start_date = request.GET.get('s', datetime.today().strftime("%Y-%m-%d"))
+    start_date = request.GET.get('s', datetime.today(day-1).strftime("%Y-%m-%d"))
     end_date = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
 
     funnel_list = Funnel.objects.filter(project=project)
@@ -51,7 +51,6 @@ def home(request, id):
         else:
             args = {'dateline__gte': start_date, 'dateline__lte': end_date}
             args['session__project'] = project
-            args['session__track_count__gte'] = 2
             args['action'] = funnel_action.action
             data.append([funnel_action.action.name, Track.objects.filter(**args).aggregate(Count('session'))['session__count']])
 
