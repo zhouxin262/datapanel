@@ -77,7 +77,7 @@ class Session(models.Model):
 class SessionGroupByTime(models.Model):
     project = models.ForeignKey(Project, related_name='sessiongroupbytime')
     datetype = models.CharField(u'统计类型', null=True, max_length=12)
-    value = models.IntegerField(u'统计数值', null=True)
+    value = models.IntegerField(u'统计数值', null=True,default=0)
     dateline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
     class Meta:
         unique_together = (('datetype', 'dateline'),)
