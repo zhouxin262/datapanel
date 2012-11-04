@@ -57,7 +57,7 @@ def referer(request, id):
         if trackGroupByValue.value not in data:
             data[trackGroupByValue.value] = {'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
-    return render(request, 'datapanel/track/groupby_referer.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
+    return render(request, 'track/groupby_referer.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
 
 
 def value(request, id):
@@ -110,7 +110,7 @@ def value(request, id):
         if trackGroupByValue.value not in data:
             data[trackGroupByValue.value] = {'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
-    return render(request, 'datapanel/track/groupby_value.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
+    return render(request, 'track/groupby_value.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
 
 
 def action(request, id):
@@ -168,4 +168,4 @@ def action(request, id):
 
     # # deal with conditions
     # conditions = TrackCondition.objects.filter(project=project)
-    return render(request, 'datapanel/track/groupby_track.html', {'project': project, 'params': params, 'times': times, 'actions': actions, 'data': data})
+    return render(request, 'track/groupby_track.html', {'project': project, 'params': params, 'times': times, 'actions': actions, 'data': data})

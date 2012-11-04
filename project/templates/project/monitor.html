@@ -47,24 +47,25 @@
         // Determine how many data points to keep based on the placeholder's initial size;
         // this gives us a nice high-res plot while avoiding more than one point per pixel.
 
-        var maximum = container.outerWidth() / 2 || 300;
-
+        var maximum = 800;
+        var true_values = [];
+        var true_value = Math.random() * 100 + 100;
         //
 
         var data = [];
+        function get_value() {
+            // $.get('/project/{{project.id}}/monitor/?track=1', function(data){
+            //     true_value = parseInt(data);
+            // });
+            true_values = [Math.random() * 100 + 100, Math.random() * 100 + 100, Math.random() * 100 + 100];
+        }
+        get_value();
 
         function getRandomData() {
-
-            if (data.length) {
+            if (data.length > maximum) {
                 data = data.slice(1);
             }
-
-            while (data.length < maximum) {
-                var previous = data.length ? data[data.length - 1] : 50;
-                var y = previous + Math.random() * 10 - 5;
-                data.push(y < 0 ? 0 : y > 100 ? 100 : y);
-            }
-
+            data.push(true_value + Math.random() * 10 - 5);
             // zip the generated y values with the x values
 
             var res = [];
@@ -112,7 +113,11 @@
             },
             yaxis: {
                 min: 0,
-                max: 110
+                max: 310
+            },
+            xaxis: {
+                min: 0,
+                max: 800
             },
             legend: {
                 show: true
@@ -138,11 +143,16 @@
         // Update the random dataset at 25FPS for a smoothly-animating chart
 
         setInterval(function updateRandom() {
-            series[0].data = getRandomData();
-            plot.setData(series);
-            plot.draw();
+                series[0].data = getRandomData();
+                plot.setData(series);
+                plot.draw();
         }, 40);
 
+        setInterval(get_value, 3000);
+
+        setInterval(function set_value(){
+            true_value = true_values.pop();
+        }, 1000)
     });
     </script>
 {% endblock content %}

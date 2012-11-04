@@ -1,5 +1,5 @@
 #coding=utf-8
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
@@ -10,6 +10,7 @@ from django.db.models import Count
 from funnel.forms import FunnelForm
 from session.models import Session
 from funnel.models import Funnel, Swipe
+from track.models import Track
 
 
 def home(request, id):
@@ -19,7 +20,7 @@ def home(request, id):
         return redirect_to_login(request.get_full_path())
     params = {}
 
-    start_date = request.GET.get('s', datetime.today().strftime("%Y-%m-%d"))
+    start_date = request.GET.get('s', (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d"))
     end_date = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
 
     funnel_list = Funnel.objects.filter(project=project)
@@ -36,24 +37,25 @@ def home(request, id):
 
     params['funnel'] = f.name
 
-    args = {'track_count__gt': 1, 'end_time__gte': start_date, 'start_time__lte': end_date}
-    print args
+    # print args
 
     from_action = None
+    data = []
     for funnel_action in f.action.filter().order_by('order'):
-        args = {'project': project}
         if from_action:
+            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            args['project'] = project
             args['from_action'] = from_action.action
-        args['to_action'] = funnel_action.action
-        print funnel_action.action.id, args, Swipe.objects.filter(**args).aggregate(Count('session'))
+            args['to_action'] = funnel_action.action
+            data.append([funnel_action.action.name, Swipe.objects.filter(**args).aggregate(Count('session'))['session__count']])
+        else:
+            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            args['session__project'] = project
+            args['action'] = funnel_action.action
+            data.append([funnel_action.action.name, Track.objects.filter(**args).aggregate(Count('session'))['session__count']])
 
         from_action = funnel_action
-    # funnel_actions = [";".join(y[:i + 1]) for i in range(len(y))]
-    data = []
-    # for funnel_action in funnel_actions:
-    #     args['stream_str__contains'] = funnel_action
-    #     data.append([y[funnel_actions.index(funnel_action)], Session.objects.filter(**args).count()])
-    # data = simplejson.dumps(data)
+    data = simplejson.dumps(data)
     return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
 
 
