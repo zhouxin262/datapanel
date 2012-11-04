@@ -36,24 +36,19 @@ def home(request, id):
 
     params['funnel'] = f.name
 
-    args = {'track_count__gt': 1, 'end_time__gte': start_date, 'start_time__lte': end_date}
-    print args
+    # args = {'track_count__gt': 1, 'end_time__gte': start_date, 'start_time__lte': end_date}
+    # print args
 
     from_action = None
+    data = []
     for funnel_action in f.action.filter().order_by('order'):
         args = {'project': project}
         if from_action:
             args['from_action'] = from_action.action
         args['to_action'] = funnel_action.action
-        print funnel_action.action.id, args, Swipe.objects.filter(**args).aggregate(Count('session'))
-
+        data.append([funnel_action.action.name, Swipe.objects.filter(**args).aggregate(Count('session'))['session__count']])
         from_action = funnel_action
-    # funnel_actions = [";".join(y[:i + 1]) for i in range(len(y))]
-    data = []
-    # for funnel_action in funnel_actions:
-    #     args['stream_str__contains'] = funnel_action
-    #     data.append([y[funnel_actions.index(funnel_action)], Session.objects.filter(**args).count()])
-    # data = simplejson.dumps(data)
+    data = simplejson.dumps(data)
     return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
 
 

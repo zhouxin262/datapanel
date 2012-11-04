@@ -31,7 +31,7 @@ class Command(NoArgsCommand):
             tt = Track.objects.filter(id__gt = last_id)[i: i + 1000]
             swipes = []
             for t in tt:
-                #try:
+                try:
                     probably_from_tracks = t.session.track.filter(id__lt=t.id,
                         url=t.get_value('referer')).order_by('id')
                     if not probably_from_tracks:
@@ -44,8 +44,8 @@ class Command(NoArgsCommand):
                     swipe.to_action = t.action
                     swipe.dateline = t.dateline
                     swipes.append(swipe)
-                # except IndexError:
-                #     pass
+                except IndexError:
+                     pass
             Swipe.objects.bulk_create(swipes)
             # update the last_id which has been grouped
             cmdSerialNumber[0].last_id = t.id
