@@ -57,6 +57,7 @@
                 true_value = parseInt(data);
             });
         }
+        get_value();
 
         function getRandomData() {
 
@@ -144,9 +145,11 @@
         // Update the random dataset at 25FPS for a smoothly-animating chart
 
         setInterval(function updateRandom() {
-            series[0].data = getRandomData();
-            plot.setData(series);
-            plot.draw();
+            if (true_value > 0) {
+                series[0].data = getRandomData();
+                plot.setData(series);
+                plot.draw();
+            }
         }, 40);
 
         setInterval(get_value, 1000);
