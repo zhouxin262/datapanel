@@ -2,7 +2,7 @@
 import os, sys
 from django.db.models import Max
 import datetime
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import NoArgsCommand, LabelCommand
 from datapanel.models import CmdSerialNumber
 from project.models import Project
 from session.models import SessionGroupByTime, Session
