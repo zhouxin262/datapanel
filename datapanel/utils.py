@@ -1,19 +1,18 @@
 from django.conf import settings
 from datetime import tzinfo, timedelta, datetime
 
-
 def smart_decode(s):
-    try:
+    if s.find('%u') != -1:
         # '%u5973%u4EBA%u6210%u4EBA%u7528%u54C1' for sogou sb unicode
         return "".join([unichr(int(i, 16)) for i in s.split('%u')[1:]])
+    try:
+        return s.decode('utf-8', 'strict')
     except:
         try:
-            return s.decode('utf-8', 'strict')
+            return s.decode('gbk', 'strict')
         except:
-            try:
-                return s.decode('gbk', 'strict')
-            except:
-                return ''
+            return ''
+
 
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
