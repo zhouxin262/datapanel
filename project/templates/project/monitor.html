@@ -47,6 +47,9 @@
         get_value1();
 
         function getRandomData() {
+            if (true_value ==0 && data.length ==0){
+                return []
+            }
             if (data.length > maximum) {
                 data = data.slice(1);
             }
@@ -62,6 +65,9 @@
         }
 
         function getRandomData1() {
+            if (true_value1 ==0 && data1.length ==0){
+                return []
+            }
             if (data1.length > maximum) {
                 data1 = data1.slice(1);
             }

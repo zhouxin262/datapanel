@@ -54,7 +54,7 @@ def monitor(request, id):
             y = Track.objects.filter(session__project=project, dateline__range=[s, e]).count()
             return HttpResponse(y)
         elif request.GET.get('session'):
-            y = Session.objects.filter(project=project, dateline__range=[s, e]).count()
+            y = Session.objects.filter(project=project, start_time__range=[s, e]).count()
             return HttpResponse(y)
     return render(request, 'project/monitor.html', {'project': project, })
 
