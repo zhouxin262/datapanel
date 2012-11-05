@@ -1,9 +1,9 @@
 #coding=utf-8
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.management.base import LabelCommand
 
-# from session.models import Session
+from session.models import Session
 from track.models import Track, TrackValue, TrackGroupByAction, TrackGroupByValue
 from datapanel.models import CmdSerialNumber
 
@@ -43,14 +43,14 @@ class Command(LabelCommand):
                         else:
                             action_dict[key] += 1
 
-                        if datetype != 'hour':
-                            for trackvalue in t.value.filter():
-                                if trackvalue.name != 'referer':
-                                    key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
-                                    if key not in value_dict:
-                                        value_dict[key] = 1
-                                    else:
-                                        value_dict[key] += 1
+                    for datetype in ['day', 'week', 'month']:
+                        for trackvalue in t.value.filter():
+                            if trackvalue.name != 'referer':
+                                key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
+                                if key not in value_dict:
+                                    value_dict[key] = 1
+                                else:
+                                    value_dict[key] += 1
 
                 for k, v in action_dict.items():
                     project_id = k.split("|")[0]
@@ -89,6 +89,27 @@ class Command(LabelCommand):
             TrackGroupByAction.objects.filter().delete()
             TrackGroupByValue.objects.filter().delete()
 
+        elif label == 'keeprecent':
+            print 'session: ', Session.objects.filter().count()
+            print 'track: ', Track.objects.filter().count()
+            now = datetime.now()
+
+            c = 1
+            i = 2
+            while c > 0:
+                s = now - timedelta(days=i+1)
+                e = now - timedelta(days=i)
+                i += 1
+                c = Session.objects.filter(start_time__range = [s, e]).count()
+                print 'find session in', s, e
+                if c:
+                    print c, ' session deleting'
+                    Session.objects.filter(start_time__range = [s, e]).delete()
+                    print c, ' session deleted'
+
+            print 'left session: ', Session.objects.filter().count()
+            print 'left track: ', Track.objects.filter().count()
+
         elif label == 'value':
             # deal with sogou unicode bug
             tvs = TrackValue.objects.filter(value__startswith='%u')
@@ -96,5 +117,8 @@ class Command(LabelCommand):
                 print tv.id
                 tv.value = "".join([unichr(int(i, 16)) for i in tv.value.split('%u')[1:]])
                 tv.save()
+
+        else:
+            print 'wrong label'
 
         print label, '====finished====', datetime.now()

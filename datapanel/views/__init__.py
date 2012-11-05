@@ -70,7 +70,7 @@ def t(request):
         # filter actions
         try:
             prv_track = Track.objects.filter(session=session).order_by('-dateline')[0]
-            if prv_track.url == request.META.get('HTTP_REFERER', '') and prv_track.action == request.GET.get('t', ''):
+            if request.META.get('HTTP_REFERER', '') and prv_track.url == request.META.get('HTTP_REFERER', '') and prv_track.action == request.GET.get('t', ''):
                 # f5 refresh
                 return response
         except IndexError:
@@ -96,7 +96,10 @@ def t(request):
         # deal with param
         if t.param_display():
             for k, v in t.param_display().items():
-                t.set_value(k, v)
+                if len(k.split("__")) > 1:
+                    getattr(t, k.split("__")[0]).set_value(k.split("__")[1], v)
+                else:
+                    t.set_value(k, v)
 
     if request.GET.get('p', ''):
         params = ast.literal_eval(request.GET.get('p', ''))

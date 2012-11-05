@@ -76,18 +76,17 @@ class Session(models.Model):
 
     def set_value(self, name, value, save=True):
         try:
-            tv = SessionValue.objects.get_or_create(session=self, name=name)
-            tv[0].value = value
+            sessionValue = SessionValue.objects.get_or_create(session=self, name=name, value=value)
             if save:
-                tv[0].save()
-            return tv[0]
+                sessionValue[0].save()
+            return sessionValue[0]
         except SessionValue.DoesNotExist:
             return None
 
     def get_value(self, name):
         try:
-            tv = SessionValue.objects.get(session=self, name=name)
-            return tv.value
+            sessionValues = SessionValue.objects.filter(session=self, name=name)
+            return sessionValues
         except SessionValue.DoesNotExist:
             return None
 
@@ -104,6 +103,3 @@ class SessionValue(models.Model):
     session = models.ForeignKey(Session, related_name='value')
     name = models.CharField(max_length=20, verbose_name=u'参数')
     value = models.TextField(verbose_name=u'值')
-
-    class Meta:
-        unique_together = (('session', 'name'), )

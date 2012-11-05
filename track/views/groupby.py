@@ -2,6 +2,7 @@
 import time
 from datetime import timedelta
 
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.cache import cache
 from django.contrib.auth.views import redirect_to_login
@@ -72,6 +73,9 @@ def value(request, id):
         value_names = TrackGroupByValue.objects.filter(project=project).exclude(name__startswith='referer').distinct().values('name')
         cache.set(id + '_trackvalue_names', value_names)
 
+    # todo: no value_names
+    if not value_names:
+        return HttpResponse('<a href="javascript:history.go(-1);">no data now</a>')
     datetype = request.GET.get('datetype', 'day')
     name = request.GET.get('name', value_names[0]['name'])
     interval = int(request.GET.get('interval', 1))

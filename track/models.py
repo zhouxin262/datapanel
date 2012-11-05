@@ -74,21 +74,24 @@ class Track(models.Model):
 
     def param_display(self):
         try:
-            param = ast.literal_eval(smart_decode(self.param))
-            parsed_url = urlparse.urlparse(param['referer'])
-            if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
-                param['referer_site'] = parsed_url.netloc
-                querystring = urlparse.parse_qs(parsed_url.query, True)
-                if parsed_url.netloc.find('baidu') != -1:
-                    #baidu
-                    if 'wd' in querystring:
-                        param['referer_keyword'] = smart_decode(querystring['wd'][0])
-                    elif 'word' in querystring:
-                        param['referer_keyword'] = smart_decode(querystring['word'][0])
-                if parsed_url.netloc.find('sogou') != -1:
-                    #sogou
-                    if 'query' in querystring:
-                        param['referer_keyword'] = smart_decode(querystring['query'][0])
+            param = ast.literal_eval(self.param)
+            try:
+                parsed_url = urlparse.urlparse(param['referer'])
+                if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
+                    param['referer_site'] = parsed_url.netloc
+                    querystring = urlparse.parse_qs(parsed_url.query, True)
+                    if parsed_url.netloc.find('baidu') != -1:
+                        #baidu
+                        if 'wd' in querystring:
+                            param['referer_keyword'] = smart_decode(querystring['wd'][0])
+                        elif 'word' in querystring:
+                            param['referer_keyword'] = smart_decode(querystring['word'][0])
+                    if parsed_url.netloc.find('sogou') != -1:
+                        #sogou
+                        if 'query' in querystring:
+                            param['referer_keyword'] = smart_decode(querystring['query'][0])
+            except:
+                pass
             return param
         except:
             return None
