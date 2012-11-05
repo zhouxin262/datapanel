@@ -31,13 +31,13 @@ class Track(models.Model):
     def referer(self):
         try:
             referer = self.get_value('referer')
-            referer_site = self..get_value('referer_site')
-            referer_keyword = self..get_value('referer_keyword')
+            referer_site = self.get_value('referer_site')
+            referer_keyword = self.get_value('referer_keyword')
 
-            if not referer_keyword and track.from_track:
-                referer = track.from_track.url
+            if not referer_keyword and self.from_track:
+                referer = self.from_track.url
                 referer_site = u'站内'
-                referer_keyword = track.from_track.action
+                referer_keyword = self.from_track.action
 
             return {'referer': referer,
                 'referer_site': referer_site,
