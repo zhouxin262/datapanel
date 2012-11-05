@@ -31,9 +31,14 @@ class Track(models.Model):
     def referer(self):
         try:
             track = self
-            return {'referer': track.get_value('referer'),
-            'referer_site': track.get_value('referer_site'),
-            'referer_keyword': track.get_value('referer_keyword')}
+            if track.from_track:
+                return {'referer': track.from_track.url,
+                'referer_site': u'站内',
+                'referer_keyword': track.from_track.action}
+            else:
+                return {'referer': track.get_value('referer'),
+                'referer_site': track.get_value('referer_site'),
+                'referer_keyword': track.get_value('referer_keyword')}
         except IndexError:
             return None
 
