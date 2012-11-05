@@ -37,7 +37,6 @@ class Track(models.Model):
         except IndexError:
             return None
 
-
     def set_value(self, name, value, save=True):
         try:
             tv = TrackValue.objects.get_or_create(track=self, name=name)

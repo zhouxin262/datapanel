@@ -99,6 +99,7 @@ def t(request):
                 if len(k.split("__")) > 1:
                     getattr(t, k.split("__")[0]).set_value(k.split("__")[1], v)
                 else:
+                    print k,v
                     t.set_value(k, v)
 
     if request.GET.get('p', ''):
