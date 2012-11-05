@@ -18,7 +18,7 @@ class Track(models.Model):
     session = models.ForeignKey(Session, related_name='track', verbose_name=u'用户会话')
     action = models.ForeignKey(Action, related_name='track', verbose_name=u'事件')
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
-    from_track = models.ForeignKey("Track")
+    from_track = models.ForeignKey("Track", null=True)
     # xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
     # event = models.CharField(max_length=255, verbose_name=u'event', default='')
     # param = models.TextField(verbose_name=u'参数', default='')
