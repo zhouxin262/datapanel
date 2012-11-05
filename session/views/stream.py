@@ -1,7 +1,11 @@
 #coding=utf-8
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.views import redirect_to_login
+from django.core.urlresolvers import reverse
+
+from session.models import SessionValue
 
 
 def list(request, id):
@@ -87,3 +91,22 @@ def view(request, id, sid):
     except EmptyPage:
         track_flow = paginator.page(paginator.num_pages)
     return render(request, 'session/stream/view.html', {'project': project, 'track_flow': track_flow})
+
+def get_stream_by_value(request, id):
+    try:
+        project = request.user.participate_projects.get(id=id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+
+    name = request.GET.get('name', '')
+    value = request.GET.get('value', '')
+
+    ts = SessionValue.objects.filter(session__project=project, name=name, value__icontains=value).values('session')
+
+    if len(ts) = 1:
+        return HttpResponseRedirect(reverse('stream_view', args=[id, ts[0]['session']]))
+    elif len(ts) > 1:
+        #todo list
+        return HttpResponseRedirect(reverse('stream_view', args=[id, ts[0]['session']]))
+    else:
+        return HttpResponse('403 forbidden')
