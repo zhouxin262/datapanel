@@ -112,11 +112,11 @@
             },
             yaxis: {
                 min: 0,
-                max: 310
+                max: 210
             },
             xaxis: {
                 min: 0,
-                max: 800
+                max: 600
             },
             legend: {
                 show: true
@@ -147,7 +147,7 @@
                 plot.draw();
         }, 40);
 
-        setInterval(get_value, 60000);
+        setInterval(get_value, 20000);
 
         setInterval(function set_value(){
             second_value = true_value + Math.random() * 10 - 5;
