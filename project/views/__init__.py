@@ -36,6 +36,7 @@ def home(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
     project.save()
+
     datetype = request.GET.get('datetype', 'hour')
     sbt = SessionGroupByTime.objects.filter(project=project, datetype=datetype)
     return render(request, 'project/index.html', {'project': project, 'sbt': sbt})
