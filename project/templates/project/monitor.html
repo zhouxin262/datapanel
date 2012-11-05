@@ -62,15 +62,15 @@
         }
 
         function getRandomData1() {
-            if (data.length > maximum) {
-                data = data.slice(1);
+            if (data1.length > maximum) {
+                data1 = data1.slice(1);
             }
-            data.push(second_value1 + Math.random() * 6 - 3);
+            data1.push(second_value1 + Math.random() * 6 - 3);
             // zip the generated y values with the x values
 
             var res = [];
-            for (var i = 0; i < data.length; ++i) {
-                res.push([i, data[i]])
+            for (var i = 0; i < data1.length; ++i) {
+                res.push([i, data1[i]])
             }
 
             return res;
