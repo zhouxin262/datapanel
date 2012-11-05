@@ -52,7 +52,7 @@ class Track(models.Model):
             tv = TrackValue.objects.get(track=self, name=name)
             return tv.value
         except TrackValue.DoesNotExist:
-            return None
+            return ""
 
     # def set_condition_result(self, condition, result):
     #     tcr = TrackConditionResult.objects.get_or_create(track=self, condition=condition)
