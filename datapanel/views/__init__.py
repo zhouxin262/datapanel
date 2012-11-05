@@ -28,9 +28,9 @@ def server_info(request):
     e = datetime.now()
     s = datetime.now() - timedelta(seconds=60)
     html = 'django_session_count: %d' % DjangoSession.objects.filter().count()
-    html += '<br/>project_count: %d' % Project.objects.filter().count()
-    html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().count(), Session.objects.filter(start_time__range=[s,e]).count())
-    html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().count(), Track.objects.filter(dateline__range=[s,e]).count())
+    html += '<br/>project_count: %d' % Project.objects.filter().order_by('-id')[0].id
+    html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().order_by('-id')[0].id, Session.objects.filter(start_time__range=[s,e]).count())
+    html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().order_by('-id')[0].id, Track.objects.filter(dateline__range=[s,e]).count())
     # html += '<br/>swipe_count: %d' % Swipe.objects.filter().count()
     for cmdSerialNumber in CmdSerialNumber.objects.filter():
         html += '<br/>%s: %d of %s' % (cmdSerialNumber.name, cmdSerialNumber.last_id, cmdSerialNumber.class_name)

@@ -74,6 +74,23 @@ class Session(models.Model):
         else:
             return None
 
+    def set_value(self, name, value, save=True):
+        try:
+            tv = SessionValue.objects.get_or_create(session=self, name=name)
+            tv[0].value = value
+            if save:
+                tv[0].save()
+            return tv[0]
+        except SessionValue.DoesNotExist:
+            return None
+
+    def get_value(self, name):
+        try:
+            tv = SessionValue.objects.get(session=self, name=name)
+            return tv.value
+        except SessionValue.DoesNotExist:
+            return None
+
 class SessionGroupByTime(models.Model):
     project = models.ForeignKey(Project, related_name='sessiongroupbytime')
     datetype = models.CharField(u'统计类型', null=True, max_length=12)
@@ -83,3 +100,10 @@ class SessionGroupByTime(models.Model):
         unique_together = (('datetype', 'dateline'),)
 
 
+class SessionValue(models.Model):
+    session = models.ForeignKey(Session, related_name='value')
+    name = models.CharField(max_length=20, verbose_name=u'参数')
+    value = models.TextField(verbose_name=u'值')
+
+    class Meta:
+        unique_together = (('session', 'name'), )
