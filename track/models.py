@@ -28,6 +28,16 @@ class Track(models.Model):
     timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
 
+    def referer(self):
+        try:
+            track = self
+            return {'referer': track.get_value('referer'),
+            'referer_site': track.get_value('referer_site'),
+            'referer_keyword': track.get_value('referer_keyword')}
+        except IndexError:
+            return None
+
+
     def set_value(self, name, value, save=True):
         try:
             tv = TrackValue.objects.get_or_create(track=self, name=name)
