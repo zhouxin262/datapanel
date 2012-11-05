@@ -25,8 +25,8 @@
 		<tr class="{{ track.action }}">
 		<td>{{ track.action }}</td>
 		<td><a href="{{track.url}}" title="{{track.url}}">{{ track.url|urlizetrunc:50 }}</a>
-			{% if track.referer.referer_site %}
 			<br/>
+			{% if track.referer.referer_site %}
 			来自 {{ track.referer.referer_site }} 关键词: <a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer_keyword }}</a>
 			{% else %}
 			<a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer|urlizetrunc:30 }}</a>
