@@ -103,7 +103,7 @@ def get_stream_by_value(request, id):
 
     ts = SessionValue.objects.filter(session__project=project, name=name, value__icontains=value).values('session')
 
-    if len(ts) = 1:
+    if len(ts) == 1:
         return HttpResponseRedirect(reverse('stream_view', args=[id, ts[0]['session']]))
     elif len(ts) > 1:
         #todo list
