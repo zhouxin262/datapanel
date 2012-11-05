@@ -47,25 +47,16 @@ def monitor(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    print datetime.now()
-    #if request.is_ajax():
-    e = datetime(2012, 11, 01, 22, 31)
-    s = e - timedelta(seconds=60)
-    if request.GET.get('track'):
-        ys = []
-        for i in range(1):
-            e = e - timedelta(seconds=1)
-            s = e - timedelta(seconds=60)
-            y = Track.objects.filter(session__project = project, dateline__range=[s,e]).count()
-            ys.append(y)
-        ys = simplejson.dumps(ys)
-        print datetime.now()
-        return HttpResponse(ys)
-    elif request.GET.get('session'):
-        y = Session.objects.filter(project = project, dateline__range=[s,e]).count()
-        return HttpResponse(y)
-    return render(request, 'project/monitor.html', {'project': project,})
-
+    if request.is_ajax():
+        e = datetime.now()
+        s = e - timedelta(seconds=60)
+        if request.GET.get('track'):
+            y = Track.objects.filter(session__project=project, dateline__range=[s, e]).count()
+            return HttpResponse(y)
+        elif request.GET.get('session'):
+            y = Session.objects.filter(project=project, dateline__range=[s, e]).count()
+            return HttpResponse(y)
+    return render(request, 'project/monitor.html', {'project': project, })
 
 
 def setting(request, id):
