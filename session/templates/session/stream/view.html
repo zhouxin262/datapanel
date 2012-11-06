@@ -27,9 +27,12 @@
 		<td><a href="{{track.url}}" title="{{track.url}}">{{ track.url|urlizetrunc:50 }}</a>
 			<br/>来自
 			{% if track.referer.referer_site %}
-			{% if track.referer.referer_site != "站内" %}
-			{{ track.referer.referer_site }} 关键词:
-			{% endif %} <a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer_keyword }}</a>
+            {% if track.referer.referer_site != "站内" %}
+			<a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer_site }}</a> 关键词:
+            {% endif %}
+            {% if track.referer.referer_keyword %}
+            <a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer_keyword }}</a>
+            {% endif %}
 			{% else %}
 			<a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer|urlizetrunc:30 }}</a>
 			{% endif %}

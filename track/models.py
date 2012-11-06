@@ -34,7 +34,7 @@ class Track(models.Model):
             referer_site = self.get_value('referer_site')
             referer_keyword = self.get_value('referer_keyword')
 
-            if not referer_keyword and self.from_track:
+            if not referer_site and self.from_track:
                 referer = self.from_track.url
                 referer_site = u'站内'
                 referer_keyword = self.from_track.action
