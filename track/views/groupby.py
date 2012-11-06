@@ -52,7 +52,7 @@ def referer(request, id):
     # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
     timestamps = [t[1] for t in times]
     args = {'project': project, 'datetype': datetype, 'name': name, 'dateline__in': timestamps, 'count__gt': 20}
-    trackGroupByValues = TrackGroupByValue.objects.filter(**args).order_by('value', 'dateline')
+    trackGroupByValues = TrackGroupByValue.objects.filter(**args).exclude(value = '').order_by('value', 'dateline')
     data = {}
     for trackGroupByValue in trackGroupByValues:
         if trackGroupByValue.value not in data:

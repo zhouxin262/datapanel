@@ -44,3 +44,14 @@ class Action(models.Model):
 
     class Meta:
         unique_together = (('name', 'project'),)
+
+
+class Keyword(models.Model):
+    """
+    Websites' manager focus their keyword
+    """
+    project = models.ForeignKey(Project, related_name='keywords')
+    name = models.CharField(max_length=20, verbose_name='关键词')
+
+    class Meta:
+        unique_together = (('project', 'name'))
