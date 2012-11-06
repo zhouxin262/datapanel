@@ -27,11 +27,8 @@ def referer(request, id):
     params = {'datetype': datetype, 'interval': interval, 'timeline': timeline, 'name': name}
     # deal with time range
     times = []
-    if datetype == 'hour':
-        for i in range(7):
-            t = now().replace(minute=0, second=0, microsecond=0) - timedelta(hours=i * interval + timeline)
-            times.append((t, int(time.mktime(t.timetuple()))))
-    elif datetype == 'day':
+
+    if datetype == 'day':
         for i in range(7):
             t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i * interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
@@ -52,13 +49,18 @@ def referer(request, id):
     # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
     timestamps = [t[1] for t in times]
     args = {'project': project, 'datetype': datetype, 'name': name, 'dateline__in': timestamps, 'count__gt': 20}
-    trackGroupByValues = TrackGroupByValue.objects.filter(**args).exclude(value = '').order_by('value', 'dateline')
+    trackGroupByValues = TrackGroupByValue.objects.filter(**args).exclude(value = '').order_by('-dateline', '-count')
+
+    # for the graph
+    top10 = trackGroupByValues[:10]
+
+
     data = {}
     for trackGroupByValue in trackGroupByValues:
         if trackGroupByValue.value not in data:
-            data[trackGroupByValue.value] = {'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
+            data[trackGroupByValue.value] = {'id':trackGroupByValue.id, 'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
-    return render(request, 'track/groupby_referer.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
+    return render(request, 'track/groupby_referer.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data, 'top10': top10})
 
 
 def value(request, id):
