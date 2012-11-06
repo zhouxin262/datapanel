@@ -49,7 +49,7 @@ def home(request, id):
             args['project'] = project
             args['from_action'] = from_action.action
             args['to_action'] = funnel_action.action
-            data.append([funnel_action.action.name, Swipe.objects.filter(**args).aggregate(Count('session'))['session__count']])
+            data.append([funnel_action.action.name, Track.objects.filter(**args).aggregate(Count('session'))['session__count']])
         else:
             #args = {'dateline__gte': start_date, 'dateline__lte': end_date}
             args = {}
@@ -62,37 +62,86 @@ def home(request, id):
     return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
 
 
-def get_regular_funnel(project, action = None):
-    funnel = [action, ]
-    count = 1
+def get_regular_funnel(project, max_action):
+    funnel = [max_action, ]
+    actions = [action for action in Action.objects.filter(project = project)]
+    funnel_tuple = []
+    # funnel_tree = {}
+
+    s = datetime.now() - timedelta(days = 1)
+    e = datetime.now()
+
+    args = {}
+    args['session__project'] = project
+    args['action'] = max_action
+    args['dateline__gte'] = s
+    args['dateline__lte'] = e
+    max_count = Track.objects.filter(**args).values('session').distinct().count()
+    # print max_action, max_count
+    funnel_tuple.append((max_action, max_count))
+
+    # step = 1
+    # funnel_tree[step] = [(max_action, max_count), ]
     # from_action = Action.objects.get(id = 4)
-    while count:
+    while max_count:
+        max_action = None
+        max_count = 0
         if funnel[-1]:
             args = {}
-            # args['project'] = project
+            args['session__project'] = project
+            args['dateline__gte'] = s
+            args['dateline__lte'] = e
             for j, from_action in enumerate(funnel[::-1]):
-                args["__".join(["from_track__swipe" for k in range(j+1)]) + "__action_id"] = from_action.id
+                args["__".join(["from_track" for k in range(j+1)]) + "__action_id"] = from_action.id
             # print args
-            swipe = Swipe.objects.filter(**args).exclude(action__in = funnel).values('action').annotate(c = Count('id')).order_by('-c')
-        else:
-            swipe = Swipe.objects.filter(project = project).values('action').annotate(c = Count('id')).order_by('-c')
-        print args
-        print Swipe.objects.filter(**args)
-        if swipe and swipe[0]['c'] != 0:
-            funnel.append(Action.objects.get(id = swipe[0]['action']))
-            count = swipe[0]['c']
-        else:
-            count = 0
-    return funnel
+            ts = Track.objects.filter(**args).exclude(action__in = funnel).values('action').annotate(c = Count('id')).order_by('-c')
+            # print ts
+            if ts and ts[0]['c']  > 0:
+                max_action = Action.objects.get(pk = ts[0]['action'])
+                max_count = Track.objects.filter(**args).values('session').distinct().count()
+                funnel.append(max_action)
+                funnel_tuple.append((max_action, max_count))
+        #     actions.remove(funnel[-1])
+
+        #     for action in actions:
+        #         args['action'] = action
+        #         count = Track.objects.filter(**args).values('session').distinct().count()
+        #         if count > max_count:
+        #             max_count = count
+        #             max_action = action
+
+        # if max_action and max_count != 0:
+
+
+    #     step += 1
+    #     funnel_tree[step] = []
+
+    #     if count > 0:
+    #         insert_point = 0
+    #         for a_c in funnel_tree[step]:
+    #             if count <= a_c[1]:
+    #                 insert_point += 1
+    #             else:
+    #                 break
+    #         funnel_tree[step].insert(insert_point, (action, count))
+    # print funnel_tree
+    return funnel_tuple
 
 def intel(request, id):
+    print datetime.now()
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
         return redirect_to_login(request.get_full_path())
-    action = Action.objects.get(id = 4)
-    print get_regular_funnel(project, action)
-    return render(request, 'datapanel/funnel/intel.html')
+
+    funnel = []
+    if request.GET.get('action_id'):
+        action = get_object_or_404(Action, id=request.GET.get('action_id'))
+        funnel = get_regular_funnel(project, action)
+
+    actions = Action.objects.filter()
+    print datetime.now()
+    return render(request, 'datapanel/funnel/intel.html', {'project': project, 'actions': actions, 'funnel': funnel})
 
 def create(request, id):
     try:

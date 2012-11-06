@@ -1,39 +1,38 @@
 {%extends 'datapanel/datapanel_base.html'%}
 {% block title %}
-{{project.name}} - 转化路径
+{{project.name}} - 分析路径
 {% endblock title %}
 {% block subnav-funnel %}
     <li class="active">
-        <a href="{%url funnel_home project.id%}">转化路径</a>
+        <a href="{%url funnel_home project.id%}">分析路径</a>
     </li>
 {% endblock subnav-funnel %}
 {% block content %}
     <div class="span10">
         <div class="page-header">
-            <h1>{{project.name}} / 转化路径</h1>
+            <h1>{{project.name}} / 分析路径</h1>
         </div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th class="">路径名称</th>
-                <th>查看</th>
-                <th>设置路径</th>
-                <th>重命名</th>
-                <th>删除</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for funnel in funnel_list %}
-                <tr>
-                    <td class="">{{funnel.name}}</td>
-                    <td><a href='{%url funnel_home project.id%}?funnel_id={{ funnel.id }}'>查看</a></td>
-                    <td><a href='{%url funnel_actionlist project.id funnel.id%}'>设置路径</a></td>
-                    <td><a href='{%url funnel_update project.id funnel.id%}'>重命名</a></td>
-                    <td><a href='{%url funnel_delete project.id funnel.id%}'>删除</a></td>
-                </tr>
+        <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            选择一个起始动作
+            <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for action in actions %}
+                <li><a href="?action_id={{action.id}}">{{action.name}}</a></li>
+                {% endfor %}
+            <!-- dropdown menu links -->
+            </ul>
+        </div>
+        <div>
+            {% if funnel %}
+            <ol>
+            {% for action in funnel %}
+                <li>{{action.0.name}} {{action.1}}</li>
             {% endfor %}
-            </tbody>
-        </table>
-        <a class="btn" href="{%url funnel_create project.id%}">添加路径</a>
+            </ol>
+            {% endif %}
+        </div>
     </div>
+
 {% endblock content %}
