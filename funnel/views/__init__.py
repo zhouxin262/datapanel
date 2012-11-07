@@ -6,9 +6,9 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.views import redirect_to_login
 from django.utils import simplejson
 from django.db.models import Count
+from django.views.decorators.cache import cache_page
 
 from funnel.forms import FunnelForm
-from session.models import Session
 from funnel.models import Funnel
 from track.models import Track
 from project.models import Action
@@ -50,17 +50,24 @@ def home(request, id):
             for j, from_action in enumerate(from_actions[::-1]):
                 args["__".join(["from_track" for k in range(j + 1)]) + "__action_id"] = from_action.id
             args['action'] = funnel_action.action
+            print args
             data.append([funnel_action.action.name, Track.objects.filter(**args).values('session').distinct().count()])
         else:
-            #args = {'dateline__gte': start_date, 'dateline__lte': end_date}
-            args = {}
+            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
             args['session__project'] = project
             args['action'] = funnel_action.action
             data.append([funnel_action.action.name, Track.objects.filter(**args).values('session').distinct().count()])
 
-        from_actions.append(funnel_action)
-    data = simplejson.dumps(data)
-    return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
+        from_actions.append(funnel_action.action)
+
+    datajson = simplejson.dumps(data)
+    prev_value = 0
+    for value in data:
+        if prev_value:
+            percent = round(float(value[1] * 100) / prev_value[1], 2)
+            value.append(percent)
+        prev_value = value
+    return render(request, 'funnel/home.html', {'project': project, 'datajson': datajson, 'data': data, 'funnel_list': funnel_list, 'params': params})
 
 
 def get_regular_funnel(project, max_action):
@@ -127,6 +134,7 @@ def get_regular_funnel(project, max_action):
     return funnel_tuple
 
 
+@cache_page(600)
 def intel(request, id):
     print datetime.now()
     try:
@@ -141,7 +149,7 @@ def intel(request, id):
 
     actions = Action.objects.filter()
     print datetime.now()
-    return render(request, 'datapanel/funnel/intel.html', {'project': project, 'actions': actions, 'funnel': funnel})
+    return render(request, 'funnel/intel.html', {'project': project, 'actions': actions, 'funnel': funnel})
 
 
 def create(request, id):
@@ -158,7 +166,7 @@ def create(request, id):
             funnel.project = project
             funnel.save()
             return HttpResponseRedirect(reverse('funnel_actionlist', args=[id, funnel.id]))
-    return render(request, 'datapanel/funnel/create.html', {'project': project, 'form': form})
+    return render(request, 'funnel/create.html', {'project': project, 'form': form})
 
 
 def update(request, id, funnel_id):
@@ -174,7 +182,7 @@ def update(request, id, funnel_id):
         if form.is_valid():
             funnel = form.save()
             return HttpResponseRedirect(reverse('funnel_list', args=[id]))
-    return render(request, 'datapanel/funnel/create.html', {'project': project, 'form': form})
+    return render(request, 'funnel/create.html', {'project': project, 'form': form})
 
 
 def delete(request, id, funnel_id):
@@ -196,4 +204,4 @@ def list(request, id):
         return redirect_to_login(request.get_full_path())
 
     funnel_list = Funnel.objects.filter(project=project)
-    return render(request, 'datapanel/funnel/list.html', {'project': project, 'funnel_list': funnel_list, })
+    return render(request, 'funnel/list.html', {'project': project, 'funnel_list': funnel_list, })

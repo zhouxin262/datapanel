@@ -12,6 +12,17 @@
         <div class="page-header">
             <h1>{{project.name}} / 转化路径</h1>
         </div>
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="{%url funnel_home project.id %}">路径数据</a>
+            </li>
+            <li class="active">
+                <a href="{%url funnel_list project.id %}">路径设定</a>
+            </li>
+            <li>
+                <a href="{%url funnel_intel project.id %}">智能分析</a>
+            </li>
+        </ul>
         <table class="table">
             <thead>
             <tr>

@@ -15,6 +15,17 @@
         <div class="page-header">
             <h1>{{project.name}} / 转化路径</h1>
         </div>
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="{%url funnel_home project.id %}">路径数据</a>
+            </li>
+            <li>
+                <a href="{%url funnel_list project.id %}">路径设定</a>
+            </li>
+            <li>
+                <a href="{%url funnel_intel project.id %}">智能分析</a>
+            </li>
+        </ul>
         <div class="">
             <ul class="nav nav-pills">
                 <li class="dropdown" id="funnels">
@@ -32,12 +43,30 @@
             </ul>
         </div>
         <div id="placeholder" style="width:969px;height:300px;"></div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                {% for value in data %}
+                <th>{{value.0}}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                {% for value in data %}
+                <td>{% if value.2 %}
+                    <span>{{value.2}}%</span> ->
+                {% endif %}{{value.1}}</td>
+                {% endfor %}
+                </tr>
+            </tbody>
+        </table>
         <a class="btn" href="{%url funnel_create project.id%}">添加路径</a>
     </div>
     <script type="text/javascript">
     $(function () {
         $("#funnels").find("a.dropdown-toggle").html('{{params.funnel}}<b class="caret"></b>');
-        var data = {{data|safe}};
+        var data = {{datajson|safe}};
 
         $.plot($("#placeholder"), [ data ], {
             series: {
