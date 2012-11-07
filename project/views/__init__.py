@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.db.models import Count
-
+from datetime import datetime
 from project.forms import ProjectForm
 from session.models import Session, SessionGroupByTime
 from track.models import Track
@@ -36,11 +36,27 @@ def home(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
     project.save()
-
-    datetype = request.GET.get('datetype', 'hour')
-    sbt = SessionGroupByTime.objects.filter(project=project, datetype=datetype)
-    return render(request, 'project/index.html', {'project': project, 'sbt': sbt})
-
+    interval = request.GET.get('interval', '0')
+    datetype = ""
+    start_day = ""
+    end_day = ""
+    if interval == "1":
+        start_day = (datetime.today()-timedelta(days=1)).strftime("%Y-%m-%d")
+        end_day = (datetime.today()).strftime("%Y-%m-%d")
+        datetype = "hour"
+    elif interval == "7":
+        start_day = datetime.today().strftime("%Y-%m-%d")
+        end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+    elif interval == "30":
+        start_day = datetime.today().strftime("%Y-%m-%d")
+        end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+    else:
+        start_day = datetime.today().strftime("%Y-%m-%d")
+        end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+        datetype = "hour"
+    s1 = SessionGroupByTime.objects.filter(project=project, datetype=datetype,dateline__gte=start_day).order_by("dateline")
+    s2 = s1.exclude(dateline__gte=end_day)
+    return render(request, 'project/index.html', {'project': project, 'sbt': s2,'interval':interval})
 
 def monitor(request, id):
     try:

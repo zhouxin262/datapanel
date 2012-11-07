@@ -5,9 +5,9 @@
     </li>
 {% endblock subnav-home %}
 {% block content %}
-    <div class=" span10">
+    <div class="span10">
         <div class="page-header">
-            <h1>{{ project.name }} / 网站概况</h1>
+            <h1>{{ project.name }} / 网站概况/浏览量</h1>
         </div>
         <ul class="nav nav-pills">
             <li class="dropdown pull-left" id="menu1">
@@ -36,6 +36,10 @@
                     </li>
                 </ul>
             </li>
+            <li {% if interval == "0" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=0">今天</a></li>
+            <li {% if interval == "1" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">昨天</a></li>
+            <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">最近7天</a></li>
+            <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">最近30天</a></li>
             <li><a href="{%url project_monitor project.id%}">实时数据</a></li>
         </ul>
         <div id="placeholder" style="width:969px;height:500px;margin:10px 0"></div>
