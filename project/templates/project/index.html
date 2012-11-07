@@ -38,8 +38,8 @@
             </li>
             <li {% if interval == "0" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=0">今天</a></li>
             <li {% if interval == "1" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">昨天</a></li>
-            <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">最近7天</a></li>
-            <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">最近30天</a></li>
+            <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=7">最近7天</a></li>
+            <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=30">最近30天</a></li>
             <li><a href="{%url project_monitor project.id%}">实时数据</a></li>
         </ul>
         <div id="placeholder" style="width:969px;height:500px;margin:10px 0"></div>
@@ -52,12 +52,12 @@
             d1.push(['{{forloop.counter|add:-1}}', {{ sb.value }}]);
             tooltips[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"Y/m/d\<\b\r\/\>H:i"|safe}}'];
             {% if sb.datetype == 'hour' %}
-                ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"H:i"|safe}}'];
+                ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"H"|safe}}'];
             {% endif %}
         {% endfor %}
         $('.dropdown-toggle').dropdown();
         $('.datepicker').datepicker();
-        $.plot($("#placeholder"), [ {label:"访问量",data:d1}], {
+        $.plot($("#placeholder"), [{data:d1}], {
             yaxis:{ min:0 },
             grid:{ hoverable:true, clickable:true },
             xaxis:{ ticks:ticks,show:true},

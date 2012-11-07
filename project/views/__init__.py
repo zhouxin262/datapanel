@@ -45,15 +45,17 @@ def home(request, id):
         end_day = (datetime.today()).strftime("%Y-%m-%d")
         datetype = "hour"
     elif interval == "7":
-        start_day = datetime.today().strftime("%Y-%m-%d")
-        end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+        start_day = (datetime.today()-timedelta(days=6)).strftime("%Y-%m-%d")
+        end_day = (datetime.today()).strftime("%Y-%m-%d")
+        datetype = "day"
     elif interval == "30":
-        start_day = datetime.today().strftime("%Y-%m-%d")
-        end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+        start_day = (datetime.today()-timedelta(days=30)).strftime("%Y-%m-%d")
+        end_day = (datetime.today()).strftime("%Y-%m-%d")
     else:
         start_day = datetime.today().strftime("%Y-%m-%d")
         end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
         datetype = "hour"
+
     s1 = SessionGroupByTime.objects.filter(project=project, datetype=datetype,dateline__gte=start_day).order_by("dateline")
     s2 = s1.exclude(dateline__gte=end_day)
     return render(request, 'project/index.html', {'project': project, 'sbt': s2,'interval':interval})
