@@ -38,8 +38,6 @@ def home(request, id):
     project.save()
     interval = request.GET.get('interval', '0')
     datetype = ""
-    start_day = ""
-    end_day = ""
     if interval == "1":
         start_day = (datetime.today()-timedelta(days=1)).strftime("%Y-%m-%d")
         end_day = (datetime.today()).strftime("%Y-%m-%d")
