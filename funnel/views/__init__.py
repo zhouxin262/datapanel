@@ -42,33 +42,34 @@ def home(request, id):
 
     from_action = None
     data = []
+    from_actions = []
     for funnel_action in f.action.filter().order_by('order'):
-        if from_action:
-            #args = {'dateline__gte': start_date, 'dateline__lte': end_date}
-            args = {}
-            args['project'] = project
-            args['from_action'] = from_action.action
-            args['to_action'] = funnel_action.action
-            data.append([funnel_action.action.name, Track.objects.filter(**args).aggregate(Count('session'))['session__count']])
+        if from_actions:
+            args = {'dateline__gte': start_date, 'dateline__lte': end_date}
+            args['session__project'] = project
+            for j, from_action in enumerate(from_actions[::-1]):
+                args["__".join(["from_track" for k in range(j + 1)]) + "__action_id"] = from_action.id
+            args['action'] = funnel_action.action
+            data.append([funnel_action.action.name, Track.objects.filter(**args).values('session').distinct().count()])
         else:
             #args = {'dateline__gte': start_date, 'dateline__lte': end_date}
             args = {}
             args['session__project'] = project
             args['action'] = funnel_action.action
-            data.append([funnel_action.action.name, Track.objects.filter(**args).aggregate(Count('session'))['session__count']])
+            data.append([funnel_action.action.name, Track.objects.filter(**args).values('session').distinct().count()])
 
-        from_action = funnel_action
+        from_actions.append(funnel_action)
     data = simplejson.dumps(data)
     return render(request, 'datapanel/funnel/home.html', {'project': project, 'data': data, 'funnel_list': funnel_list, 'params': params})
 
 
 def get_regular_funnel(project, max_action):
     funnel = [max_action, ]
-    actions = [action for action in Action.objects.filter(project = project)]
+    # actions = [action for action in Action.objects.filter(project=project)]
     funnel_tuple = []
     # funnel_tree = {}
 
-    s = datetime.now() - timedelta(days = 1)
+    s = datetime.now() - timedelta(days=1)
     e = datetime.now()
 
     args = {}
@@ -92,12 +93,12 @@ def get_regular_funnel(project, max_action):
             args['dateline__gte'] = s
             args['dateline__lte'] = e
             for j, from_action in enumerate(funnel[::-1]):
-                args["__".join(["from_track" for k in range(j+1)]) + "__action_id"] = from_action.id
+                args["__".join(["from_track" for k in range(j + 1)]) + "__action_id"] = from_action.id
             # print args
-            ts = Track.objects.filter(**args).exclude(action__in = funnel).values('action').annotate(c = Count('id')).order_by('-c')
+            ts = Track.objects.filter(**args).exclude(action__in=funnel).values('action').annotate(c=Count('id')).order_by('-c')
             # print ts
-            if ts and ts[0]['c']  > 0:
-                max_action = Action.objects.get(pk = ts[0]['action'])
+            if ts and ts[0]['c'] > 0:
+                max_action = Action.objects.get(pk=ts[0]['action'])
                 max_count = Track.objects.filter(**args).values('session').distinct().count()
                 funnel.append(max_action)
                 funnel_tuple.append((max_action, max_count))
@@ -112,10 +113,8 @@ def get_regular_funnel(project, max_action):
 
         # if max_action and max_count != 0:
 
-
     #     step += 1
     #     funnel_tree[step] = []
-
     #     if count > 0:
     #         insert_point = 0
     #         for a_c in funnel_tree[step]:
@@ -126,6 +125,7 @@ def get_regular_funnel(project, max_action):
     #         funnel_tree[step].insert(insert_point, (action, count))
     # print funnel_tree
     return funnel_tuple
+
 
 def intel(request, id):
     print datetime.now()
@@ -142,6 +142,7 @@ def intel(request, id):
     actions = Action.objects.filter()
     print datetime.now()
     return render(request, 'datapanel/funnel/intel.html', {'project': project, 'actions': actions, 'funnel': funnel})
+
 
 def create(request, id):
     try:
