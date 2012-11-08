@@ -1,24 +1,8 @@
-{%extends 'datapanel/datapanel_base.html'%}
-{% block title %}
-{{project.name}} - 转化路径
-{% endblock title %}
-{% block subnav-funnel %}
-    <li class="active">
-        <a href="{%url funnel_home project.id%}">转化路径</a>
-    </li>
-{% endblock subnav-funnel %}
-{% block content %}
-<div class="span10">
-    <div class="page-header">
-        <h1>{{project.name}} / 转化路径</h1>
+<form action="{%url funnel_actioncreate project.id funnel.id%}" method="post" class="form-horizontal">
+    {% csrf_token %}
+    {{ form }}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">保 存</button>
+        <button type="button" onclick="javascript:history.go(-1);" class="btn">取 消</button>
     </div>
-	<form action="" method="post" class="form-horizontal">
-		{%csrf_token%}
-    	{{ form }}
-		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">保 存</button>
-			<button type="button" onclick="javascript:history.go(-1);" class="btn">取 消</button>
-		</div>
-	</form>
-</div>
-{% endblock content %}
+</form>

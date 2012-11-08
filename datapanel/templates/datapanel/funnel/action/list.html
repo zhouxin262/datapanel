@@ -1,17 +1,28 @@
-{%extends 'datapanel/datapanel_base.html'%}
+{% extends 'datapanel/datapanel_base.html' %}
 {% block title %}
-{{project.name}} - 转化路径
+    {{ project.name }} - 转化路径
 {% endblock title %}
 {% block subnav-funnel %}
     <li class="active">
-        <a href="{%url funnel_home project.id%}">转化路径</a>
+        <a href="{% url funnel_home project.id %}">转化路径</a>
     </li>
 {% endblock subnav-funnel %}
 {% block content %}
     <div class="span10">
         <div class="page-header">
-            <h1>{{project.name}} / 转化路径</h1>
+            <h1>{{ project.name }} / 转化路径 / {{ funnel.name }}</h1>
         </div>
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="{% url funnel_home project.id %}">路径数据</a>
+            </li>
+            <li class="active">
+                <a href="{% url funnel_list project.id %}">路径设定</a>
+            </li>
+            <li>
+                <a href="{% url funnel_intel project.id %}">智能分析</a>
+            </li>
+        </ul>
         <table class="table">
             <thead>
             <tr>
@@ -24,16 +35,26 @@
             <tbody>
             {% for action in action_list %}
                 <tr>
-                    <td>{{action.funnel.name}}</td>
-                    <td>{{action.order}}</td>
-                    <td>{{action.action}}</td>
-                    <td><a href='{%url funnel_actionupdate project.id action.funnel.id action.id%}'>编辑</a> |
-                        <a href='{%url funnel_actiondelete project.id action.funnel.id action.id%}'>删除</a></td>
+                    <td>{{ action.funnel.name }}</td>
+                    <td>{{ action.order }}</td>
+                    <td>{{ action.action }}</td>
+                    <td><a href='{% url funnel_actionup project.id action.funnel.id action.id %}'>上移</a> |
+                        <a href='{% url funnel_actiondown project.id action.funnel.id action.id %}'>下移</a> |
+                        <a href='{% url funnel_actionupdate project.id action.funnel.id action.id %}'>编辑</a> |
+                        <a href='{% url funnel_actiondelete project.id action.funnel.id action.id %}'>删除</a></td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        <a class="btn" href="{%url funnel_actioncreate project.id funnel.id%}">添加动作</a>
-        <a class="btn" href="{%url funnel_list project.id%}">返回</a>
+        <a class="btn" href="#" id="create_action">添加动作</a>
+        <a class="btn" href="{% url funnel_list project.id %}">返回</a>
     </div>
+    <div id="create_div" class="span10" style="margin-top: 20px;float: right"></div>
+    <script type="text/javascript">
+        $(function () {
+            $("#create_action").click(function(){
+                $("#create_div").empty().load('{%url funnel_actioncreate project.id funnel.id%}')
+            })
+        });
+    </script>
 {% endblock content %}

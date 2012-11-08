@@ -45,6 +45,14 @@
             {% endfor %}
             </tbody>
         </table>
-        <a class="btn" href="{%url funnel_create project.id%}">添加路径</a>
+        <a class="btn" href="#" id="create_action">添加路径</a>
     </div>
+    <div id="create_div" class="span10" style="margin-top: 20px;float: right"></div>
+    <script type="text/javascript">
+        $(function () {
+            $("#create_action").click(function(){
+                $("#create_div").empty().load('{%url funnel_create project.id%}')
+            })
+        });
+    </script>
 {% endblock content %}

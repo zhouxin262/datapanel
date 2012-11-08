@@ -13,5 +13,5 @@ class Funnel(models.Model):
 
 class FunnelAction(models.Model):
     funnel = models.ForeignKey(Funnel, related_name='action')
-    order = models.IntegerField()
+    order = models.IntegerField(default=0)
     action = models.ForeignKey(Action, related_name='funnelaction')

@@ -15,7 +15,7 @@ class FunnelForm(BootstrapModelForm):
 class FunnelActionForm(BootstrapModelForm):
     class Meta:
         layout = (
-            Fieldset(u"", "action", "order",),
+            Fieldset(u"", "action",),
         )
         model = FunnelAction
-        exclude = ('funnel')
+        exclude = ('funnel','order')
