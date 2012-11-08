@@ -21,8 +21,19 @@ def home(request, id):
         return redirect_to_login(request.get_full_path())
     params = {}
 
-    start_date = request.GET.get('s', (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d"))
-    end_date = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
+    interval = 0
+    try:
+        interval = int(request.GET.get('interval', 0))
+    except:
+        pass
+
+    if interval == 0:
+        start_date = request.GET.get('s', (datetime.today()).strftime("%Y-%m-%d"))
+        end_date = request.GET.get('e', (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d"))
+    else:
+        start_date = request.GET.get('s', (datetime.today() - timedelta(days=interval)).strftime("%Y-%m-%d"))
+        end_date = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
+
 
     funnel_list = Funnel.objects.filter(project=project)
 
@@ -36,7 +47,8 @@ def home(request, id):
         f = Funnel.objects.filter(project=project)[0]
         funnel_id = f.id
 
-    params['funnel'] = f.name
+    params['interval'] = request.GET.get('interval')
+    params['funnel'] = f
 
     # print args
 
@@ -50,7 +62,6 @@ def home(request, id):
             for j, from_action in enumerate(from_actions[::-1]):
                 args["__".join(["from_track" for k in range(j + 1)]) + "__action_id"] = from_action.id
             args['action'] = funnel_action.action
-            print args
             data.append([funnel_action.action.name, Track.objects.filter(**args).values('session').distinct().count()])
         else:
             args = {'dateline__gte': start_date, 'dateline__lte': end_date}
@@ -63,7 +74,7 @@ def home(request, id):
     datajson = simplejson.dumps(data)
     prev_value = 0
     for value in data:
-        if prev_value:
+        if prev_value and prev_value[1] != 0:
             percent = round(float(value[1] * 100) / prev_value[1], 2)
             value.append(percent)
         prev_value = value
