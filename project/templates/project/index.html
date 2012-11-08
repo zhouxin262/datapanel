@@ -7,7 +7,7 @@
 {% block content %}
     <div class="span10">
         <div class="page-header">
-            <h1>{{ project.name }} / 网站概况/浏览量</h1>
+            <h1>{{ project.name }} / 网站概况 / 浏览量</h1>
         </div>
         <ul class="nav nav-pills">
             <li {% if interval == "0" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=0">今天</a></li>

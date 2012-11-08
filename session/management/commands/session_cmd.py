@@ -70,8 +70,8 @@ class Command(LabelCommand):
                                 month_value = 0
                                 month = s_month
 
-                            cmdSerialNumber[0].last_id = s.id
-                            cmdSerialNumber[0].save()
+                        cmdSerialNumber[0].last_id = s.id
+                        cmdSerialNumber[0].save()
 
         elif label == 'truncate':
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'sessiongroupbytime', class_name='Session')
