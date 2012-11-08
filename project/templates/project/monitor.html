@@ -9,6 +9,13 @@
         <div class="page-header">
             <h1>{{ project.name }} / 访问量</h1>
         </div>
+        <ul class="nav nav-pills">
+            <li {% if interval == "0" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=0">今天</a></li>
+            <li {% if interval == "1" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">昨天</a></li>
+            <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=7">最近7天</a></li>
+            <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=30">最近30天</a></li>
+            <li class="active"><a href="{%url project_monitor project.id%}">实时数据</a></li>
+        </ul>
         <h2>页面点击数</h2>
         <div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>
         <h2>用户访问量</h2>

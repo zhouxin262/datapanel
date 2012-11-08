@@ -40,6 +40,10 @@
                         {%endfor%}
                     </ul>
                 </li>
+                <li {% if interval == "0" %}class="active"{% endif %}><a href="{%url funnel_home project.id%}?funnel_id={{f.id}}&interval=0">今天</a></li>
+                <li {% if interval == "1" %}class="active"{% endif %}><a href="{%url funnel_home project.id%}?funnel_id={{f.id}}&interval=1">昨天</a></li>
+                <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url funnel_home project.id%}?funnel_id={{f.id}}&interval=7">最近7天</a></li>
+                <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url funnel_home project.id%}?funnel_id={{f.id}}&interval=30">最近30天</a></li>
             </ul>
         </div>
         <div id="placeholder" style="width:969px;height:300px;"></div>
@@ -66,6 +70,7 @@
     <script type="text/javascript">
     $(function () {
         $("#funnels").find("a.dropdown-toggle").html('{{params.funnel}}<b class="caret"></b>');
+
         var data = {{datajson|safe}};
 
         $.plot($("#placeholder"), [ data ], {
