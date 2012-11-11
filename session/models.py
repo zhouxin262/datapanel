@@ -20,6 +20,8 @@ class Session(models.Model):
     user_timezone = models.CharField(max_length=255, verbose_name=u'客户端时区', default='')
     user_agent = models.CharField(max_length=255, verbose_name=u'客户端类型', default='')
     user_referer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
+    user_referer_keyword = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
+    user_referer_site = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
 

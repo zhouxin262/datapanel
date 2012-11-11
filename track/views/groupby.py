@@ -10,7 +10,6 @@ from django.contrib.auth.views import redirect_to_login
 from track.models import TrackGroupByValue, TrackGroupByAction
 from datapanel.utils import now
 
-
 def referer(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
@@ -24,13 +23,15 @@ def referer(request, id):
     name = request.GET.get('name', value_names[0]['name'])
     interval = int(request.GET.get('interval', 1))
     timeline = int(request.GET.get('timeline', 0))
-    params = {'datetype': datetype, 'interval': interval, 'timeline': timeline, 'name': name}
+    params = {'datetype': datetype, 'interval': interval, 'timeline':
+              timeline, 'name': name}
     # deal with time range
     times = []
 
     if datetype == 'day':
         for i in range(7):
-            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i * interval + timeline)
+            t = now().replace(hour=0, minute=0, second=0,
+                              microsecond=0) - timedelta(days=i * interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'week':
         for i in range(7):
@@ -42,23 +43,25 @@ def referer(request, id):
             month = (now().month - i * interval + timeline) % 12
             if month == 0:
                 month = 12
-            t = now().replace(year=year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+            t = now().replace(year=year, month=month, day=1,
+                              hour=0, minute=0, second=0, microsecond=0)
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions
     # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
     timestamps = [t[1] for t in times]
-    args = {'project': project, 'datetype': datetype, 'name': name, 'dateline__in': timestamps, 'count__gt': 20}
-    trackGroupByValues = TrackGroupByValue.objects.filter(**args).exclude(value = '').order_by('-dateline', '-count')
+    args = {'project': project, 'datetype': datetype, 'name': name,
+            'dateline__in': timestamps, 'count__gt': 20}
+    trackGroupByValues = TrackGroupByValue.objects.filter(
+        **args).exclude(value='').order_by('-dateline', '-count')
 
     # for the graph
     top10 = trackGroupByValues[:10]
 
-
     data = {}
     for trackGroupByValue in trackGroupByValues:
         if trackGroupByValue.value not in data:
-            data[trackGroupByValue.value] = {'id':trackGroupByValue.id, 'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
+            data[trackGroupByValue.value] = {'id': trackGroupByValue.id, 'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
     return render(request, 'track/groupby_referer.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data, 'top10': top10})
 
@@ -82,16 +85,19 @@ def value(request, id):
     name = request.GET.get('name', value_names[0]['name'])
     interval = int(request.GET.get('interval', 1))
     timeline = int(request.GET.get('timeline', 0))
-    params = {'datetype': datetype, 'interval': interval, 'timeline': timeline, 'name': name}
+    params = {'datetype': datetype, 'interval': interval, 'timeline':
+              timeline, 'name': name}
     # deal with time range
     times = []
     if datetype == 'hour':
         for i in range(7):
-            t = now().replace(minute=0, second=0, microsecond=0) - timedelta(hours=i * interval + timeline)
+            t = now().replace(minute=0, second=0,
+                              microsecond=0) - timedelta(hours=i * interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'day':
         for i in range(7):
-            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i * interval + timeline)
+            t = now().replace(hour=0, minute=0, second=0,
+                              microsecond=0) - timedelta(days=i * interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'week':
         for i in range(7):
@@ -103,18 +109,22 @@ def value(request, id):
             month = (now().month - i * interval + timeline) % 12
             if month == 0:
                 month = 12
-            t = now().replace(year=year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+            t = now().replace(year=year, month=month, day=1,
+                              hour=0, minute=0, second=0, microsecond=0)
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions
     # actions = [a['value'] for a in TrackGroupByValue.objects.filter(project=project, name=name, value__isnull=False).values('value').distinct().order_by('value')]
     timestamps = [t[1] for t in times]
-    args = {'project': project, 'datetype': datetype, 'name': name, 'dateline__in': timestamps, 'count__gt': 10}
-    trackGroupByValues = TrackGroupByValue.objects.filter(**args).order_by('value', 'dateline')
+    args = {'project': project, 'datetype': datetype, 'name': name,
+            'dateline__in': timestamps, 'count__gt': 10}
+    trackGroupByValues = TrackGroupByValue.objects.filter(
+        **args).order_by('value', 'dateline')
     data = {}
     for trackGroupByValue in trackGroupByValues:
         if trackGroupByValue.value not in data:
-            data[trackGroupByValue.value] = {'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
+            data[trackGroupByValue.value] = {'label':
+                                             trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
     return render(request, 'track/groupby_value.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
 
@@ -129,17 +139,20 @@ def action(request, id):
     condition_id = int(request.GET.get('condition_id', 0))
     interval = int(request.GET.get('interval', 1))
     timeline = int(request.GET.get('timeline', 0))
-    params = {'datetype': datetype, 'interval': interval, 'timeline': timeline, 'condition_id': condition_id}
+    params = {'datetype': datetype, 'interval': interval, 'timeline':
+              timeline, 'condition_id': condition_id}
 
     # deal with time range
     times = []
     if datetype == 'hour':
         for i in range(7):
-            t = now().replace(minute=0, second=0, microsecond=0) - timedelta(hours=i * interval + timeline)
+            t = now().replace(minute=0, second=0,
+                              microsecond=0) - timedelta(hours=i * interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'day':
         for i in range(7):
-            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=i * interval + timeline)
+            t = now().replace(hour=0, minute=0, second=0,
+                              microsecond=0) - timedelta(days=i * interval + timeline)
             times.append((t, int(time.mktime(t.timetuple()))))
     elif datetype == 'week':
         for i in range(7):
@@ -151,14 +164,16 @@ def action(request, id):
             month = (now().month - i * interval + timeline) % 12
             if month == 0:
                 month = 12
-            t = now().replace(year=year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+            t = now().replace(year=year, month=month, day=1,
+                              hour=0, minute=0, second=0, microsecond=0)
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions
     actions = [a.name for a in project.action.filter().order_by('name')]
 
     timestamps = [t[1] for t in times]
-    args = {'project': project, 'datetype': datetype, 'dateline__in': timestamps}
+    args = {'project': project, 'datetype': datetype, 'dateline__in':
+            timestamps}
     # if condition_id == 0:
     #     args['condition__isnull'] = True
     # else:
@@ -168,7 +183,6 @@ def action(request, id):
     for action in actions:
         data[action] = {'label': action, 'data': [(i, 0) for i in timestamps]}
 
-    print args
     for trackGroupByAction in TrackGroupByAction.objects.filter(**args).order_by('action', 'dateline'):
         data[trackGroupByAction.action.name]['data'][timestamps.index(trackGroupByAction.dateline)] = ((trackGroupByAction.dateline, trackGroupByAction.count))
 

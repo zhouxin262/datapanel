@@ -87,6 +87,9 @@ def t(request):
         t.dateline = now()
         t.save()
 
+        t.set_from_track()
+        t.set_prev_timelength()
+
         # add_track to update the cache data
         # add_track(t)
 

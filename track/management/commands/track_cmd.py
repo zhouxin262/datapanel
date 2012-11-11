@@ -33,9 +33,6 @@ class Command(LabelCommand):
                 action_dict = {}
                 value_dict = {}
                 for t in tt:
-                    t.set_from_track()
-                    t.set_prev_timelength()
-
                     for datetype in ['hour', 'day', 'week', 'month']:
                         key = '%d|%d|%d|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), t.action.id, datetype)
                         if key not in action_dict:

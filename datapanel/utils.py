@@ -1,6 +1,35 @@
 from django.conf import settings
 from datetime import tzinfo, timedelta, datetime
 
+ZERO = timedelta(0)
+HOUR = timedelta(hours=1)
+
+
+def parse_url(url):
+    url_dict = {'url': url, 'netloc': '', 'kw': ''}
+    try:
+        parsed_url = urlparse.urlparse(url)
+        if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
+            url_dict['netloc'] = parsed_url.netloc
+            querystring = urlparse.parse_qs(parsed_url.query, True)
+            if parsed_url.netloc.find('baidu') != -1:
+                #baidu
+                if 'wd' in querystring:
+                    url_dict['kw'] = smart_decode(
+                        querystring['wd'][0])
+                elif 'word' in querystring:
+                    url_dict['kw'] = smart_decode(
+                        querystring['word'][0])
+            if parsed_url.netloc.find('sogou') != -1:
+                #sogou
+                if 'query' in querystring:
+                    url_dict['kw'] = smart_decode(
+                        querystring['query'][0])
+    except:
+        pass
+    return url_dict
+
+
 def smart_decode(s):
     if s.find('%u') != -1:
         # '%u5973%u4EBA%u6210%u4EBA%u7528%u54C1' for sogou sb unicode
@@ -12,10 +41,6 @@ def smart_decode(s):
             return s.decode('gbk', 'strict')
         except:
             return ''
-
-
-ZERO = timedelta(0)
-HOUR = timedelta(hours=1)
 
 
 def now():
