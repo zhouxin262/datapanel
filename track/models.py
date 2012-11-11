@@ -1,6 +1,5 @@
 #coding=utf-8
 import ast
-import urlparse
 from datetime import timedelta
 
 from django.db import models

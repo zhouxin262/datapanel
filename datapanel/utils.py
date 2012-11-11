@@ -1,3 +1,5 @@
+#coding=utf-8
+import urlparse
 from django.conf import settings
 from datetime import tzinfo, timedelta, datetime
 

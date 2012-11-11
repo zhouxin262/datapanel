@@ -53,14 +53,14 @@ def get_or_create_session(request):
         s[0].user_agent = request.META.get('HTTP_USER_AGENT', '')
         s[0].user_timezone = request.META.get('TZ', '')
 
-        try:
-            params = ast.literal_eval(request.GET.get('p', ''))
-            url = parse_url(params['referer'])
-            s[0].user_referer = url['url']
-            s[0].user_referer_site = url['netloc']
-            s[0].user_referer_keyword = url['kw']
-        except:
-            pass
+        #try:
+        params = ast.literal_eval(request.GET.get('p', ''))
+        url = parse_url(params['referer'])
+        s[0].user_referer = url['url']
+        s[0].user_referer_site = url['netloc']
+        s[0].user_referer_keyword = url['kw']
+        # except:
+        #     pass
 
         s[0].save()
     return s
