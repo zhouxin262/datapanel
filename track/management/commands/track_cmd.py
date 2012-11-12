@@ -23,12 +23,13 @@ class Command(LabelCommand):
 
             c = Track.objects.filter(id__gt=last_id).count()
             _s = datetime.now()
-            for i in range(0, c, 3000):
+            print c
+            for i in range(0, c, 5000):
                 # 3000 lines a time
                 used_time = (datetime.now() - _s).seconds
                 if used_time:
                     print i, c, used_time, '%d seconds left' % ((c - i) / (i / used_time))
-                tt = Track.objects.filter(id__gt=last_id)[i: i + 3000]
+                tt = Track.objects.filter(id__gt=last_id)[i: i + 5000]
 
                 action_dict = {}
                 value_dict = {}
@@ -42,12 +43,12 @@ class Command(LabelCommand):
 
                     for datetype in ['day', 'week', 'month']:
                         for trackvalue in t.value.filter():
-                            if trackvalue.name != 'referer':
-                                key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
-                                if key not in value_dict:
-                                    value_dict[key] = 1
-                                else:
-                                    value_dict[key] += 1
+                            if trackvalue.name != 'referer' and len(trackvalue.value) < 30:
+                                    key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
+                                    if key not in value_dict:
+                                        value_dict[key] = 1
+                                    else:
+                                        value_dict[key] += 1
 
                 # update the last_id which has been grouped
                 cmdSerialNumber[0].last_id = t.id
@@ -58,15 +59,12 @@ class Command(LabelCommand):
                     dateline = k.split("|")[1]
                     action_id = k.split("|")[2]
                     datetype = k.split("|")[3]
-                    try:
-                        ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
-                                                                      datetype=datetype,
-                                                                      action_id=action_id,
-                                                                      dateline=dateline)
-                        ta[0].count += v
-                        ta[0].save()
-                    except:
-                        pass
+                    ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
+                                                                  datetype=datetype,
+                                                                  action_id=action_id,
+                                                                  dateline=dateline)
+                    ta[0].count += v
+                    ta[0].save()
 
                 for k, v in value_dict.items():
                     project_id = k.split("|")[0]
@@ -74,16 +72,13 @@ class Command(LabelCommand):
                     name = k.split("|")[2]
                     value = k.split("|")[3]
                     datetype = k.split("|")[4]
-                    try:
-                        tv = TrackGroupByValue.objects.get_or_create(project_id=project_id,
-                                                                     datetype=datetype,
-                                                                     name=name,
-                                                                     value=value,
-                                                                     dateline=dateline)
-                        tv[0].count += v
-                        tv[0].save()
-                    except:
-                        pass
+                    tv = TrackGroupByValue.objects.get_or_create(project_id=project_id,
+                                                                 datetype=datetype,
+                                                                 name=name,
+                                                                 value=value,
+                                                                 dateline=dateline)
+                    tv[0].count += v
+                    tv[0].save()
 
         elif label == 'truncate':
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='trackgroup', class_name='Track')

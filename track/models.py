@@ -172,8 +172,6 @@ class TrackGroupByAction(models.Model):
     removed other kinds of data such as: url, average timelength
 
     ALTER TABLE `datapanel`.`datapanel_trackgroupbyclick` RENAME TO  `datapanel`.`datapanel_trackgroupbycondition` ;
-    ALTER TABLE `datapanel`.`track_trackgroupbyaction` DROP INDEX `project_id` ;
-
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyaction')
     action = models.ForeignKey(
@@ -183,16 +181,21 @@ class TrackGroupByAction(models.Model):
     count = models.IntegerField(u'统计数值', null=False, default=0)
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
+    class Meta:
+        unique_together = (('project', 'action', 'datetype', 'dateline'), )
+
 
 class TrackGroupByValue(models.Model):
     """
     TrackGroupbyValue, likes TrackGroupByCondition
-    ALTER TABLE `datapanel`.`track_trackgroupbyvalue` DROP INDEX `project_id` ;
-    ALTER TABLE `datapanel`.`track_trackgroupbyvalue` CHANGE COLUMN `value` `value` TEXT NULL DEFAULT ''  ;
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
-    name = models.CharField(max_length=20, verbose_name=u'参数名', null=False, default='')
-    value = models.TextField(u'参数值', null=False, default='')
+    name = models.CharField(max_length=20, verbose_name=u'参数名', default='')
+    value = models.CharField(u'参数值', max_length=255, null=False, default='')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
+
+    class Meta:
+        unique_together = (
+            ('project', 'name', 'value', 'datetype', 'dateline'), )
