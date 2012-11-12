@@ -2,7 +2,9 @@
 import time
 from datetime import datetime, timedelta
 from django.core.management.base import LabelCommand
+from django.db.models import Count
 
+from project.models import Project
 from session.models import Session
 from track.models import Track, TrackValue, TrackGroupByAction, TrackGroupByValue
 from datapanel.models import CmdSerialNumber
@@ -14,22 +16,101 @@ A management command for statistics
 
 class Command(LabelCommand):
     help = "byaction"
+    command_name = "track_cmd"
+    label = ""
+
+    def hour_update(self):
+        # hour
+        _s = datetime.now()
+
+        cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='%s %s' % (self.command_name, self.label), class_name='Track')
+        last_id = cmdSerialNumber[0].last_id
+
+        last_time = None
+        try:
+            last_time = Track.objects.get(id=last_id).dateline
+        except:
+            last_time = Track.objects.filter().order_by('dateline')[0].dateline
+
+        if last_time:
+            total_hour = (datetime.now() - last_time).days * 24 + (datetime.now() - last_time).seconds / 3600
+            last_hour = (last_time + timedelta(seconds=3600)).replace(minute=0, second=0, microsecond=0)
+            for hour_step in range(total_hour):
+                # print time used
+                used_time = (datetime.now() - _s).seconds
+                if used_time > 0 and hour_step > 0 and float(hour_step) / used_time > 0:
+                    print hour_step, total_hour, used_time, '%d seconds left' % (float(total_hour - hour_step) / (float(hour_step) / used_time))
+
+                # get time range
+                s = last_hour
+                e = last_hour + timedelta(seconds=3600)
+                dateline = time.mktime(s.timetuple())
+
+                # clean db
+                TrackGroupByAction.objects.filter(dateline=dateline, datetype='hour').delete()
+                TrackGroupByValue.objects.filter(dateline=dateline, datetype='hour').delete()
+
+                # filter track by time
+                track_list = Track.objects.filter(dateline__range=[s, e])
+                trackvalue_list = TrackValue.objects.filter(track__dateline__range=[s, e])
+
+                for p in Project.objects.filter():
+                    # group by track action
+                    dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'))
+                    data = []
+                    for datarow in dataset:
+                        ta = TrackGroupByAction()
+                        ta.project = p
+                        ta.datetype = 'hour'
+                        ta.dateline = dateline
+                        ta.action_id = datarow['action']
+                        ta.count = datarow['c']
+                        data.append(ta)
+
+                    # insert into db
+                    TrackGroupByAction.objects.bulk_create(data)
+
+                    # group by track value
+                    dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'))
+                    data = []
+                    for datarow in dataset:
+                        tv = TrackGroupByValue()
+                        tv.project = p
+                        tv.datetype = 'hour'
+                        tv.dateline = dateline
+                        tv.name = datarow['name']
+                        tv.value = datarow['value']
+                        tv.count = datarow['c']
+                        data.append(tv)
+
+                    # insert into db
+                    TrackGroupByValue.objects.bulk_create(data)
+                    last_hour = e
 
     def handle_label(self, label, **options):
+        self.label = label
         print label, '====started====', datetime.now()
-        if label == 'update':
+        if label == 'hourupdate':
+            self.hour_update()
+
+        elif label == 'update':
+            # day
+
+            # week
+
+            # month
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='trackgroup', class_name='Track')
             last_id = cmdSerialNumber[0].last_id
 
             c = Track.objects.filter(id__gt=last_id).count()
             _s = datetime.now()
             print c
-            for i in range(0, c, 5000):
+            for i in range(0, c, 1000):
                 # 3000 lines a time
                 used_time = (datetime.now() - _s).seconds
                 if used_time:
                     print i, c, used_time, '%d seconds left' % ((c - i) / (i / used_time))
-                tt = Track.objects.filter(id__gt=last_id)[i: i + 5000]
+                tt = Track.objects.filter(id__gt=last_id)[i: i + 1000]
 
                 action_dict = {}
                 value_dict = {}
@@ -44,13 +125,14 @@ class Command(LabelCommand):
                     for datetype in ['day', 'week', 'month']:
                         for trackvalue in t.value.filter():
                             if trackvalue.name != 'referer' and len(trackvalue.value) < 30:
-                                    key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
-                                    if key not in value_dict:
-                                        value_dict[key] = 1
-                                    else:
-                                        value_dict[key] += 1
+                                key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
+                                if key not in value_dict:
+                                    value_dict[key] = 1
+                                else:
+                                    value_dict[key] += 1
 
-                # update the last_id which has been grouped
+                print (datetime.now() - _s).seconds, len(value_dict.keys())
+                # update the last_id whiv ch has been grouped
                 cmdSerialNumber[0].last_id = t.id
                 cmdSerialNumber[0].save()
 
@@ -66,6 +148,7 @@ class Command(LabelCommand):
                     ta[0].count += v
                     ta[0].save()
 
+                print (datetime.now() - _s).seconds
                 for k, v in value_dict.items():
                     project_id = k.split("|")[0]
                     dateline = k.split("|")[1]
@@ -79,6 +162,7 @@ class Command(LabelCommand):
                                                                  dateline=dateline)
                     tv[0].count += v
                     tv[0].save()
+                print (datetime.now() - _s).seconds
 
         elif label == 'truncate':
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='trackgroup', class_name='Track')
