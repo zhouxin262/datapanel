@@ -49,17 +49,24 @@ class Command(LabelCommand):
                                 else:
                                     value_dict[key] += 1
 
+                # update the last_id which has been grouped
+                cmdSerialNumber[0].last_id = t.id
+                cmdSerialNumber[0].save()
+
                 for k, v in action_dict.items():
                     project_id = k.split("|")[0]
                     dateline = k.split("|")[1]
                     action_id = k.split("|")[2]
                     datetype = k.split("|")[3]
-                    ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
-                                                                  datetype=datetype,
-                                                                  action_id=action_id,
-                                                                  dateline=dateline)
-                    ta[0].count += v
-                    ta[0].save()
+                    try:
+                        ta = TrackGroupByAction.objects.get_or_create(project_id=project_id,
+                                                                      datetype=datetype,
+                                                                      action_id=action_id,
+                                                                      dateline=dateline)
+                        ta[0].count += v
+                        ta[0].save()
+                    except:
+                        pass
 
                 for k, v in value_dict.items():
                     project_id = k.split("|")[0]
@@ -67,18 +74,16 @@ class Command(LabelCommand):
                     name = k.split("|")[2]
                     value = k.split("|")[3]
                     datetype = k.split("|")[4]
-                    tv = TrackGroupByValue.objects.get_or_create(project_id=project_id,
-                                                                 datetype=datetype,
-                                                                 name=name,
-                                                                 value=value,
-                                                                 dateline=dateline)
-                    print name, value, datetype, dateline
-                    tv[0].count += v
-                    tv[0].save()
-
-                # update the last_id which has been grouped
-                cmdSerialNumber[0].last_id = t.id
-                cmdSerialNumber[0].save()
+                    try:
+                        tv = TrackGroupByValue.objects.get_or_create(project_id=project_id,
+                                                                     datetype=datetype,
+                                                                     name=name,
+                                                                     value=value,
+                                                                     dateline=dateline)
+                        tv[0].count += v
+                        tv[0].save()
+                    except:
+                        pass
 
         elif label == 'truncate':
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='trackgroup', class_name='Track')
@@ -95,14 +100,14 @@ class Command(LabelCommand):
             c = 1
             i = 2
             while c > 0:
-                s = now - timedelta(days=i+1)
+                s = now - timedelta(days=i + 1)
                 e = now - timedelta(days=i)
                 i += 1
-                c = Session.objects.filter(start_time__range = [s, e]).count()
+                c = Session.objects.filter(start_time__range=[s, e]).count()
                 print 'find session in', s, e
                 if c:
                     print c, ' session deleting'
-                    Session.objects.filter(start_time__range = [s, e]).delete()
+                    Session.objects.filter(start_time__range=[s, e]).delete()
                     print c, ' session deleted'
 
             print 'left session: ', Session.objects.filter().count()
