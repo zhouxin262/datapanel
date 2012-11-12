@@ -74,14 +74,15 @@ class Command(LabelCommand):
                     dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'))
                     data = []
                     for datarow in dataset:
-                        tv = TrackGroupByValue()
-                        tv.project = p
-                        tv.datetype = 'hour'
-                        tv.dateline = dateline
-                        tv.name = datarow['name']
-                        tv.value = datarow['value']
-                        tv.count = datarow['c']
-                        data.append(tv)
+                        if len(datarow['value']) < 30:
+                            tv = TrackGroupByValue()
+                            tv.project = p
+                            tv.datetype = 'hour'
+                            tv.dateline = dateline
+                            tv.name = datarow['name']
+                            tv.value = datarow['value']
+                            tv.count = datarow['c']
+                            data.append(tv)
 
                     # insert into db
                     TrackGroupByValue.objects.bulk_create(data)
