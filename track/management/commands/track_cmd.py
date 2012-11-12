@@ -56,7 +56,7 @@ class Command(LabelCommand):
 
                 for p in Project.objects.filter():
                     # group by track action
-                    dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'))
+                    dataset = [datarow for datarow in track_list.filter(session__project=p).values('action').annotate(c=Count('action'))]
                     data = []
                     for datarow in dataset:
                         ta = TrackGroupByAction()
@@ -71,7 +71,7 @@ class Command(LabelCommand):
                     TrackGroupByAction.objects.bulk_create(data)
 
                     # group by track value
-                    dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'))
+                    dataset = [datarow for datarow in trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'))]
                     data = []
                     for datarow in dataset:
                         if len(datarow['value']) < 30:
