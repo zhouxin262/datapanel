@@ -26,11 +26,7 @@ class Command(LabelCommand):
         cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='%s %s' % (self.command_name, 'hour'), class_name='Track')
         last_id = cmdSerialNumber[0].last_id
 
-        last_time = None
-        try:
-            last_time = Track.objects.get(id=last_id).dateline
-        except:
-            last_time = Track.objects.filter().order_by('dateline')[0].dateline
+        last_time = Track.objects.filter(dateline__gte=datetime.fromtimestamp(last_id)).order_by('dateline')[0].dateline
 
         if last_time:
             total_hour = (datetime.now() - last_time).days * 24 + (datetime.now() - last_time).seconds / 3600
@@ -172,13 +168,8 @@ class Command(LabelCommand):
     def handle_label(self, label, **options):
         self.label = label
         print label, '====started====', datetime.now()
-        if label == 'hourupdate':
-            self.hour_update()
 
-        elif label == 'dayupdate':
-            self.day_update()
-
-        elif label == 'truncate':
+        if label == 'truncate':
             cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='trackgroup', class_name='Track')
             cmdSerialNumber[0].last_id = 0
             cmdSerialNumber[0].save()
@@ -215,6 +206,68 @@ class Command(LabelCommand):
                 tv.save()
 
         else:
-            print 'wrong label'
+            days_before = 0
+            try:
+                days_before = int(label)
+            except:
+                print 'wrong label, should be int'
+                return None
+
+            _s = datetime.now()
+
+            for i in range(24):
+                used_time = (datetime.now() - _s).seconds
+                if used_time > 0:
+                    print used_time, 'seconds used', '%d seconds left' % (float(23 - i) / (float(i) / used_time))
+
+                # get time range
+                s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+                e = s + timedelta(seconds=3600)
+                dateline = time.mktime(s.timetuple())
+                print s, e
+
+                # clean db
+                TrackGroupByAction.objects.filter(dateline=dateline, datetype='hour').delete()
+                TrackGroupByValue.objects.filter(dateline=dateline, datetype='hour').delete()
+
+                # filter track by time
+                track_list = Track.objects.filter(dateline__range=[s, e])
+                trackvalue_list = TrackValue.objects.filter(track__dateline__range=[s, e])
+
+                if track_list:
+                    # foreach project
+                    for p in Project.objects.filter():
+                        # group by track action
+                        dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'))
+                        data = []
+                        for datarow in dataset:
+                            ta = TrackGroupByAction()
+                            ta.project = p
+                            ta.datetype = 'hour'
+                            ta.dateline = dateline
+                            ta.action_id = datarow['action']
+                            ta.count = datarow['c']
+                            data.append(ta)
+
+                        # insert into db
+                        TrackGroupByAction.objects.bulk_create(data)
+
+                        # group by track value
+                        dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'))
+                        data = []
+                        for datarow in dataset:
+                            if len(datarow['value']) < 30:
+                                tv = TrackGroupByValue()
+                                tv.project = p
+                                tv.datetype = 'hour'
+                                tv.dateline = dateline
+                                tv.name = datarow['name']
+                                tv.value = datarow['value']
+                                tv.count = datarow['c']
+                                data.append(tv)
+
+                        # insert into db
+                        TrackGroupByValue.objects.bulk_create(data)
+            print days_before
 
         print label, '====finished====', datetime.now()
