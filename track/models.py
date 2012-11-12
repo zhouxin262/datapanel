@@ -179,6 +179,7 @@ class TrackGroupByAction(models.Model):
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
+    timelength = models.IntegerField(u'访问时长', null=False, default=0)
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
 
@@ -192,3 +193,4 @@ class TrackGroupByValue(models.Model):
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
+    timelength = models.IntegerField(u'访问时长', null=False, default=0)

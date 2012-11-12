@@ -2,7 +2,7 @@
 import time
 from datetime import datetime, timedelta
 from django.core.management.base import LabelCommand
-from django.db.models import Count
+from django.db.models import Count, Sum
 
 from project.models import Project
 from session.models import Session
@@ -18,152 +18,6 @@ class Command(LabelCommand):
     help = "byaction"
     command_name = "track_cmd"
     label = ""
-
-    def hour_update(self):
-        # hour
-        _s = datetime.now()
-
-        cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='%s %s' % (self.command_name, 'hour'), class_name='Track')
-        last_id = cmdSerialNumber[0].last_id
-
-        last_time = Track.objects.filter(dateline__gte=datetime.fromtimestamp(last_id)).order_by('dateline')[0].dateline
-
-        if last_time:
-            total_hour = (datetime.now() - last_time).days * 24 + (datetime.now() - last_time).seconds / 3600
-            last_hour = (last_time).replace(minute=0, second=0, microsecond=0)
-            for hour_step in range(total_hour + 1):
-                # print time used
-                used_time = (datetime.now() - _s).seconds
-                if used_time > 0 and hour_step > 0 and float(hour_step) / used_time > 0:
-                    print hour_step, total_hour, used_time, '%d seconds left' % (float(total_hour - hour_step) / (float(hour_step) / used_time))
-
-                # get time range
-                s = last_hour
-                e = last_hour + timedelta(seconds=3600)
-                dateline = time.mktime(s.timetuple())
-
-                # clean db
-                TrackGroupByAction.objects.filter(dateline=dateline, datetype='hour').delete()
-                TrackGroupByValue.objects.filter(dateline=dateline, datetype='hour').delete()
-
-                # filter track by time
-                track_list = Track.objects.filter(dateline__range=[s, e])
-                trackvalue_list = TrackValue.objects.filter(track__dateline__range=[s, e])
-
-                if track_list:
-                    # update the last_id whiv ch has been grouped
-                    cmdSerialNumber[0].last_id = track_list.order_by('-id')[0].id
-                    cmdSerialNumber[0].save()
-
-                    for p in Project.objects.filter():
-                        # group by track action
-                        dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'))
-                        data = []
-                        for datarow in dataset:
-                            ta = TrackGroupByAction()
-                            ta.project = p
-                            ta.datetype = 'hour'
-                            ta.dateline = dateline
-                            ta.action_id = datarow['action']
-                            ta.count = datarow['c']
-                            data.append(ta)
-
-                        # insert into db
-                        TrackGroupByAction.objects.bulk_create(data)
-
-                        # group by track value
-                        dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'))
-                        data = []
-                        for datarow in dataset:
-                            if len(datarow['value']) < 30:
-                                tv = TrackGroupByValue()
-                                tv.project = p
-                                tv.datetype = 'hour'
-                                tv.dateline = dateline
-                                tv.name = datarow['name']
-                                tv.value = datarow['value']
-                                tv.count = datarow['c']
-                                data.append(tv)
-
-                        # insert into db
-                        TrackGroupByValue.objects.bulk_create(data)
-                last_hour = e
-
-    def day_update(self):
-        # self.day_update()
-        _s = datetime.now()
-
-        # add up all actions
-        cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name='%s %s' % (self.command_name, 'day'), class_name='TrackGroupbyAction')
-        last_id = cmdSerialNumber[0].last_id
-
-        last_time = None
-        try:
-            last_time = Track.objects.get(id=last_id).dateline
-        except:
-            last_time = Track.objects.filter().order_by('dateline')[0].dateline
-
-        if last_time:
-            total_day = (datetime.now() - last_time).days
-            last_day = (last_time).replace(hour=0, minute=0, second=0, microsecond=0)
-            for day_step in range(total_day + 1):
-                # print time used
-                used_time = (datetime.now() - _s).seconds
-                if used_time > 0 and day_step > 0 and float(day_step) / used_time > 0:
-                    print day_step, total_day, used_time, '%d seconds left' % (float(total_day - day_step) / (float(day_step) / used_time))
-
-                # get time range
-                s = last_day
-                e = last_day + timedelta(days=1)
-                s_timestamp = time.mktime(s.timetuple())
-                e_timestamp = time.mktime(e.timetuple())
-                dateline = time.mktime(s.timetuple())
-
-                # clean db
-                TrackGroupByAction.objects.filter(dateline=dateline, datetype='day').delete()
-                TrackGroupByValue.objects.filter(dateline=dateline, datetype='day').delete()
-
-                # filter track by time
-                track_list = TrackGroupByAction.objects.filter(dateline__range=[s_timestamp, e_timestamp])
-                trackvalue_list = TrackGroupByValue.objects.filter(dateline__range=[s_timestamp, e_timestamp])
-
-                if track_list:
-                    # update the last_id whiv ch has been grouped
-                    cmdSerialNumber[0].last_id = track_list.order_by('-id')[0].id
-                    cmdSerialNumber[0].save()
-
-                    for p in Project.objects.filter():
-                        # group by track action
-                        dataset = track_list.filter(project=p).values('action').annotate(c=Count('action'))
-                        data = []
-                        for datarow in dataset:
-                            ta = TrackGroupByAction()
-                            ta.project = p
-                            ta.datetype = 'day'
-                            ta.dateline = dateline
-                            ta.action_id = datarow['action']
-                            ta.count = datarow['c']
-                            data.append(ta)
-
-                        # insert into db
-                        TrackGroupByAction.objects.bulk_create(data)
-
-                        # group by track value
-                        dataset = trackvalue_list.filter(project=p).values('name', 'value').annotate(c=Count('value'))
-                        data = []
-                        for datarow in dataset:
-                            tv = TrackGroupByValue()
-                            tv.project = p
-                            tv.datetype = 'day'
-                            tv.dateline = dateline
-                            tv.name = datarow['name']
-                            tv.value = datarow['value']
-                            tv.count = datarow['c']
-                            data.append(tv)
-
-                        # insert into db
-                        TrackGroupByValue.objects.bulk_create(data)
-            last_day = e
 
     def handle_label(self, label, **options):
         self.label = label
@@ -197,13 +51,18 @@ class Command(LabelCommand):
             print 'left session: ', Session.objects.filter().count()
             print 'left track: ', Track.objects.filter().count()
 
-        elif label == 'value':
+        elif label == 'time':
             # deal with sogou unicode bug
-            tvs = TrackValue.objects.filter(value__startswith='%u')
-            for tv in tvs:
-                print tv.id
-                tv.value = "".join([unichr(int(i, 16)) for i in tv.value.split('%u')[1:]])
-                tv.save()
+            ts = [t for t in Track.objects.filter(timelength = 0)]
+            _s = datetime.now()
+            c = Track.objects.filter(timelength = 0).count()
+            for i, t in enumerate(ts):
+                used_time = (datetime.now() - _s).seconds
+                if used_time > 0 and used_time % 10 == 0:
+                    print used_time, 'seconds used', '%d seconds left' % (float(c) / (float(i+1) / used_time))
+
+                t.set_from_track()
+                t.set_prev_timelength()
 
         else:
             days_before = 0
@@ -224,7 +83,6 @@ class Command(LabelCommand):
                 s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
                 e = s + timedelta(seconds=3600)
                 dateline = time.mktime(s.timetuple())
-                print s, e
 
                 # clean db
                 TrackGroupByAction.objects.filter(dateline=dateline, datetype='hour').delete()
@@ -238,7 +96,7 @@ class Command(LabelCommand):
                     # foreach project
                     for p in Project.objects.filter():
                         # group by track action
-                        dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'))
+                        dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'), s=Sum('timelength'))
                         data = []
                         for datarow in dataset:
                             ta = TrackGroupByAction()
@@ -247,13 +105,14 @@ class Command(LabelCommand):
                             ta.dateline = dateline
                             ta.action_id = datarow['action']
                             ta.count = datarow['c']
+                            ta.timelength = datarow['s']
                             data.append(ta)
 
                         # insert into db
                         TrackGroupByAction.objects.bulk_create(data)
 
                         # group by track value
-                        dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'))
+                        dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'), s=Sum('track__timelength'))
                         data = []
                         for datarow in dataset:
                             if len(datarow['value']) < 30:
@@ -264,10 +123,56 @@ class Command(LabelCommand):
                                 tv.name = datarow['name']
                                 tv.value = datarow['value']
                                 tv.count = datarow['c']
+                                tv.timelength = datarow['s']
                                 data.append(tv)
 
                         # insert into db
                         TrackGroupByValue.objects.bulk_create(data)
-            print days_before
+
+            # all day data
+            s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+            e = s + timedelta(days=1)
+            dateline = time.mktime(s.timetuple())
+            e_timestamp = time.mktime(e.timetuple())
+
+            # clean db
+            TrackGroupByAction.objects.filter(dateline=dateline, datetype='day').delete()
+            TrackGroupByValue.objects.filter(dateline=dateline, datetype='day').delete()
+
+            # foreach projects
+            for p in Project.objects.filter():
+                # group by track action
+                dataset = [datarow for datarow in TrackGroupByAction.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('action').annotate(c=Sum('count'), s=Sum('timelength'))]
+                data = []
+                for datarow in dataset:
+                    ta = TrackGroupByAction()
+                    ta.project = p
+                    ta.datetype = 'day'
+                    ta.dateline = dateline
+                    ta.action_id = datarow['action']
+                    ta.count = datarow['c']
+                    tv.timelength = datarow['s']
+                    data.append(ta)
+
+                # insert into db
+                TrackGroupByAction.objects.bulk_create(data)
+
+                # group by track value
+                dataset = [datarow for datarow in TrackGroupByValue.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('name', 'value').annotate(c=Sum('count'), s=Sum('timelength'))]
+                data = []
+                for datarow in dataset:
+                    if len(datarow['value']) < 30:
+                        tv = TrackGroupByValue()
+                        tv.project = p
+                        tv.datetype = 'day'
+                        tv.dateline = dateline
+                        tv.name = datarow['name']
+                        tv.value = datarow['value']
+                        tv.count = datarow['c']
+                        tv.timelength = datarow['s']
+                        data.append(tv)
+
+                # insert into db
+                TrackGroupByValue.objects.bulk_create(data)
 
         print label, '====finished====', datetime.now()
