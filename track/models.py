@@ -172,6 +172,8 @@ class TrackGroupByAction(models.Model):
     removed other kinds of data such as: url, average timelength
 
     ALTER TABLE `datapanel`.`datapanel_trackgroupbyclick` RENAME TO  `datapanel`.`datapanel_trackgroupbycondition` ;
+    ALTER TABLE `datapanel`.`track_trackgroupbyaction` DROP INDEX `project_id` ;
+
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyaction')
     action = models.ForeignKey(
@@ -185,6 +187,8 @@ class TrackGroupByAction(models.Model):
 class TrackGroupByValue(models.Model):
     """
     TrackGroupbyValue, likes TrackGroupByCondition
+    ALTER TABLE `datapanel`.`track_trackgroupbyvalue` DROP INDEX `project_id` ;
+
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
     name = models.CharField(max_length=20, verbose_name=u'参数名', default='')

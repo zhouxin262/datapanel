@@ -72,6 +72,7 @@ class Command(LabelCommand):
                                                                  name=name,
                                                                  value=value,
                                                                  dateline=dateline)
+                    print name, value, datetype, dateline
                     tv[0].count += v
                     tv[0].save()
 
