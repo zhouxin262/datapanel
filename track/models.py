@@ -181,9 +181,6 @@ class TrackGroupByAction(models.Model):
     count = models.IntegerField(u'统计数值', null=True, default=0)
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
-    class Meta:
-        unique_together = (('project', 'action', 'datetype', 'dateline'), )
-
 
 class TrackGroupByValue(models.Model):
     """
@@ -195,7 +192,3 @@ class TrackGroupByValue(models.Model):
     datetype = models.CharField(u'统计时间', null=True, max_length=12)
     dateline = models.IntegerField(verbose_name=u"时间", max_length=13)
     count = models.IntegerField(u'统计数值', null=True, default=0)
-
-    class Meta:
-        unique_together = (
-            ('project', 'name', 'value', 'datetype', 'dateline'), )
