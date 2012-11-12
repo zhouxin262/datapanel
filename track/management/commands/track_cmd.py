@@ -34,8 +34,8 @@ class Command(LabelCommand):
 
         if last_time:
             total_hour = (datetime.now() - last_time).days * 24 + (datetime.now() - last_time).seconds / 3600
-            last_hour = (last_time + timedelta(seconds=3600)).replace(minute=0, second=0, microsecond=0)
-            for hour_step in range(total_hour):
+            last_hour = (last_time).replace(minute=0, second=0, microsecond=0)
+            for hour_step in range(total_hour + 1):
                 # print time used
                 used_time = (datetime.now() - _s).seconds
                 if used_time > 0 and hour_step > 0 and float(hour_step) / used_time > 0:
