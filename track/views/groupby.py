@@ -162,7 +162,8 @@ def action(request, id):
     # deal with actions
     actions = [a.name for a in project.action.filter().order_by('name')]
 
-    timestamps = [t[1] for t in times][::-1]
+    times = times[::-1]
+    timestamps = [t[1] for t in times]
     args = {'project': project, 'datetype': datetype, 'dateline__in':
             timestamps}
     # if condition_id == 0:
