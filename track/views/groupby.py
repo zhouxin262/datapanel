@@ -10,6 +10,7 @@ from django.contrib.auth.views import redirect_to_login
 from track.models import TrackGroupByValue, TrackGroupByAction
 from datapanel.utils import now
 
+
 def referer(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
@@ -135,43 +136,33 @@ def action(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    datetype = request.GET.get('datetype', 'day')
-    condition_id = int(request.GET.get('condition_id', 0))
+    # datetype = request.GET.get('datetype', 'day')
+    # condition_id = int(request.GET.get('condition_id', 0))
     interval = int(request.GET.get('interval', 1))
-    timeline = int(request.GET.get('timeline', 0))
-    params = {'datetype': datetype, 'interval': interval, 'timeline':
-              timeline, 'condition_id': condition_id}
+    # timeline = int(request.GET.get('timeline', 0))
+    # params = {'datetype': datetype, 'interval': interval, 'timeline':
+    #           timeline, 'condition_id': condition_id}
 
     # deal with time range
     times = []
-    if datetype == 'hour':
-        for i in range(7):
-            t = now().replace(minute=0, second=0,
-                              microsecond=0) - timedelta(hours=i * interval + timeline)
-            times.append((t, int(time.mktime(t.timetuple()))))
-    elif datetype == 'day':
-        for i in range(7):
+    datetype = 'hour'
+    if interval == 1:
+        datetype = 'hour'
+        for i in range(24):
             t = now().replace(hour=0, minute=0, second=0,
-                              microsecond=0) - timedelta(days=i * interval + timeline)
+                              microsecond=0) - timedelta(hours=i + 1)
             times.append((t, int(time.mktime(t.timetuple()))))
-    elif datetype == 'week':
-        for i in range(7):
-            t = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=now().weekday()) - timedelta(days=7 * i * interval + timeline * 7)
-            times.append((t, int(time.mktime(t.timetuple()))))
-    elif datetype == 'month':
-        for i in range(7):
-            year = now().year - ((i * interval + timeline) / 12)
-            month = (now().month - i * interval + timeline) % 12
-            if month == 0:
-                month = 12
-            t = now().replace(year=year, month=month, day=1,
-                              hour=0, minute=0, second=0, microsecond=0)
+    elif interval == 7 or interval == 30:
+        datetype = 'day'
+        for i in range(interval):
+            t = now().replace(hour=0, minute=0, second=0,
+                              microsecond=0) - timedelta(days=i + 1)
             times.append((t, int(time.mktime(t.timetuple()))))
 
     # deal with actions
     actions = [a.name for a in project.action.filter().order_by('name')]
 
-    timestamps = [t[1] for t in times]
+    timestamps = [t[1] for t in times][::-1]
     args = {'project': project, 'datetype': datetype, 'dateline__in':
             timestamps}
     # if condition_id == 0:
@@ -188,4 +179,5 @@ def action(request, id):
 
     # # deal with conditions
     # conditions = TrackCondition.objects.filter(project=project)
+    params = {'interval': interval, 'datetype':datetype }
     return render(request, 'track/groupby_track.html', {'project': project, 'params': params, 'times': times, 'actions': actions, 'data': data})

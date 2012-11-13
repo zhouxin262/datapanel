@@ -20,3 +20,7 @@
 .trackgroup-list td.action, .trackgroup-list th.action {
     text-align: left;
 }
+.datatables {
+    width: auto;
+    max-width: none;
+}

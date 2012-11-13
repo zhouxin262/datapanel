@@ -53,13 +53,13 @@ class Command(LabelCommand):
 
         elif label == 'time':
             # deal with sogou unicode bug
-            ts = [t for t in Track.objects.filter(timelength = 0)]
+            ts = [t for t in Track.objects.filter(timelength=0)]
             _s = datetime.now()
-            c = Track.objects.filter(timelength = 0).count()
+            c = Track.objects.filter(timelength=0).count()
             for i, t in enumerate(ts):
                 used_time = (datetime.now() - _s).seconds
                 if used_time > 0 and used_time % 10 == 0:
-                    print used_time, 'seconds used', '%d seconds left' % (float(c) / (float(i+1) / used_time))
+                    print used_time, 'seconds used', '%d seconds left' % (float(c) / (float(i + 1) / used_time))
 
                 t.set_from_track()
                 t.set_prev_timelength()
@@ -79,6 +79,8 @@ class Command(LabelCommand):
                 if used_time > 0:
                     print used_time, 'seconds used', '%d seconds left' % (float(23 - i) / (float(i) / used_time))
 
+                print i,
+
                 # get time range
                 s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
                 e = s + timedelta(seconds=3600)
@@ -96,7 +98,8 @@ class Command(LabelCommand):
                     # foreach project
                     for p in Project.objects.filter():
                         # group by track action
-                        dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'), s=Sum('timelength'))
+                        dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'),
+                            s=Sum('timelength'))
                         data = []
                         for datarow in dataset:
                             ta = TrackGroupByAction()
@@ -112,7 +115,8 @@ class Command(LabelCommand):
                         TrackGroupByAction.objects.bulk_create(data)
 
                         # group by track value
-                        dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'), s=Sum('track__timelength'))
+                        dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'),
+                            s=Sum('track__timelength'))
                         data = []
                         for datarow in dataset:
                             if len(datarow['value']) < 30:
