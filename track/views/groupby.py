@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.contrib.auth.views import redirect_to_login
 
 from track.models import TrackGroupByValue, TrackGroupByAction
-from datapanel.utils import now
+from datapanel.utils import now, get_times
 
 
 def referer(request, id):
@@ -136,28 +136,15 @@ def action(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
+    interval = int(request.GET.get('interval', 1))
     # datetype = request.GET.get('datetype', 'day')
     # condition_id = int(request.GET.get('condition_id', 0))
-    interval = int(request.GET.get('interval', 1))
     # timeline = int(request.GET.get('timeline', 0))
     # params = {'datetype': datetype, 'interval': interval, 'timeline':
     #           timeline, 'condition_id': condition_id}
 
     # deal with time range
-    times = []
-    datetype = 'hour'
-    if interval == 1:
-        datetype = 'hour'
-        for i in range(24):
-            t = now().replace(hour=0, minute=0, second=0,
-                              microsecond=0) - timedelta(hours=i + 1)
-            times.append((t, int(time.mktime(t.timetuple()))))
-    elif interval == 7 or interval == 30:
-        datetype = 'day'
-        for i in range(interval):
-            t = now().replace(hour=0, minute=0, second=0,
-                              microsecond=0) - timedelta(days=i + 1)
-            times.append((t, int(time.mktime(t.timetuple()))))
+    (datetype, times) = get_times(interval)
 
     # deal with actions
     actions = [a.name for a in project.action.filter().order_by('name')]

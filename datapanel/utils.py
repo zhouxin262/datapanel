@@ -1,11 +1,30 @@
 #coding=utf-8
+import time
 import urlparse
+from datetime import timedelta
 from django.conf import settings
 from datetime import tzinfo, timedelta, datetime
 
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
 
+
+def get_times(interval):
+    times = []
+    datetype = 'hour'
+    if interval == 1:
+        datetype = 'hour'
+        for i in range(24):
+            t = now().replace(hour=0, minute=0, second=0,
+                              microsecond=0) - timedelta(hours=i + 1)
+            times.append((t, int(time.mktime(t.timetuple()))))
+    elif interval == 7 or interval == 30:
+        datetype = 'day'
+        for i in range(interval):
+            t = now().replace(hour=0, minute=0, second=0,
+                              microsecond=0) - timedelta(days=i + 1)
+            times.append((t, int(time.mktime(t.timetuple()))))
+    return (datetype, times)
 
 def parse_url(url):
     url_dict = {'url': url, 'netloc': '', 'kw': ''}

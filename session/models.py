@@ -12,6 +12,10 @@ class Session(models.Model):
 
     ALTER TABLE `datapanel`.`datapanel_session` ADD COLUMN `stream_str` TEXT NULL  AFTER `ipaddress` ;
     ALTER TABLE `datapanel`.`session_session` ADD COLUMN `user_referer_site` VARCHAR(255) NOT NULL  AFTER `user_referer` , ADD COLUMN `user_referer_keyword` VARCHAR(45) NOT NULL  AFTER `user_referer_site` ;
+    ALTER TABLE `session_session`
+        ALTER `user_referer` DROP DEFAULT;
+    ALTER TABLE `session_session`
+        CHANGE COLUMN `user_referer` `user_referer` TEXT NOT NULL AFTER `user_agent`;
 
     """
     project = models.ForeignKey(Project, related_name='session')
