@@ -42,18 +42,18 @@
 					平均浏览
 				</th>
 				<th>
-					平均时长
+					成功
 				</th>
 			</tr>
 			</thead>
 			<tbody>
-			{% for data in datalist %}
+			{% for datarow in dataset.values %}
 			<tr>
-				<td>{%firstof data.value%}</td>
-				<td>{{data.c}}</td>
-				<td>{{data.s}}</td>
-				<td>{{data.ec}}</td>
-				<td>{{data.et}}</td>
+				<td>{{datarow.label}}</td>
+				<td>{{datarow.c}}</td>
+				<td>{{datarow.s}}</td>
+				<td>{{datarow.ec}}</td>
+				<td>{{datarow.success_1}}</td>
 			</tr>
 			{% endfor %}
 			</tbody>
