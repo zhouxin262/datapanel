@@ -6,8 +6,9 @@ from django.db.models import Count, Sum
 
 from project.models import Project
 from session.models import Session
-from track.models import Track, TrackValue, TrackGroupByAction, TrackGroupByValue
+from track.models import Track, TrackValue, GAction, GValue
 from datapanel.models import CmdSerialNumber
+from datapanel.utils import Group
 
 """
 A management command for statistics
@@ -74,6 +75,10 @@ class Command(LabelCommand):
 
             _s = datetime.now()
 
+
+            """
+            group by time per hour
+            """
             for i in range(24):
                 used_time = (datetime.now() - _s).seconds
                 if used_time > 0:
@@ -84,99 +89,77 @@ class Command(LabelCommand):
                 # get time range
                 s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
                 e = s + timedelta(seconds=3600)
-                dateline = time.mktime(s.timetuple())
+                dateline = s
 
-                # clean db
-                TrackGroupByAction.objects.filter(dateline=dateline, datetype='hour').delete()
-                TrackGroupByValue.objects.filter(dateline=dateline, datetype='hour').delete()
+                # foreach project
+                for p in Project.objects.filter():
+                    # group by track action
+                    # g = Group(Track, GAction)
+                    # g.static_attr = {'project':p, 'dateline': dateline, 'datetype': 'hour'}
+                    # g.values = ['action',]
+                    # g.dynamic_attr = {'action_id': 'action'}
+                    # g.annotate = {'count':Count('action'), 'timelength':Sum('timelength')}
+                    # g.fargs = {'dateline__range': [s,e], 'project': p}
+                    # g.easy_group()
 
-                # filter track by time
-                track_list = Track.objects.filter(dateline__range=[s, e])
-                trackvalue_list = TrackValue.objects.filter(track__dateline__range=[s, e])
 
-                if track_list:
-                    # foreach project
-                    for p in Project.objects.filter():
-                        # group by track action
-                        dataset = track_list.filter(session__project=p).values('action').annotate(c=Count('action'),
-                            s=Sum('timelength'))
-                        data = []
-                        for datarow in dataset:
-                            ta = TrackGroupByAction()
-                            ta.project = p
-                            ta.datetype = 'hour'
-                            ta.dateline = dateline
-                            ta.action_id = datarow['action']
-                            ta.count = datarow['c']
-                            ta.timelength = datarow['s']
-                            data.append(ta)
+                    # group by track action
+                    g = Group(TrackValue, GValue)
+                    g.static_attr = {'project':p, 'dateline': dateline, 'datetype': 'hour'}
+                    g.values = ['name', 'value']
+                    g.annotate = {'count':Count('value'), 'timelength':Sum('track__timelength')}
+                    g.fargs = {'track__dateline__range': [s,e], 'track__project': p}
+                    g.eargs = {'where': ["name not like 'referrer%%' and length(value) < 30"], 'params': []}
+                    g.easy_group()
 
-                        # insert into db
-                        TrackGroupByAction.objects.bulk_create(data)
 
-                        # group by track value
-                        dataset = trackvalue_list.filter(track__session__project=p).values('name', 'value').annotate(c=Count('value'),
-                            s=Sum('track__timelength'))
-                        data = []
-                        for datarow in dataset:
-                            if len(datarow['value']) < 30:
-                                tv = TrackGroupByValue()
-                                tv.project = p
-                                tv.datetype = 'hour'
-                                tv.dateline = dateline
-                                tv.name = datarow['name']
-                                tv.value = datarow['value']
-                                tv.count = datarow['c']
-                                tv.timelength = datarow['s']
-                                data.append(tv)
+            # """
+            # group by time per day
+            # """
+            # # all day data
+            # s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+            # e = s + timedelta(days=1)
+            # dateline = time.mktime(s.timetuple())
+            # e_timestamp = time.mktime(e.timetuple())
 
-                        # insert into db
-                        TrackGroupByValue.objects.bulk_create(data)
+            # # clean db
+            # TrackGroupByAction.objects.filter(dateline=dateline, datetype='day').delete()
+            # TrackGroupByValue.objects.filter(dateline=dateline, datetype='day').delete()
 
-            # all day data
-            s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
-            e = s + timedelta(days=1)
-            dateline = time.mktime(s.timetuple())
-            e_timestamp = time.mktime(e.timetuple())
+            # # foreach projects
+            # for p in Project.objects.filter():
+            #     # group by track action
+            #     dataset = [datarow for datarow in TrackGroupByAction.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('action').annotate(c=Sum('count'), s=Sum('timelength'))]
+            #     data = []
+            #     for datarow in dataset:
+            #         ta = TrackGroupByAction()
+            #         ta.project = p
+            #         ta.datetype = 'day'
+            #         ta.dateline = dateline
+            #         ta.action_id = datarow['action']
+            #         ta.count = datarow['c']
+            #         tv.timelength = datarow['s']
+            #         data.append(ta)
 
-            # clean db
-            TrackGroupByAction.objects.filter(dateline=dateline, datetype='day').delete()
-            TrackGroupByValue.objects.filter(dateline=dateline, datetype='day').delete()
+            #     # insert into db
+            #     TrackGroupByAction.objects.bulk_create(data)
 
-            # foreach projects
-            for p in Project.objects.filter():
-                # group by track action
-                dataset = [datarow for datarow in TrackGroupByAction.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('action').annotate(c=Sum('count'), s=Sum('timelength'))]
-                data = []
-                for datarow in dataset:
-                    ta = TrackGroupByAction()
-                    ta.project = p
-                    ta.datetype = 'day'
-                    ta.dateline = dateline
-                    ta.action_id = datarow['action']
-                    ta.count = datarow['c']
-                    tv.timelength = datarow['s']
-                    data.append(ta)
+            #     # group by track value
+            #     dataset = [datarow for datarow in TrackGroupByValue.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('name', 'value').annotate(c=Sum('count'), s=Sum('timelength'))]
+            #     data = []
+            #     for datarow in dataset:
+            #         if len(datarow['value']) < 30:
+            #             tv = TrackGroupByValue()
+            #             tv.project = p
+            #             tv.datetype = 'day'
+            #             tv.dateline = dateline
+            #             tv.name = datarow['name']
+            #             tv.value = datarow['value']
+            #             tv.count = datarow['c']
+            #             tv.timelength = datarow['s']
+            #             data.append(tv)
 
-                # insert into db
-                TrackGroupByAction.objects.bulk_create(data)
-
-                # group by track value
-                dataset = [datarow for datarow in TrackGroupByValue.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('name', 'value').annotate(c=Sum('count'), s=Sum('timelength'))]
-                data = []
-                for datarow in dataset:
-                    if len(datarow['value']) < 30:
-                        tv = TrackGroupByValue()
-                        tv.project = p
-                        tv.datetype = 'day'
-                        tv.dateline = dateline
-                        tv.name = datarow['name']
-                        tv.value = datarow['value']
-                        tv.count = datarow['c']
-                        tv.timelength = datarow['s']
-                        data.append(tv)
-
-                # insert into db
-                TrackGroupByValue.objects.bulk_create(data)
+            #     # insert into db
+            #     TrackGroupByValue.objects.bulk_create(data)
 
         print label, '====finished====', datetime.now()

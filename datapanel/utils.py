@@ -9,6 +9,56 @@ ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
 
 
+class Group():
+    FromModel = None
+    ToModel = None
+
+    static_attr = {}
+    dynamic_attr = {}
+    annotate = {}
+    fargs = {}
+    eargs = {}
+    values = []
+
+    def __init__(self, FromModel, ToModel):
+        self.FromModel = FromModel
+        self.ToModel = ToModel
+
+    def easy_group(self):
+        static_attr = self.static_attr
+        dynamic_attr = self.dynamic_attr
+        values = self.values
+        annotate = self.annotate
+        fargs = self.fargs
+        eargs = self.eargs
+
+        if static_attr and annotate:
+            #clean db
+            self.ToModel.objects.filter(**static_attr).delete()
+
+            #group
+            dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).values(*values).annotate(**annotate)
+            data = []
+            for datarow in dataset:
+                obj = self.ToModel()
+                for k, v in static_attr.items():
+                    setattr(obj, k, v)
+                for k, v in dynamic_attr.items():
+                    setattr(obj, k, datarow[v])
+                for i in values:
+                    if i not in dynamic_attr.values():
+                        setattr(obj, i, datarow[i])
+                for i in annotate.keys():
+                    if i not in dynamic_attr.values():
+                        setattr(obj, i, datarow[i])
+                data.append(obj)
+
+            # insert into db
+            self.ToModel.objects.bulk_create(data)
+        else:
+            print "missing arguments"
+
+
 def get_times(interval):
     times = []
     datetype = 'hour'
@@ -25,6 +75,7 @@ def get_times(interval):
                               microsecond=0) - timedelta(days=i + 1)
             times.append((t, int(time.mktime(t.timetuple()))))
     return (datetype, times)
+
 
 def parse_url(url):
     url_dict = {'url': url, 'netloc': '', 'kw': ''}

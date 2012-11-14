@@ -17,7 +17,12 @@ class Track(models.Model):
     update track_trackgroupbyvalue set name = 'referrer_keyword' where name = 'referer_keyword';
     update track_trackgroupbyvalue set name = 'referrer_site' where name = 'referer_site';
     update track_trackgroupbyvalue set name = 'referrer' where name = 'referer';
+
+    ALTER TABLE `track_track`
+    ADD COLUMN `project_id` INT(11) NOT NULL AFTER `id`,
+    ADD INDEX `track_track_project` (`project_id`);
     """
+    project = models.ForeignKey(Project, related_name='track')
     session = models.ForeignKey(
         Session, related_name='track', verbose_name=u'用户会话')
     action = models.ForeignKey(
@@ -162,6 +167,11 @@ class Track(models.Model):
 
 
 class TrackValue(models.Model):
+    """
+    update track_trackvalue set name = 'referrer_site' where name = 'referer_site';
+    update track_trackvalue set name = 'referer_keyword' where name = 'referer_keyword';
+    update track_trackvalue set name = 'referer' where name = 'referer'
+    """
     track = models.ForeignKey(Track, related_name='value')
     name = models.CharField(max_length=20, verbose_name=u'参数')
     value = models.TextField(verbose_name=u'值')
@@ -170,7 +180,7 @@ class TrackValue(models.Model):
         unique_together = (('track', 'name'), )
 
 
-class TrackGroupByAction(models.Model):
+class GAction(models.Model):
     """
     Brand new Trackgroup only contained data grouped by action, hour, count
     removed other kinds of data such as: url, average timelength
@@ -181,13 +191,13 @@ class TrackGroupByAction(models.Model):
     action = models.ForeignKey(
         Action, related_name='trackgroupbyaction', verbose_name=u'事件')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
-    dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
+    dateline = models.DateTimeField(verbose_name=u"时间", null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
     timelength = models.IntegerField(u'访问时长', null=False, default=0)
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
 
-class TrackGroupByValue(models.Model):
+class GValue(models.Model):
     """
     TrackGroupbyValue, likes TrackGroupByCondition
     """
@@ -195,6 +205,20 @@ class TrackGroupByValue(models.Model):
     name = models.CharField(max_length=20, verbose_name=u'参数名', default='')
     value = models.CharField(u'参数值', max_length=255, null=False, default='')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
-    dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
+    dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
+    count = models.IntegerField(u'统计数值', null=False, default=0)
+    timelength = models.IntegerField(u'访问时长', null=False, default=0)
+
+
+class GReferrerSiteAndAction(models.Model):
+    '''
+    Group by Session ReferrerSite and Time and Action
+    '''
+    project = models.ForeignKey(Project, related_name='trackgroupbyReferrerSiteandaction')
+    action = models.ForeignKey(
+        Action, related_name='sessiongroupbyReferrerSite', verbose_name=u'事件')
+    value = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
+    datetype = models.CharField(u'统计时间', null=False, max_length=12)
+    dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
     timelength = models.IntegerField(u'访问时长', null=False, default=0)

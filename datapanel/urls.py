@@ -10,6 +10,7 @@ urlpatterns = patterns('',
                        (r'^funnel/', include('funnel.urls')),
                        (r'^track/', include('track.urls')),
                        (r'^session/', include('session.urls')),
+                       (r'^referrer/', include('referrer.urls')),
 
                        # url(r'^(?P<id>\d+)/stream/list/$', 'datapanel.views.stream.list', name='stream_list'),
                        # url(r'^(?P<id>\d+)/stream/$', 'datapanel.views.stream.stream', name='stream_stream'),

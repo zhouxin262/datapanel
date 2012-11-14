@@ -68,7 +68,7 @@ def monitor(request, id):
         e = datetime.now()
         s = e - timedelta(seconds=60)
         if request.GET.get('track'):
-            y = Track.objects.filter(session__project=project, dateline__range=[s, e]).count()
+            y = Track.objects.filter(project=project, dateline__range=[s, e]).count()
             return HttpResponse(y)
         elif request.GET.get('session'):
             y = Session.objects.filter(project=project, start_time__range=[s, e]).count()

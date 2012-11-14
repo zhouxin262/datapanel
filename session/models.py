@@ -106,16 +106,50 @@ class Session(models.Model):
         except SessionValue.DoesNotExist:
             return None
 
-class SessionGroupByTime(models.Model):
-    project = models.ForeignKey(Project, related_name='sessiongroupbytime')
-    datetype = models.CharField(u'统计类型', null=True, max_length=12)
-    value = models.IntegerField(u'统计数值', null=True,default=0)
-    dateline = models.DateTimeField(auto_now_add=False, verbose_name=u"月")
-    class Meta:
-        unique_together = (('datetype', 'dateline'),)
-
 
 class SessionValue(models.Model):
     session = models.ForeignKey(Session, related_name='value')
     name = models.CharField(max_length=20, verbose_name=u'参数')
     value = models.TextField(verbose_name=u'值')
+
+
+class GTime(models.Model):
+    '''
+    Session Group by Time
+    G stands for group by
+    '''
+    project = models.ForeignKey(Project, related_name='sessiongroupbytime')
+    datetype = models.CharField(u'统计类型', null=True, max_length=12)
+    dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
+    count = models.IntegerField(u'统计数值', null=False, default=0)
+    track_count = models.IntegerField(u'点击数', null=False, default=0)
+    timelength = models.IntegerField(u'访问时长', null=False, default=0)
+    class Meta:
+        unique_together = (('datetype', 'dateline'),)
+
+
+class GReferrerSite(models.Model):
+    '''
+    Session Group by ReferrerSite and Time
+    '''
+    project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerSite')
+    value = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
+    datetype = models.CharField(u'统计时间', null=False, max_length=12)
+    dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
+    count = models.IntegerField(u'统计数值', null=False, default=0)
+    track_count = models.IntegerField(u'点击数', null=False, default=0)
+    timelength = models.IntegerField(u'访问时长', null=False, default=0)
+
+
+class GReferrerKeyword(models.Model):
+    '''
+    Session Group by ReferrerSite and Time
+    '''
+    project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerkeyword')
+    value = models.CharField(max_length=255, verbose_name=u'来源关键词', default='')
+    datetype = models.CharField(u'统计时间', null=False, max_length=12)
+    dateline = models.IntegerField(verbose_name=u"时间", max_length=13, null=False)
+    count = models.IntegerField(u'统计数值', null=False, default=0)
+    track_count = models.IntegerField(u'点击数', null=False, default=0)
+    timelength = models.IntegerField(u'访问时长', null=False, default=0)
+

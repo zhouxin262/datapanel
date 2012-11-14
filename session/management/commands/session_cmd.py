@@ -1,100 +1,153 @@
 #coding=utf-8
-import os, sys
-from django.db.models import Max
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
+
+from django.db.models import Max, Count, Sum
 from django.core.management.base import NoArgsCommand, LabelCommand
+
 from datapanel.models import CmdSerialNumber
 from project.models import Project
-from session.models import SessionGroupByTime, Session
+from session.models import GTime, Session, GReferrerKeyword, GReferrerSite
 
 
 class Command(LabelCommand):
 
     def handle_label(self, label, **options):
-        if label == 'groupbytime':
-            cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'sessiongroupbytime', class_name='Session')
-            last_id = cmdSerialNumber[0].last_id
-            projects = Project.objects.all()
-            for project in projects:
+        days_before = 0
+        try:
+            days_before = int(label)
+        except:
+            print 'wrong label, should be int'
+            return None
 
-                c = Session.objects.filter(id__gt = last_id).count()
-                _s = datetime.now()
-                for i in range(0, c, 3000):
-                # 3000 lines a time
-                    used_time = (datetime.now() - _s).seconds
-                    if used_time:
-                        print i, c, used_time, '%d seconds left' % ((c-i)/(i/used_time))
-                    sessions = Session.objects.filter(project = project,id__gt = last_id)[i: i + 3000]
-                    if len(sessions)>0:
-                        hour_value = 0
-                        day_value = 0
-                        week_value = 0
-                        month_value = 0
-                        hour = sessions[0].get_time("hour")
-                        day = sessions[0].get_time("day")
-                        week = sessions[0].get_time("week")
-                        month = sessions[0].get_time("month")
+        _s = datetime.now()
 
-                        for s in sessions:
-                            s_hour = s.get_time("hour")
-                            s_day = s.get_time("day")
-                            s_week = s.get_time("week")
-                            s_month = s.get_time("month")
-                            if s_hour == hour:
-                                hour_value += 1
-                            else:
-                                sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="hour",dateline=hour)
-                                sgbt[0].value += hour_value
-                                sgbt[0].save()
-                                day_value += hour_value
-                                hour_value= 0
-                                hour = s_hour
-                            if s_day != day:
-                                sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="day",dateline=day)
-                                sgbt[0].value += day_value
-                                sgbt[0].save()
-                                week_value += day_value
-                                day_value = 0
-                                day = s_day
-                            if s_week != week:
-                                sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="week",dateline=week)
-                                sgbt[0].value += week_value
-                                sgbt[0].save()
-                                month_value += day_value
-                                week_value = 0
-                                week = s_week
-                            if s_month != month:
-                                sgbt = SessionGroupByTime.objects.get_or_create(project=project,datetype="month",dateline=month)
-                                sgbt[0].value += month_value
-                                sgbt[0].save()
-                                month_value = 0
-                                month = s_month
+        """
+        group by time per hour
+        """
+        for i in range(24):
+            used_time = (datetime.now() - _s).seconds
+            if used_time > 0:
+                print used_time, 'seconds used', '%d seconds left' % (float(23 - i) / (float(i) / used_time))
 
-                        cmdSerialNumber[0].last_id = s.id
-                        cmdSerialNumber[0].save()
+            # print i,
 
-        elif label == 'truncate':
-            cmdSerialNumber = CmdSerialNumber.objects.get_or_create(name = 'sessiongroupbytime', class_name='Session')
-            cmdSerialNumber[0].last_id = 0
-            cmdSerialNumber[0].save()
-            SessionGroupByTime.objects.all().delete()
+            # get time range
+            s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+            e = s + timedelta(seconds=3600)
+            dateline = time.mktime(s.timetuple())
 
-        elif label == 'referrer':
-            c = Session.objects.filter(user_referrer_keyword='').order_by('id').count()
-            _s = datetime.now()
+            # clean db
+            GTime.objects.filter(dateline=dateline, datetype='hour').delete()
+            GReferrerSite.objects.filter(dateline=dateline, datetype='hour').delete()
+            GReferrerKeyword.objects.filter(dateline=dateline, datetype='hour').delete()
 
-            for i in range(0, c, 3000):
-            # 3000 lines a time
-                used_time = (datetime.now() - _s).seconds
-                if used_time:
-                    print i, c, used_time, '%d seconds left' % ((c-i)/(i/used_time))
+            # filter track by time
+            session_list = Session.objects.filter(start_time__range=[s, e])
 
-                for s in Session.objects.filter(user_referrer_keyword='').order_by('id')[i:i+3000]:
-                    if s.first_track():
-                        s.user_referrer_keyword = s.first_track().get_value('referrer_keyword')
-                        s.user_referrer_site = s.first_track().get_value('referrer_site')
-                        s.user_referrer = s.first_track().get_value('referrer')
-                        s.save()
-                    else:
-                        s.delete()
-                    #s.save()
+            if session_list:
+                # foreach project
+                for p in Project.objects.filter():
+                    # group by time
+                    dataset = session_list.filter(project=p).aggregate(c=Count('id'),s=Sum('track_count'))
+                    gt = GTime()
+                    gt.project = p
+                    gt.datetype = 'hour'
+                    gt.dateline = dateline
+                    gt.count = dataset['c']
+                    gt.track_count = dataset['s']
+                    gt.save()
+
+                    # group by user_referrer_site and time
+                    dataset = session_list.filter(project=p).exclude(user_referrer_site='').values('user_referrer_site').annotate(c=Count('user_referrer_site'),
+                                                                                              s=Sum('track_count'))
+                    data = []
+                    for datarow in dataset:
+                        ta = GReferrerSite()
+                        ta.project = p
+                        ta.datetype = 'hour'
+                        ta.dateline = dateline
+                        ta.value = datarow['user_referrer_site']
+                        ta.count = datarow['c']
+                        ta.track_count = datarow['s']
+                        data.append(ta)
+
+                    # insert into db
+                    GReferrerSite.objects.bulk_create(data)
+
+                    # group by user_referrer_keyword and time
+                    dataset = session_list.filter(project=p).exclude(user_referrer_keyword='').values('user_referrer_keyword').annotate(c=Count('user_referrer_keyword'),
+                                                                                              s=Sum('track_count'))
+                    data = []
+                    for datarow in dataset:
+                        ta = GReferrerSite()
+                        ta.project = p
+                        ta.datetype = 'hour'
+                        ta.dateline = dateline
+                        ta.value = datarow['user_referrer_keyword']
+                        ta.count = datarow['c']
+                        ta.track_count = datarow['s']
+                        data.append(ta)
+
+                    # insert into db
+                    GReferrerKeyword.objects.bulk_create(data)
+
+        """
+        group by time per day
+        """
+        # all day data
+        s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+        e = s + timedelta(days=1)
+        dateline = time.mktime(s.timetuple())
+        e_timestamp = time.mktime(e.timetuple())
+
+        # clean db
+        GTime.objects.filter(dateline=dateline, datetype='day').delete()
+        GReferrerSite.objects.filter(dateline=dateline, datetype='day').delete()
+        GReferrerKeyword.objects.filter(dateline=dateline, datetype='day').delete()
+
+        # foreach projects
+        for p in Project.objects.filter():
+            # group by time
+            dataset = GTime.objects.filter(dateline__range=[dateline, e_timestamp], project=p).aggregate(c=Sum('count'),s=Sum('track_count'))
+            gt = GTime()
+            gt.project = p
+            gt.datetype = 'day'
+            gt.dateline = dateline
+            gt.count = dataset['c']
+            gt.track_count = dataset['s']
+            gt.save()
+
+            # group by user_referrer_site and time
+            dataset = [datarow for datarow in GReferrerSite.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('value').annotate(c=Sum('count'),s=Sum('track_count'))]
+            data = []
+            for datarow in dataset:
+                ta = GReferrerSite()
+                ta.project = p
+                ta.datetype = 'day'
+                ta.dateline = dateline
+                ta.value = datarow['value']
+                ta.count = datarow['c']
+                ta.track_count = datarow['s']
+                data.append(ta)
+
+            # insert into db
+            GReferrerSite.objects.bulk_create(data)
+
+            # group by user_referrer_site and time
+            dataset = [datarow for datarow in GReferrerKeyword.objects.filter(dateline__range=[dateline, e_timestamp], project=p).values('value').annotate(c=Sum('count'),s=Sum('track_count'))]
+            data = []
+            for datarow in dataset:
+                ta = GReferrerKeyword()
+                ta.project = p
+                ta.datetype = 'day'
+                ta.dateline = dateline
+                ta.value = datarow['value']
+                ta.count = datarow['c']
+                ta.track_count = datarow['s']
+                data.append(ta)
+
+            # insert into db
+            GReferrerKeyword.objects.bulk_create(data)
+
+        print label, '====finished====', datetime.now()
