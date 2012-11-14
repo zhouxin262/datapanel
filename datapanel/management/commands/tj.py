@@ -64,7 +64,7 @@ class Command(LabelCommand):
                 i += 1
                 if t.param_display():
                     for k,v in t.param_display().items():
-                        if k not in ('referer', ):
+                        if k not in ('referrer', ):
                             tv = TrackValue.objects.get_or_create(track=t, name=k)
                             try:
                                 tv[0].value = v

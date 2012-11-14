@@ -39,12 +39,12 @@
 				</h3>
 				<div>
 					<p>
-						{% if session.first_referer.referer_site %}
-						来自 {{ session.first_referer.referer_site }}
-						{%if session.first_referer.referer_keyword%}
-							关键词：<a href="{{session.first_referer.url}}" title="{{session.first_referer.url}}">{{ session.first_referer.referer_keyword }}</a>
+						{% if session.first_referrer.referrer_site %}
+						来自 {{ session.first_referrer.referrer_site }}
+						{%if session.first_referrer.referrer_keyword%}
+							关键词：<a href="{{session.first_referrer.url}}" title="{{session.first_referrer.url}}">{{ session.first_referrer.referrer_keyword }}</a>
 						{% else %}
-							<a href="{{session.first_referer.url}}" title="{{session.first_referer.url}}">{{ session.first_referer.url|urlizetrunc:30 }}</a>
+							<a href="{{session.first_referrer.url}}" title="{{session.first_referrer.url}}">{{ session.first_referrer.url|urlizetrunc:30 }}</a>
 						{%endif%}
 						{%endif%}
 					</p>

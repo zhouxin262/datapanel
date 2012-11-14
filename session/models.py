@@ -11,11 +11,19 @@ class Session(models.Model):
     ADD INDEX `datapanel_session_trackcount` (`track_count` ASC) ;
 
     ALTER TABLE `datapanel`.`datapanel_session` ADD COLUMN `stream_str` TEXT NULL  AFTER `ipaddress` ;
-    ALTER TABLE `datapanel`.`session_session` ADD COLUMN `user_referer_site` VARCHAR(255) NOT NULL  AFTER `user_referer` , ADD COLUMN `user_referer_keyword` VARCHAR(45) NOT NULL  AFTER `user_referer_site` ;
+    ALTER TABLE `datapanel`.`session_session` ADD COLUMN `user_referrer_site` VARCHAR(255) NOT NULL  AFTER `user_referrer` , ADD COLUMN `user_referrer_keyword` VARCHAR(45) NOT NULL  AFTER `user_referrer_site` ;
     ALTER TABLE `session_session`
-        ALTER `user_referer` DROP DEFAULT;
+        ALTER `user_referrer` DROP DEFAULT;
     ALTER TABLE `session_session`
-        CHANGE COLUMN `user_referer` `user_referer` TEXT NOT NULL AFTER `user_agent`;
+        CHANGE COLUMN `user_referrer` `user_referrer` TEXT NOT NULL AFTER `user_agent`;
+
+    ALTER TABLE `session_session`
+        ALTER `user_referer_site` DROP DEFAULT,
+        ALTER `user_referer_keyword` DROP DEFAULT;
+    ALTER TABLE `session_session`
+        CHANGE COLUMN `user_referer` `user_referrer` TEXT NOT NULL AFTER `user_agent`,
+        CHANGE COLUMN `user_referer_site` `user_referrer_site` VARCHAR(255) NOT NULL AFTER `user_referrer`,
+        CHANGE COLUMN `user_referer_keyword` `user_referrer_keyword` VARCHAR(45) NOT NULL AFTER `user_referrer_site`;
 
     """
     project = models.ForeignKey(Project, related_name='session')
@@ -25,9 +33,9 @@ class Session(models.Model):
     user_language = models.CharField(max_length=255, verbose_name=u'客户端语言', default='')
     user_timezone = models.CharField(max_length=255, verbose_name=u'客户端时区', default='')
     user_agent = models.CharField(max_length=255, verbose_name=u'客户端类型', default='')
-    user_referer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
-    user_referer_site = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
-    user_referer_keyword = models.CharField(max_length=255, verbose_name=u'来源关键词', default='')
+    user_referrer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
+    user_referrer_site = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
+    user_referrer_keyword = models.CharField(max_length=255, verbose_name=u'来源关键词', default='')
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
 
@@ -43,12 +51,12 @@ class Session(models.Model):
         except IndexError:
             return None
 
-    def first_referer(self):
+    def first_referrer(self):
         try:
             track = self.first_track()
-            return {'referer': track.get_value('referer'),
-            'referer_site': track.get_value('referer_site'),
-            'referer_keyword': track.get_value('referer_keyword')}
+            return {'referrer': track.get_value('referrer'),
+            'referrer_site': track.get_value('referrer_site'),
+            'referrer_keyword': track.get_value('referrer_keyword')}
         except IndexError:
             return None
 

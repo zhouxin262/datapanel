@@ -2,7 +2,7 @@
 import datetime
 
 from django.db.models import Count,Avg
-from datapanel.models import Track, TrackGroup,Session, Project, Referer
+from datapanel.models import Track, TrackGroup,Session, Project, Referrer
 
 def clean_track():
     ts = Track.objects.filter()
@@ -29,7 +29,7 @@ def clean_track():
             t.delete()
             continue
 
-def session_referer(starttime):
+def session_referrer(starttime):
     # 清理无效session
     ss = Session.objects.filter(track__isnull = True).delete()
 
@@ -38,17 +38,17 @@ def session_referer(starttime):
         t = s.first_track()
         if t and t.param_display():
             p = t.param_display()
-            if p and p.has_key('referer_parsed'):
-                if not s.referer.all():
+            if p and p.has_key('referrer_parsed'):
+                if not s.referrer.all():
                     try:
-                        r = Referer()
+                        r = Referrer()
                         r.session = s
-                        r.site = p['referer_site']
-                        if p.has_key('referer_keyword'):
-                            r.keyword = p['referer_keyword']
+                        r.site = p['referrer_site']
+                        if p.has_key('referrer_keyword'):
+                            r.keyword = p['referrer_keyword']
                         else:
                             r.keyword = ''
-                        r.url = p['referer']
+                        r.url = p['referrer']
                         r.save()
                     except:
                         print r.keyword

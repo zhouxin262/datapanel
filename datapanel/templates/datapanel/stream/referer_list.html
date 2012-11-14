@@ -2,11 +2,11 @@
 {% block title %}
 {{project.name}} - 来源分析
 {% endblock title %}
-{% block subnav-referer %}
+{% block subnav-referrer %}
 <li class="active">
-	<a href="{%url referer_list project.id%}">来源分析</a>
+	<a href="{%url referrer_list project.id%}">来源分析</a>
 </li>
-{% endblock subnav-referer %}
+{% endblock subnav-referrer %}
 {% block content %}
 <div class="span10">
 	<div class="page-header">
@@ -22,10 +22,10 @@
 					数量
 				</th>
 			</tr>
-			{% for referer in referer_list %}
+			{% for referrer in referrer_list %}
 			<tr>
-				<td>{%firstof referer.site referer.keyword%}</td>
-				<td>{{referer.c}}</td>
+				<td>{%firstof referrer.site referrer.keyword%}</td>
+				<td>{{referrer.c}}</td>
 			</tr>
 			{% endfor %}
 		</table>
@@ -34,18 +34,18 @@
 		 <button type="submit" class="btn pull-left" id="btn_goto_page">跳转</button>
 		  <ul>
 		  	<li class="disabled">
-		 	<a>{{ referer_list.number }} / {{ referer_list.paginator.num_pages }}</a>
+		 	<a>{{ referrer_list.number }} / {{ referrer_list.paginator.num_pages }}</a>
 		 	</li>
-		  	{% if referer_list.has_previous %}
+		  	{% if referrer_list.has_previous %}
 		    <li>
-		    	<a href="?{{params.querystr}}&page={{ referer_list.previous_page_number }}">上一页</a>
+		    	<a href="?{{params.querystr}}&page={{ referrer_list.previous_page_number }}">上一页</a>
 		    </li>
 		    {% else %}
 		    <li class="disabled"><a>上一页</a></li>
 		    {% endif %}
-		    {% if referer_list.has_next %}
+		    {% if referrer_list.has_next %}
 		    <li>
-		    	<a href="?{{params.querystr}}&page={{ referer_list.next_page_number }}">下一页</a>
+		    	<a href="?{{params.querystr}}&page={{ referrer_list.next_page_number }}">下一页</a>
 		    </li>
 		    {% else %}
 		    <li class="disabled"><a>下一页</a></li>

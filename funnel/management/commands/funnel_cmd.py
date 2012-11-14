@@ -33,7 +33,7 @@ class Command(NoArgsCommand):
             for t in tt:
                 try:
                     probably_from_tracks = t.session.track.filter(id__lt=t.id,
-                        url=t.get_value('referer')).order_by('id')
+                        url=t.get_value('referrer')).order_by('id')
                     if not probably_from_tracks:
                         probably_from_tracks = t.session.track.filter(id__lt=t.id).order_by('-id')
                     probably_from_track = probably_from_tracks[0]

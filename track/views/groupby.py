@@ -11,14 +11,14 @@ from track.models import TrackGroupByValue, TrackGroupByAction
 from datapanel.utils import now, get_times
 
 
-def referer(request, id):
+def referrer(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
     # deal with value_names
-    value_names = [{"name": "referer_keyword"}, {"name": "referer_site"}]
+    value_names = [{"name": "referrer_keyword"}, {"name": "referrer_site"}]
 
     datetype = request.GET.get('datetype', 'day')
     name = request.GET.get('name', value_names[0]['name'])
@@ -64,7 +64,7 @@ def referer(request, id):
         if trackGroupByValue.value not in data:
             data[trackGroupByValue.value] = {'id': trackGroupByValue.id, 'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
-    return render(request, 'track/groupby_referer.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data, 'top10': top10})
+    return render(request, 'track/groupby_referrer.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data, 'top10': top10})
 
 
 def value(request, id):
@@ -76,7 +76,7 @@ def value(request, id):
     # deal with value_names
     value_names = cache.get(id + '_trackvalue_names', 'DoesNotExist')
     if value_names == 'DoesNotExist':
-        value_names = TrackGroupByValue.objects.filter(project=project).exclude(name__startswith='referer').distinct().values('name')
+        value_names = TrackGroupByValue.objects.filter(project=project).exclude(name__startswith='referrer').distinct().values('name')
         cache.set(id + '_trackvalue_names', value_names)
 
     # todo: no value_names

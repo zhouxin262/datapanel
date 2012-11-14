@@ -25,11 +25,11 @@
 		<tr class="{{ track.action }}">
 		<td>{{ track.action }}</td>
 		<td><a href="{{track.url}}" title="{{track.url}}">{{ track.url|urlizetrunc:50 }}</a>
-			{% if track.referer %}
+			{% if track.referrer %}
 			<br/>
-			来自 {{ track.referer.referer_site }} 关键词: <a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer_keyword }}</a>
+			来自 {{ track.referrer.referrer_site }} 关键词: <a href="{{track.referrer.referrer}}" title="{{track.referrer.referrer}}">{{ track.referrer.referrer_keyword }}</a>
 			{% else %}
-			<a href="{{track.referer.referer}}" title="{{track.referer.referer}}">{{ track.referer.referer|urlizetrunc:30 }}</a>
+			<a href="{{track.referrer.referrer}}" title="{{track.referrer.referrer}}">{{ track.referrer.referrer|urlizetrunc:30 }}</a>
 			{% endif %}
 		</td>
 		<td>{{ track.dateline|date:"Y-m-d H:i:s" }}</td>

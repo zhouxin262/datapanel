@@ -2,11 +2,11 @@
 {% block title %}
     {{project.name}} - 来源总数
 {% endblock title %}
-{% block subnav-referer %}
+{% block subnav-referrer %}
 <li class="active">
-    <a href="{%url track_groupby_referer project.id%}">来源总数</a>
+    <a href="{%url track_groupby_referrer project.id%}">来源总数</a>
 </li>
-{% endblock subnav-referer %}
+{% endblock subnav-referrer %}
 {% block content %}
 <style>
 .red {color:red};
@@ -70,7 +70,7 @@
 		<tbody>
 			{% for row in data.values %}
 			<tr>
-			<td><span id="action_{{row.id}}" class="pull-left"></span><a href="{%url track_get_referer_url project.id %}?name={{params.name}}&value={{row.label}}" target="_blank">{{row.label}}</a></td>
+			<td><span id="action_{{row.id}}" class="pull-left"></span><a href="{%url track_get_referrer_url project.id %}?name={{params.name}}&value={{row.label}}" target="_blank">{{row.label}}</a></td>
 			{% for value in row.data %}
 				<td data-id="action_{{row.id}}_{{value.0}}">{{value.1}}</td>
 			{% endfor %}

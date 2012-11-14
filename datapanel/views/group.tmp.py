@@ -71,13 +71,13 @@ def home(request, id):
 #     project = request.user.participate_projects.get(id = id)
 #     args = {'session__project': project, groupby +'__contains': keyword}
 
-#     referers = Referer.objects.filter(**args).exclude(**{groupby:""}).values(groupby).annotate(c = Count('id')).order_by('-c')
-#     paginator = Paginator(referers, 25)
+#     referrers = Referrer.objects.filter(**args).exclude(**{groupby:""}).values(groupby).annotate(c = Count('id')).order_by('-c')
+#     paginator = Paginator(referrers, 25)
 #     page = request.GET.get('page')
 #     try:
-#         referer_list = paginator.page(page)
+#         referrer_list = paginator.page(page)
 #     except PageNotAnInteger:
-#         referer_list = paginator.page(1)
+#         referrer_list = paginator.page(1)
 #     except EmptyPage:
-#         referer_list = paginator.page(paginator.num_pages)
-#     return render(request, 'datapanel/stream/referer_list.html', {'project':project, 'referer_list':referer_list,'params':params})
+#         referrer_list = paginator.page(paginator.num_pages)
+#     return render(request, 'datapanel/stream/referrer_list.html', {'project':project, 'referrer_list':referrer_list,'params':params})

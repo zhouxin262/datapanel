@@ -13,7 +13,7 @@ def add_track(track):
 
         if datetype != 'hour':
             for trackvalue in t.value.filter():
-                if trackvalue.name != 'referer':
+                if trackvalue.name != 'referrer':
                     key = '%d|%d|%s|%s|%s' % (t.session.project.id, time.mktime(t.get_time(datetype).timetuple()), trackvalue.name, trackvalue.value, datetype)
                     if key not in value_dict:
                         value_dict[key] = 1

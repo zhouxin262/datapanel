@@ -79,8 +79,8 @@ class Command(LabelCommand):
             cmdSerialNumber[0].save()
             SessionGroupByTime.objects.all().delete()
 
-        elif label == 'referer':
-            c = Session.objects.filter(user_referer_keyword='').order_by('id').count()
+        elif label == 'referrer':
+            c = Session.objects.filter(user_referrer_keyword='').order_by('id').count()
             _s = datetime.now()
 
             for i in range(0, c, 3000):
@@ -89,11 +89,11 @@ class Command(LabelCommand):
                 if used_time:
                     print i, c, used_time, '%d seconds left' % ((c-i)/(i/used_time))
 
-                for s in Session.objects.filter(user_referer_keyword='').order_by('id')[i:i+3000]:
+                for s in Session.objects.filter(user_referrer_keyword='').order_by('id')[i:i+3000]:
                     if s.first_track():
-                        s.user_referer_keyword = s.first_track().get_value('referer_keyword')
-                        s.user_referer_site = s.first_track().get_value('referer_site')
-                        s.user_referer = s.first_track().get_value('referer')
+                        s.user_referrer_keyword = s.first_track().get_value('referrer_keyword')
+                        s.user_referrer_site = s.first_track().get_value('referrer_site')
+                        s.user_referrer = s.first_track().get_value('referrer')
                         s.save()
                     else:
                         s.delete()

@@ -13,14 +13,14 @@ from django.contrib.auth.views import redirect_to_login
 from datapanel.utils import now, today_str
 from datapanel.models import Project, Session, Track, TrackCondition, TrackGroupByCondition, Action, TrackValue, TrackGroupByValue
 
-def groupby_referer(request, id):
+def groupby_referrer(request, id):
     try:
         project = request.user.participate_projects.get(id = id)
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
     # deal with value_names
-    value_names = [{"name": "referer_keyword"},{"name": "referer_site"}]
+    value_names = [{"name": "referrer_keyword"},{"name": "referrer_site"}]
 
     datetype = request.GET.get('datetype','day')
     name = request.GET.get('name', value_names[0]['name'])
@@ -60,9 +60,9 @@ def groupby_referer(request, id):
         if not data.has_key(trackGroupByValue.value):
             data[trackGroupByValue.value] = {'label': trackGroupByValue.value, 'data': [(i, 0) for i in timestamps]}
         data[trackGroupByValue.value]['data'][timestamps.index(trackGroupByValue.dateline)] = ((trackGroupByValue.dateline, trackGroupByValue.count))
-    return render(request, 'datapanel/track/groupby_referer.html', {'project':project,'params':params,'times': times, 'value_names':value_names, 'data': data })
+    return render(request, 'datapanel/track/groupby_referrer.html', {'project':project,'params':params,'times': times, 'value_names':value_names, 'data': data })
 
-def get_referer_url(request, id):
+def get_referrer_url(request, id):
     try:
         project = request.user.participate_projects.get(id = id)
     except AttributeError:
@@ -71,12 +71,12 @@ def get_referer_url(request, id):
     name = request.GET.get('name', '')
     value = request.GET.get('value', '')
 
-    if name == 'referer_site':
+    if name == 'referrer_site':
         return HttpResponseRedirect('http://' + value)
     else:
         ts = TrackValue.objects.filter(track__session__project = project, name = name, value = value).order_by('-id')[:1]
         if ts:
-            return HttpResponseRedirect(ts[0].track.param_display()['referer'])
+            return HttpResponseRedirect(ts[0].track.param_display()['referrer'])
         else:
             return HttpResponse('403 forbidden')
 
@@ -96,7 +96,7 @@ def groupby_value(request, id):
     # deal with value_names
     value_names = cache.get(id + '_trackvalue_names', 'DoesNotExist')
     if value_names == 'DoesNotExist':
-        value_names = TrackGroupByValue.objects.filter(project = project).exclude(name__startswith='referer').distinct().values('name')
+        value_names = TrackGroupByValue.objects.filter(project = project).exclude(name__startswith='referrer').distinct().values('name')
         cache.set(id + '_trackvalue_names', value_names)
 
     datetype = request.GET.get('datetype','day')
@@ -277,13 +277,13 @@ def default(request):
         # deal with param
         if t.param_display():
             for k,v in t.param_display().items():
-                if k not in ('referer', ):
+                if k not in ('referrer', ):
                     t.set_value(k, v)
 
         for datetype in ['hourline', 'dayline', 'weekline', 'monthline']:
             if t.param_display():
                 for k,v in t.param_display().items():
-                    if k not in ('referer', ):
+                    if k not in ('referrer', ):
                         trackGroupByValue = TrackGroupByValue.objects.get_or_create(project = s[0].project, datetype=datetype, name=k, value=v, dateline=time.mktime(getattr(t, datetype).timetuple()))
                         trackGroupByValue[0].increase_value()
 

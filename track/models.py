@@ -13,6 +13,10 @@ class Track(models.Model):
     """
     User behavior action track
     ALTER TABLE `datapanel`.`track_track` DROP COLUMN `event` , DROP COLUMN `xpath` , ADD COLUMN `from_track` INT NOT NULL DEFAULT 0  AFTER `url` ;
+
+    update track_trackgroupbyvalue set name = 'referrer_keyword' where name = 'referer_keyword';
+    update track_trackgroupbyvalue set name = 'referrer_site' where name = 'referer_site';
+    update track_trackgroupbyvalue set name = 'referrer' where name = 'referer';
     """
     session = models.ForeignKey(
         Session, related_name='track', verbose_name=u'用户会话')
@@ -29,20 +33,20 @@ class Track(models.Model):
     timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
 
-    def referer(self):
+    def referrer(self):
         try:
-            referer = self.get_value('referer')
-            referer_site = self.get_value('referer_site')
-            referer_keyword = self.get_value('referer_keyword')
+            referrer = self.get_value('referrer')
+            referrer_site = self.get_value('referrer_site')
+            referrer_keyword = self.get_value('referrer_keyword')
 
-            if not referer_site and self.from_track:
-                referer = self.from_track.url
-                referer_site = u'站内'
-                referer_keyword = self.from_track.action
+            if not referrer_site and self.from_track:
+                referrer = self.from_track.url
+                referrer_site = u'站内'
+                referrer_keyword = self.from_track.action
 
-            return {'referer': referer,
-                    'referer_site': referer_site,
-                    'referer_keyword': referer_keyword}
+            return {'referrer': referrer,
+                    'referrer_site': referrer_site,
+                    'referrer_keyword': referrer_keyword}
         except IndexError:
             return None
 
@@ -96,9 +100,9 @@ class Track(models.Model):
     def param_display(self):
         try:
             param = ast.literal_eval(self.param)
-            referer_dict = parse_url(param['referer'])
-            param['referer_site'] = referer_dict['netloc']
-            param['referer_keyword'] = referer_dict['kw']
+            referrer_dict = parse_url(param['referrer'])
+            param['referrer_site'] = referrer_dict['netloc']
+            param['referrer_keyword'] = referrer_dict['kw']
             return param
         except:
             return None
@@ -117,7 +121,7 @@ class Track(models.Model):
 
     def set_from_track(self, save=True):
         probably_from_tracks = self.session.track.filter(id__lt=self.id,
-                                                         url=self.get_value('referer')).order_by('id')
+                                                         url=self.get_value('referrer')).order_by('id')
         if not probably_from_tracks:
             probably_from_tracks = self.session.track.filter(
                 id__lt=self.id).order_by('-id')

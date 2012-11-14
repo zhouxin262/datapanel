@@ -5,7 +5,7 @@ from django.contrib.auth.views import redirect_to_login
 from track.models import TrackValue
 
 
-def get_referer_url(request, id):
+def get_referrer_url(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
@@ -14,12 +14,12 @@ def get_referer_url(request, id):
     name = request.GET.get('name', '')
     value = request.GET.get('value', '')
 
-    if name == 'referer_site':
+    if name == 'referrer_site':
         return HttpResponseRedirect('http://' + value)
     else:
         ts = TrackValue.objects.filter(track__session__project=project, name=name, value=value).order_by('-id')[:1]
         if ts:
-            return HttpResponseRedirect(ts[0].track.get_value('referer'))
+            return HttpResponseRedirect(ts[0].track.get_value('referrer'))
         else:
             return HttpResponse('403 forbidden')
 
