@@ -15,7 +15,7 @@ class ProjectForm(BootstrapModelForm):
 class ActionForm(BootstrapModelForm):
     class Meta:
         layout = (
-            Fieldset(u"行为设置", "name", "url", "xpath", "event"),
+            Fieldset(u"行为设置", "name", "url", "xpath", "event", "is_flag"),
         )
         model = Action
         exclude = ('project')

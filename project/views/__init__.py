@@ -9,7 +9,7 @@ from django.utils import simplejson
 from django.db.models import Count
 from datetime import datetime
 from project.forms import ProjectForm
-from session.models import Session, SessionGroupByTime
+from session.models import Session, GTime
 from track.models import Track
 
 
@@ -54,7 +54,7 @@ def home(request, id):
         end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
         datetype = "hour"
 
-    s1 = SessionGroupByTime.objects.filter(project=project, datetype=datetype,dateline__gte=start_day).order_by("dateline")
+    s1 = GTime.objects.filter(project=project, datetype=datetype,dateline__gte=start_day).order_by("dateline")
     s2 = s1.exclude(dateline__gte=end_day)
     return render(request, 'project/index.html', {'project': project, 'sbt': s2,'interval':interval})
 

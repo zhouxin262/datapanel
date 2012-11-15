@@ -15,6 +15,7 @@
             <tr>
                 <th class="action">行为名称</th>
                 <th>URL正则</th>
+                <th>成功标识</th>
                 <th>操作</th>
             </tr>
             </thead>
@@ -23,7 +24,8 @@
                 <tr>
                     <td class="action">{{action.name}}</td>
                     <td>{{action.url}}</td>
-                    <td><a href="{%url action_delete action.project.id action.id%}">删除</a></td>
+                    <td>{{action.get_is_flag_display}}</td>
+                    <td><a href="{%url action_update action.project.id action.id%}">编辑</a>|<a href="{%url action_delete action.project.id action.id%}">删除</a></td>
                 </tr>
             {% endfor %}
             </tbody>

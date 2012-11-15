@@ -24,7 +24,7 @@ class Project(models.Model):
     def add_action(self, name, url):
         a = Action.objects.get_or_create(project=self, name=name)
         if a[1]:
-            a[0].url=url
+            a[0].url = url
             a[0].save()
         return a[0]
 
@@ -33,11 +33,13 @@ class Action(models.Model):
     """
     Websites' managers defined their own actions
     """
+    IS_FLAG_CHOICES = (('Y', '是'), ('N', '否'))
     project = models.ForeignKey(Project, related_name='action')
     name = models.CharField(max_length=255, verbose_name=u'行为名称')
     url = models.CharField(max_length=255, verbose_name=u'URL正则', null=True, blank=True)
     xpath = models.CharField(max_length=255, verbose_name=u'控件', null=True, blank=True)
     event = models.CharField(max_length=255, verbose_name=u'事件', null=True, blank=True)
+    is_flag = models.CharField(max_length=1, verbose_name=u'是否是成功标识', null=False, blank=False, default='N', choices=IS_FLAG_CHOICES)
 
     def __unicode__(self):
         return self.name

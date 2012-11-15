@@ -29,7 +29,7 @@ def update(request, id, aid):
         form = ActionForm(request.POST, instance=action)
         if form.is_valid():
             action = form.save()
-            return HttpResponseRedirect(reverse('action_view', args=[action.id]))
+            return HttpResponseRedirect(reverse('action_list', args=[action.project.id]))
     return render(request, 'project/action/update.html', {'project': project, 'form': form})
 
 

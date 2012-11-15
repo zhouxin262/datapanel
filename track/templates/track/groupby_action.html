@@ -35,9 +35,9 @@
                 </th>
                 {% for t in times %}
                 {% if params.datetype == 'hour' %}
-                <th>{{t.0|date:"H"}}</th>
+                <th>{{t|date:"H"}}</th>
                 {% else %}
-                <th>{{t.0|date:"d"}}</th>
+                <th>{{t|date:"d"}}</th>
                 {% endif %}
                 {% endfor %}
             </tr>
@@ -48,7 +48,7 @@
             <td class="action" id="action_{{row.label}}"></td>
             <td class="action">{{row.label}}</td>
             {% for value in row.data %}
-                <td data-id="{{row.label}}_{{value.0}}">{{value.1}}</td>
+                <td data-id="{{row.label}}_{{value.0|date:"YmdHiS"}}">{{value.1}}</td>
             {% endfor %}
             </tr>
             {% endfor %}
@@ -71,7 +71,13 @@ $(document).ready(function(){
 	var lcolor = new Array("1D8BD1","F1683C","2AD62A","DBDC25","649665","4169E1","087eb6","BA55D3","D2691E","FF7F50","32CD32","4682B4")
     var xmlData="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'><categories>";
 	{% for t in times %}
-	xmlData+="<category name='{{t.0|date:"H:i Y/m/d"|safe}}'/>";
+
+    {% if params.datetype == 'hour' %}
+    xmlData+="<category name='{{t|date:"H:00"|safe}}'/>";
+    {% else %}
+    xmlData+="<category name='{{t|date:"d"|safe}}'/>";
+    {% endif %}
+
 	{% endfor %}
 	xmlData+="</categories>";
 	{% for row in data.values %}
@@ -91,7 +97,7 @@ $(document).ready(function(){
 	{% for action in actions %}
 	var {{action}} = [];
 	{% for t in times %}
-	{{action}}[{{forloop.counter|add:-1}}] = [{{t.1}}, $('td[data-id={{action}}_{{t.1}}]').html()];
+	{{action}}[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, $('td[data-id={{action}}_{{t|date:"YmdHiS"}}]').html()];
 	{% endfor %}
 	datasets['{{action}}'] = {label: '{{action}}', data:{{action}}};
 	{% endfor %}
@@ -99,9 +105,9 @@ $(document).ready(function(){
 	{% for t in times %}
 
     {% if params.datetype == 'hour' %}
-    ticks[{{forloop.counter|add:-1}}] = [{{t.1}}, '{{t.0|date:"H:00"}}'];
+    ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{t|date:"H:00"}}'];
     {% else %}
-    ticks[{{forloop.counter|add:-1}}] = [{{t.1}}, '{{t.0|date:"d"}}'];
+    ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{t|date:"d"}}'];
     {% endif %}
 
 	{% endfor %}

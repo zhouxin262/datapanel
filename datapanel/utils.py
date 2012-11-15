@@ -18,6 +18,7 @@ class Group():
     annotate = {}
     fargs = {}
     eargs = {}
+    exargs = {}
     values = []
 
     def __init__(self, FromModel, ToModel):
@@ -31,30 +32,44 @@ class Group():
         annotate = self.annotate
         fargs = self.fargs
         eargs = self.eargs
+        exargs = self.exargs
 
         if static_attr and annotate:
             #clean db
             self.ToModel.objects.filter(**static_attr).delete()
 
-            #group
-            dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).values(*values).annotate(**annotate)
-            data = []
-            for datarow in dataset:
+            if values:
+                #group
+                dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
+                data = []
+                for datarow in dataset:
+                    obj = self.ToModel()
+                    for k, v in static_attr.items():
+                        setattr(obj, k, v)
+                    for k, v in dynamic_attr.items():
+                        setattr(obj, k, datarow[v])
+                    for i in values:
+                        if i not in dynamic_attr.values():
+                            setattr(obj, i, datarow[i])
+                    for i in annotate.keys():
+                        if i not in dynamic_attr.values():
+                            setattr(obj, i, datarow[i])
+                    data.append(obj)
+
+                # insert into db
+                self.ToModel.objects.bulk_create(data)
+            else:
+                datarow = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).aggregate(**annotate)
                 obj = self.ToModel()
                 for k, v in static_attr.items():
                     setattr(obj, k, v)
                 for k, v in dynamic_attr.items():
                     setattr(obj, k, datarow[v])
-                for i in values:
-                    if i not in dynamic_attr.values():
-                        setattr(obj, i, datarow[i])
                 for i in annotate.keys():
                     if i not in dynamic_attr.values():
                         setattr(obj, i, datarow[i])
-                data.append(obj)
+                obj.save()
 
-            # insert into db
-            self.ToModel.objects.bulk_create(data)
         else:
             print "missing arguments"
 
@@ -67,13 +82,13 @@ def get_times(interval):
         for i in range(24):
             t = now().replace(hour=0, minute=0, second=0,
                               microsecond=0) - timedelta(hours=i + 1)
-            times.append((t, int(time.mktime(t.timetuple()))))
+            times.append(t)
     elif interval == 7 or interval == 30:
         datetype = 'day'
         for i in range(interval):
             t = now().replace(hour=0, minute=0, second=0,
                               microsecond=0) - timedelta(days=i + 1)
-            times.append((t, int(time.mktime(t.timetuple()))))
+            times.append(t)
     return (datetype, times)
 
 

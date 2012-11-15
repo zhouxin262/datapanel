@@ -79,11 +79,13 @@
     {% endcomment %}
 
 	<li class="nav-header">来源分析</li>
-	{% block subnav-referrer %}
-	<li>
-		<a href="{%url track_groupby_referrer project.id%}">来源总数</a>
-	</li>
-	{% endblock subnav-referrer %}
+    {% comment %}
+    {% block subnav-referrer %}
+    <li>
+        <a href="{%url track_groupby_referrer project.id%}">来源总数</a>
+    </li>
+    {% endblock subnav-referrer %}
+    {% endcomment %}
 	{% block subnav-referrer-keyword %}
 	<li>
 		<a href="{%url session_groupby_referrer project.id "keyword" %}">来源分析</a>

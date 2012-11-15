@@ -29,8 +29,8 @@ def server_info(request):
     s = datetime.now() - timedelta(seconds=60)
     html = 'django_session_count: %d' % DjangoSession.objects.filter().count()
     html += '<br/>project_count: %d' % Project.objects.filter().order_by('-id')[0].id
-    html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().order_by('-id')[0].id, Session.objects.filter(start_time__range=[s,e]).count())
-    html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().order_by('-id')[0].id, Track.objects.filter(dateline__range=[s,e]).count())
+    html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().order_by('-id')[0].id, Session.objects.filter(start_time__range=[s, e]).count())
+    html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().order_by('-id')[0].id, Track.objects.filter(dateline__range=[s, e]).count())
     # html += '<br/>swipe_count: %d' % Swipe.objects.filter().count()
     for cmdSerialNumber in CmdSerialNumber.objects.filter():
         html += '<br/>%s: %d of %s' % (cmdSerialNumber.name, cmdSerialNumber.last_id, cmdSerialNumber.class_name)
@@ -68,7 +68,7 @@ def get_or_create_session(request):
 
 def t(request):
     response = HttpResponse(mimetype="application/x-javascript")
-    response["P3P"] = "CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR";
+    response["P3P"] = "CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"
     if not request.session.session_key:
         request.session.flush()
         request.session.save()
@@ -90,6 +90,7 @@ def t(request):
         action = session.project.add_action(request.GET.get('t', ''), request.META.get('HTTP_REFERER', ''))
 
         t = Track()
+        t.project = session.project
         t.session = session
         t.action = action
         t.url = request.META.get('HTTP_REFERER', '')
