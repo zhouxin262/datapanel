@@ -30,6 +30,15 @@ def create(request):
     return render(request, 'project/create.html', {'form': form})
 
 
+def overview(request, id):
+    try:
+        project = request.user.participate_projects.get(id=id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+
+
+    return render(request, 'project/overview.html', {'project': project,})
+
 def home(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
@@ -39,24 +48,24 @@ def home(request, id):
     interval = request.GET.get('interval', '0')
     datetype = ""
     if interval == "1":
-        start_day = (datetime.today()-timedelta(days=1)).strftime("%Y-%m-%d")
+        start_day = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
         end_day = (datetime.today()).strftime("%Y-%m-%d")
         datetype = "hour"
     elif interval == "7":
-        start_day = (datetime.today()-timedelta(days=6)).strftime("%Y-%m-%d")
+        start_day = (datetime.today() - timedelta(days=6)).strftime("%Y-%m-%d")
         end_day = (datetime.today()).strftime("%Y-%m-%d")
         datetype = "day"
     elif interval == "30":
-        start_day = (datetime.today()-timedelta(days=30)).strftime("%Y-%m-%d")
+        start_day = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
         end_day = (datetime.today()).strftime("%Y-%m-%d")
     else:
         start_day = datetime.today().strftime("%Y-%m-%d")
-        end_day = (datetime.today()+timedelta(days=1)).strftime("%Y-%m-%d")
+        end_day = (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")
         datetype = "hour"
 
-    s1 = GTime.objects.filter(project=project, datetype=datetype,dateline__gte=start_day).order_by("dateline")
-    s2 = s1.exclude(dateline__gte=end_day)
-    return render(request, 'project/index.html', {'project': project, 'sbt': s2,'interval':interval})
+    s1 = GTime.objects.filter(project=project, datetype=datetype, dateline__range=[start_day, end_day]).order_by("dateline")
+    return render(request, 'project/index.html', {'project': project, 'sbt': s1, 'interval': interval})
+
 
 def monitor(request, id):
     try:
