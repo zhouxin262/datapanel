@@ -59,6 +59,19 @@
 			{% endfor %}
 
 		</tbody>
+        <tfoot>
+            <tr>
+                <th class="action">
+                </th>
+                {% for t in times %}
+                {% if params.datetype == 'hour' %}
+                <th>{{t|date:"H"}}</th>
+                {% else %}
+                <th>{{t|date:"d"}}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </tfoot>
 	</table>
 </div>
 </div>
@@ -66,14 +79,24 @@
 $(document).ready(function(){
     $("#name").find("a.dropdown-toggle").html('{{params.name}}<b class="caret"></b>');
     $('#datatables').dataTable({
-        "bPaginate": false,
+        "iDisplayLength": 25,
+        "sPaginationType": "full_numbers",
         "bLengthChange": false,
         "bInfo": false,
         "bFilter": false,
         "bAutoWidth": false,
         "sScrollX": "100%",
         "bScrollCollapse": true,
-        "aaSorting": [[1,"desc"]]
+        "aaSorting": [[1,"desc"]],
+        "oLanguage": {
+          "oPaginate": {
+            "sFirst": "第一页",
+            "sLast": "最后页",
+            "sPrevious": "上一页",
+            "sNext": "下一页"
+          }
+        }
+
     });
 });
 </script>

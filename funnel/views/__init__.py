@@ -34,6 +34,7 @@ def home(request, id):
         start_date = request.GET.get('s', (datetime.today() - timedelta(days=interval)).strftime("%Y-%m-%d"))
         end_date = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
 
+    params['interval'] = str(interval)
 
     funnel_list = Funnel.objects.filter(project=project)
 
@@ -47,7 +48,6 @@ def home(request, id):
         f = Funnel.objects.filter(project=project)[0]
         funnel_id = f.id
 
-    params['interval'] = request.GET.get('interval')
     params['funnel'] = f
 
     # print args
@@ -62,6 +62,7 @@ def home(request, id):
             for j, from_action in enumerate(from_actions[::-1]):
                 args["__".join(["from_track" for k in range(j + 1)]) + "__action_id"] = from_action.id
             args['action'] = funnel_action.action
+            # print args
             data.append([funnel_action.action.name, Track.objects.filter(**args).values('session').distinct().count()])
         else:
             args = {'dateline__gte': start_date, 'dateline__lte': end_date}

@@ -48,22 +48,22 @@ class Command(LabelCommand):
             # foreach project
             for p in Project.objects.filter():
                 # # group by track action
-                # g = Group(Track, GAction)
-                # g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
-                # g.values = ['action', ]
-                # g.dynamic_attr = {'action_id': 'action'}
-                # g.annotate = {'count': Count('action'), 'timelength': Sum('timelength')}
-                # g.fargs = {'dateline__range': [s, e], 'project': p}
-                # g.easy_group()
+                g = Group(Track, GAction)
+                g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
+                g.values = ['action', ]
+                g.dynamic_attr = {'action_id': 'action'}
+                g.annotate = {'count': Count('action'), 'timelength': Sum('timelength')}
+                g.fargs = {'dateline__range': [s, e], 'project': p}
+                g.easy_group()
 
-                # # group by track value
-                # g = Group(TrackValue, GValue)
-                # g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
-                # g.values = ['name', 'value']
-                # g.annotate = {'count': Count('value'), 'timelength': Sum('track__timelength')}
-                # g.fargs = {'track__dateline__range': [s, e], 'track__project': p}
-                # g.eargs = {'where': ["name not like 'referrer%%' and length(value) < 30"], 'params': []}
-                # g.easy_group()
+                # group by track value
+                g = Group(TrackValue, GValue)
+                g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
+                g.values = ['name', 'value']
+                g.annotate = {'count': Count('value'), 'timelength': Sum('track__timelength')}
+                g.fargs = {'track__dateline__range': [s, e], 'track__project': p}
+                g.eargs = {'where': ["name not like 'referrer%%' and length(value) < 30"], 'params': []}
+                g.easy_group()
 
                 # group by track action and time and sessionreferrersite
 
@@ -99,20 +99,20 @@ class Command(LabelCommand):
         for p in Project.objects.filter():
             # group by track action
 
-            # g = Group(GAction, GAction)
-            # g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
-            # g.values = ['action', ]
-            # g.dynamic_attr = {'action_id': 'action'}
-            # g.annotate = {'count': Sum('count'), 'timelength': Sum('timelength')}
-            # g.fargs = {'dateline__range': [s, e], 'project': p}
-            # g.easy_group()
+            g = Group(GAction, GAction)
+            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.values = ['action', ]
+            g.dynamic_attr = {'action_id': 'action'}
+            g.annotate = {'count': Sum('count'), 'timelength': Sum('timelength')}
+            g.fargs = {'dateline__range': [s, e], 'project': p}
+            g.easy_group()
 
-            # g = Group(GValue, GValue)
-            # g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
-            # g.values = ['name', 'value']
-            # g.annotate = {'count': Sum('count'), 'timelength': Sum('timelength')}
-            # g.fargs = {'dateline__range': [s, e], 'project': p}
-            # g.easy_group()
+            g = Group(GValue, GValue)
+            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.values = ['name', 'value']
+            g.annotate = {'count': Sum('count'), 'timelength': Sum('timelength')}
+            g.fargs = {'dateline__range': [s, e], 'project': p}
+            g.easy_group()
 
             g = Group(GReferrerSiteAndAction, GReferrerSiteAndAction)
             g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}

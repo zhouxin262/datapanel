@@ -26,7 +26,7 @@
         <li {% if params.interval == 30 %}class="active"{% endif %}><a href="?interval=30">最近30天</a></li>
 	</ul>
 	<div class="">
-		<table id="datatables" class="table table-striped table-bordered">
+		<table id="datatables" class="display datatables">
 			<thead>
 			<tr>
 				<th width="300">
@@ -38,51 +38,54 @@
 				<th>
 					浏览量
 				</th>
-				<th>
-					平均浏览
-				</th>
-				<th>
-					成功
-				</th>
 			</tr>
 			</thead>
 			<tbody>
-			{% for datarow in dataset.values %}
+			{% for datarow in dataset %}
 			<tr>
 				<td>{{datarow.label}}</td>
-				<td>{{datarow.c}}</td>
-				<td>{{datarow.s}}</td>
-				<td>{{datarow.ec}}</td>
-				<td>{{datarow.success_1}}</td>
+				<td>{{datarow.datarow.count}}</td>
+				<td>{{datarow.avg_track_count}}</td>
 			</tr>
 			{% endfor %}
 			</tbody>
+            <tfoot>
+            <tr>
+                <th width="300">
+
+                </th>
+                <th>
+                    访客数
+                </th>
+                <th>
+                    浏览量
+                </th>
+            </tr>
+            </tfoot>
 		</table>
 	</div>
-    <div class="pagination pagination-right">
-        <ul>
-            {% if params.page == 0 %}
-                <li>
-                    <a href="?interval={{params.interval}}&page={{params.page|add:-1}}">上一页</a>
-                </li>
-            {% else %}
-                <li class="disabled"><a>上一页</a></li>
-            {% endif %}
-            <li>
-                <a href="?interval={{params.interval}}&page={{params.page|add:1}}">下一页</a>
-            </li>
-        </ul>
-    </div>
 </div>
 <script type="text/javascript">
 $(function(){
     $('#datatables').dataTable({
-        "bPaginate": false,
-        "bLengthChange": true,
+        "iDisplayLength": 25,
+        "sPaginationType": "full_numbers",
+        "bLengthChange": false,
         "bInfo": false,
         "bFilter": false,
         "bAutoWidth": false,
-        "aaSorting": [[ 1 , "desc" ]]
+        "sScrollX": "100%",
+        "bScrollCollapse": true,
+        "aaSorting": [[1,"desc"]],
+        "oLanguage": {
+          "oPaginate": {
+            "sFirst": "第一页",
+            "sLast": "最后页",
+            "sPrevious": "上一页",
+            "sNext": "下一页"
+          }
+        }
+
     });
 });
 </script>
