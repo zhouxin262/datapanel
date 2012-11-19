@@ -73,7 +73,7 @@ $(document).ready(function(){
 	{% for t in times %}
 
     {% if params.datetype == 'hour' %}
-    xmlData+="<category name='{{t|date:"H:00"|safe}}'/>";
+    xmlData+="<category name='{{t|date:"H"|safe}}'/>";
     {% else %}
     xmlData+="<category name='{{t|date:"d"|safe}}'/>";
     {% endif %}
