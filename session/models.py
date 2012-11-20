@@ -2,30 +2,34 @@
 from django.db import models
 
 from project.models import Project
+from referrer.models import Site, Keyword
+
 from datetime import timedelta
+
+
+class UserAgent(models.Model):
+    family = models.CharField(max_length=255, verbose_name=u'浏览器', default='')
+    major = models.CharField(max_length=255, default='')
+    minor = models.CharField(max_length=255, default='')
+    patch = models.CharField(max_length=255, default='')
+
+
+class UserOS(models.Model):
+    family = models.CharField(max_length=255, verbose_name=u'操作系统', default='')
+    major = models.CharField(max_length=255, default='')
+    minor = models.CharField(max_length=255, default='')
+    patch = models.CharField(max_length=255, default='')
+    patch_minor = models.CharField(max_length=255, default='')
+
+class UserDevice(models.Model):
+    family = models.CharField(max_length=255, verbose_name=u'设备', default='')
+    is_mobile = models.BooleanField(default=False)
+    is_spider = models.BooleanField(default=False)
 
 
 class Session(models.Model):
     """
     User sessions
-    ALTER TABLE `datapanel`.`datapanel_session`
-    ADD INDEX `datapanel_session_trackcount` (`track_count` ASC) ;
-
-    ALTER TABLE `datapanel`.`datapanel_session` ADD COLUMN `stream_str` TEXT NULL  AFTER `ipaddress` ;
-    ALTER TABLE `datapanel`.`session_session` ADD COLUMN `user_referrer_site` VARCHAR(255) NOT NULL  AFTER `user_referrer` , ADD COLUMN `user_referrer_keyword` VARCHAR(45) NOT NULL  AFTER `user_referrer_site` ;
-    ALTER TABLE `session_session`
-        ALTER `user_referrer` DROP DEFAULT;
-    ALTER TABLE `session_session`
-        CHANGE COLUMN `user_referrer` `user_referrer` TEXT NOT NULL AFTER `user_agent`;
-
-    ALTER TABLE `session_session`
-        ALTER `user_referer_site` DROP DEFAULT,
-        ALTER `user_referer_keyword` DROP DEFAULT;
-    ALTER TABLE `session_session`
-        CHANGE COLUMN `user_referer` `user_referrer` TEXT NOT NULL AFTER `user_agent`,
-        CHANGE COLUMN `user_referer_site` `user_referrer_site` VARCHAR(255) NOT NULL AFTER `user_referrer`,
-        CHANGE COLUMN `user_referer_keyword` `user_referrer_keyword` VARCHAR(45) NOT NULL AFTER `user_referrer_site`;
-
     """
     project = models.ForeignKey(Project, related_name='session')
     sn = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
@@ -33,10 +37,20 @@ class Session(models.Model):
     end_time = models.DateTimeField(auto_now=True, verbose_name=u'会话结束时间')
     user_language = models.CharField(max_length=255, verbose_name=u'客户端语言', default='')
     user_timezone = models.CharField(max_length=255, verbose_name=u'客户端时区', default='')
+
+    # todo remove this
     user_agent = models.CharField(max_length=255, verbose_name=u'客户端类型', default='')
+
+    # client
+    agent = models.ForeignKey(UserAgent, related_name='session', null=True)
+    os = models.ForeignKey(UserOS, related_name='session', null=True)
+    device = models.ForeignKey(UserDevice, related_name='session', null=True)
+
+    # referrer
     user_referrer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
-    user_referrer_site = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
-    user_referrer_keyword = models.CharField(max_length=255, verbose_name=u'来源关键词', default='')
+    referrer_site = models.ForeignKey(Site, related_name='session', null=True)
+    referrer_keyword = models.ForeignKey(Keyword, related_name='session', null=True)
+
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
     timelength = models.IntegerField(verbose_name=u'访问时长', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
