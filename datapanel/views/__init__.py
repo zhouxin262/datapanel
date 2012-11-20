@@ -37,17 +37,15 @@ def server_info(request):
     return HttpResponse(html)
 
 
-def get_or_create_session(request):
-    token = request.GET.get('k', -1)
+def get_or_create_session(request, project):
     # 客户服务器访问，可带客户的客户session_key
     session_key = None
     if request.GET.get('s', None):
         session_key = request.GET.get('s')
     else:
         session_key = request.session.session_key
-    p = Project.objects.get(token=token)
     s = Session.objects.get_or_create(sn=session_key,
-                                      project=p)
+                                      project=project)
     if s[1]:
         s[0].ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')
         s[0].set_user_agent(request.META.get('HTTP_USER_AGENT', ''))
@@ -70,7 +68,14 @@ def t(request):
         request.session.flush()
         request.session.save()
 
-    s = get_or_create_session(request)
+    token = request.GET.get('k', -1)
+    p = Project.objects.get(token=token)
+
+    # verify the url
+    if request.META.get('HTTP_REFERER', '').find(p.url) == -1 and not request.GET.get('DEBUG'):
+        return response
+
+    s = get_or_create_session(request, project)
 
     if request.GET.get('t', ''):
         session = s[0]
