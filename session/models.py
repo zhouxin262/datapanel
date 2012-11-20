@@ -156,14 +156,8 @@ class Session(models.Model):
                     v = ''
                 args[k] = v
 
-            try:
-                t = T.objects.get(**args)
-            except T.DoesNotExist:
-                t = T()
-                for k, v in args.items():
-                    setattr(t, k, v)
-                t.save()
-            setattr(self, f + '_id', t.id)
+            t = T.objects.get_or_create(**args)
+            setattr(self, f + '_id', t[0].id)
         if save:
             self.save()
         return None
@@ -171,21 +165,13 @@ class Session(models.Model):
     def set_referrer(self, referrer_string, save=True):
         url = parse_url(referrer_string)
         self.user_referrer  = url['url']
-        try:
-            s = Site.objects.get(name = url['netloc'])
-        except Site.DoesNotExist:
-            s = Site()
-            s.name = url['netloc']
-            s.save()
-        self.referrer_site_id = s.id
 
-        try:
-            s = Keyword.objects.get(name = url['kw'])
-        except Keyword.DoesNotExist:
-            s = Keyword()
-            s.name = url['kw']
-            s.save()
-        self.referrer_keyword_id = s.id
+        s = Site.objects.get_or_create(name = url['netloc'])
+        self.referrer_site_id = s[0].id
+
+        s = Keyword.objects.get_or_create(name = url['kw'])
+        self.referrer_keyword_id = s[0].id
+
         if save:
             self.save()
         return None
