@@ -105,7 +105,8 @@ def t(request):
         # add_track(t)
 
         session.track_count = session.track_count + 1
-        session.timelength += add_timelength
+        if add_timelength > 0 and add_timelength <= 300:
+            session.timelength += add_timelength
         session.save()
 
         # deal with param
