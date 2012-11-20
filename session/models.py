@@ -3,6 +3,8 @@ from django.db import models
 
 from project.models import Project
 from referrer.models import Site, Keyword
+from session.models import UserAgent, UserDevice, UserOS
+from datapanel.ua_parser import user_agent_parser
 
 from datetime import timedelta
 
@@ -20,6 +22,7 @@ class UserOS(models.Model):
     minor = models.CharField(max_length=255, default='')
     patch = models.CharField(max_length=255, default='')
     patch_minor = models.CharField(max_length=255, default='')
+
 
 class UserDevice(models.Model):
     family = models.CharField(max_length=255, verbose_name=u'设备', default='')
@@ -121,6 +124,39 @@ class Session(models.Model):
             return sessionValues
         except SessionValue.DoesNotExist:
             return None
+
+    def set_user_agent(self, user_agent_string, save=True):
+        parsed = user_agent_parser.Parse(user_agent_string)
+        for name, obj in parsed.items():
+            T = None
+            if name == 'user_agent':
+                T = UserAgent
+                f = 'agent'
+            elif name == 'os':
+                T = UserOS
+                f = 'os'
+            elif name == 'device':
+                T = UserDevice
+                f = 'device'
+            else:
+                continue
+
+            args = {}
+            for k, v in obj.items():
+                if v is None:
+                    v = ''
+                args[k] = v
+            try:
+                t = T.objects.get(**args)
+            except:
+                t = T()
+                for k, v in args.items():
+                    setattr(t, k, v)
+                t.save()
+            setattr(self, f + '_id', t.id)
+        if save:
+            self.save()
+        return None
 
 
 class SessionValue(models.Model):

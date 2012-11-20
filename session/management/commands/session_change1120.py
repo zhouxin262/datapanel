@@ -45,6 +45,7 @@ class Command(LabelCommand):
                             setattr(t, k, v)
                         t.save()
                     setattr(s, f+'_id', t.id)
+                    s.save()
 
 
 

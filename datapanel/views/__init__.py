@@ -50,7 +50,7 @@ def get_or_create_session(request):
                                       project=p)
     if s[1]:
         s[0].ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')
-        s[0].user_agent = request.META.get('HTTP_USER_AGENT', '')
+        s[0].set_user_agent(request.META.get('HTTP_USER_AGENT', ''))
         s[0].user_timezone = request.META.get('TZ', '')
 
         #try:
