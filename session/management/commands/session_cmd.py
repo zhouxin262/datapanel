@@ -41,7 +41,7 @@ class Command(LabelCommand):
                 # group by time
                 g = Group(Session, GTime)
                 g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
-                g.annotate = {'count': Count('id'), 'track_count': Sum('track_count')}
+                g.annotate = {'count': Count('id'), 'track_count': Sum('track_count'), 'timelength': Sum('timelength')}
                 g.fargs = {'start_time__range': [s, e], 'project': p}
                 g.easy_group()
 
@@ -51,7 +51,7 @@ class Command(LabelCommand):
                 g.eargs = {'where': ["user_referrer_site <> ''"]}
                 g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
                 g.values = ['user_referrer_site', ]
-                g.annotate = {'count': Count('user_referrer_site'), 'track_count': Sum('track_count')}
+                g.annotate = {'count': Count('user_referrer_site'), 'track_count': Sum('track_count'), 'timelength': Sum('timelength')}
                 g.easy_group()
 
                 # group by user_referrer_keyword and time
@@ -60,7 +60,7 @@ class Command(LabelCommand):
                 g.eargs = {'where': ["user_referrer_keyword <> ''"]}
                 g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
                 g.values = ['user_referrer_keyword', ]
-                g.annotate = {'count': Count('user_referrer_keyword'), 'track_count': Sum('track_count')}
+                g.annotate = {'count': Count('user_referrer_keyword'), 'track_count': Sum('track_count'), 'timelength': Sum('timelength')}
                 g.easy_group()
 
         """
@@ -75,7 +75,7 @@ class Command(LabelCommand):
             # group by time
             g = Group(GTime, GTime)
             g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
-            g.annotate = {'count': Sum('count'), 'track_count': Sum('track_count')}
+            g.annotate = {'count': Sum('count'), 'track_count': Sum('track_count'), 'timelength': Sum('timelength')}
             g.fargs = {'dateline__range': [s, e], 'project': p}
             g.easy_group()
 
@@ -84,14 +84,14 @@ class Command(LabelCommand):
             g.fargs = {'dateline__range': [s, e], 'project': p}
             g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
             g.values = ['user_referrer_site', ]
-            g.annotate = {'count': Sum('count'), 'track_count': Sum('track_count')}
+            g.annotate = {'count': Sum('count'), 'track_count': Sum('track_count'), 'timelength': Sum('timelength')}
             g.easy_group()
 
             g = Group(GReferrerKeyword, GReferrerKeyword)
             g.fargs = {'dateline__range': [s, e], 'project': p}
             g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
             g.values = ['user_referrer_keyword', ]
-            g.annotate = {'count': Count('count'), 'track_count': Sum('track_count')}
+            g.annotate = {'count': Count('count'), 'track_count': Sum('track_count'), 'timelength': Sum('timelength')}
             g.easy_group()
 
         print label, '====finished====', datetime.now()
