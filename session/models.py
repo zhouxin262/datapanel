@@ -38,6 +38,7 @@ class Session(models.Model):
     user_referrer_site = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
     user_referrer_keyword = models.CharField(max_length=255, verbose_name=u'来源关键词', default='')
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
+    timelength = models.IntegerField(verbose_name=u'访问时长', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
 
     def first_track(self):

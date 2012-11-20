@@ -99,12 +99,13 @@ def t(request):
         t.save()
 
         t.set_from_track()
-        t.set_prev_timelength()
+        add_timelength = t.set_prev_timelength()
 
         # add_track to update the cache data
         # add_track(t)
 
         session.track_count = session.track_count + 1
+        session.timelength += add_timelength
         session.save()
 
         # deal with param

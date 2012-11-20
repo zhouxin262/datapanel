@@ -153,6 +153,9 @@ class Track(models.Model):
             self.timelength = timelength.seconds + 1
             if save:
                 self.save()
+            return self.timelength
+        else:
+            return 0
 
     def set_prev_timelength(self, save=True):
         prev_track = self.prev_track()
@@ -166,6 +169,9 @@ class Track(models.Model):
             prev_track.timelength = timelength.seconds + 1
             if save:
                 prev_track.save()
+            return prev_track.timelength
+        else:
+            return 0
 
 
 class TrackValue(models.Model):
