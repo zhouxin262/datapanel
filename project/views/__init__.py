@@ -5,9 +5,6 @@ from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
-from django.db.models import Count
-from datetime import datetime
 from project.forms import ProjectForm
 from session.models import Session, GTime
 from track.models import Track
@@ -36,8 +33,8 @@ def overview(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
+    return render(request, 'project/overview.html', {'project': project, })
 
-    return render(request, 'project/overview.html', {'project': project,})
 
 def home(request, id):
     try:
@@ -64,6 +61,7 @@ def home(request, id):
         datetype = "hour"
 
     s1 = GTime.objects.filter(project=project, datetype=datetype, dateline__range=[start_day, end_day]).order_by("dateline")
+    print s1
     return render(request, 'project/index.html', {'project': project, 'sbt': s1, 'interval': interval})
 
 
