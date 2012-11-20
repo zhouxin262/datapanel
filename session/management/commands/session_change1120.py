@@ -11,12 +11,13 @@ class Command(LabelCommand):
 
     def handle_label(self, label, **options):
         _s = datetime.now()
-        _c = Session.objects.filter().count()
+        _c = Session.objects.filter(agent__isnull=True).order_by('id').count()
         for i in range(0, _c, 3000):
             used_time = (datetime.now() - _s).seconds
             if used_time:
                 print used_time, 'used', round(float(_c)/(float(i)/used_time), 2), 'left'
-            for s in Session.objects.filter()[i: i + 3000]:
+
+            for s in Session.objects.filter(agent__isnull=True).order_by('id')[i: i + 3000]:
                 parsed = user_agent_parser.Parse(s.user_agent)
                 for name, obj in parsed.items():
                     T = None
@@ -37,6 +38,7 @@ class Command(LabelCommand):
                         if v == None:
                             v = ''
                         args[k] = v
+
                     try:
                         t = T.objects.get(**args)
                     except:
@@ -44,8 +46,9 @@ class Command(LabelCommand):
                         for k, v in args.items():
                             setattr(t, k, v)
                         t.save()
+
                     setattr(s, f+'_id', t.id)
-                    s.save()
+                s.save()
 
 
 

@@ -3,7 +3,6 @@ from django.db import models
 
 from project.models import Project
 from referrer.models import Site, Keyword
-from session.models import UserAgent, UserDevice, UserOS
 from datapanel.ua_parser import user_agent_parser
 
 from datetime import timedelta
