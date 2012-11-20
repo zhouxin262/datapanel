@@ -15,7 +15,7 @@ class Command(LabelCommand):
         for i in range(0, _c, 3000):
             used_time = (datetime.now() - _s).seconds
             if used_time:
-                print used_time, 'used', round(float(_c) / (float(i) / used_time), 2), 'left'
+                print used_time, 'used', round(float(_c-i) / (float(i) / used_time), 2), 'left'
 
             for s in Session.objects.filter().order_by('id')[i: i + 3000]:
                 s.set_user_agent(s.user_agent)
