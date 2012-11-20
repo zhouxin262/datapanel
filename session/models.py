@@ -9,24 +9,33 @@ from datapanel.utils import parse_url
 
 
 class UserAgent(models.Model):
-    family = models.CharField(max_length=255, verbose_name=u'浏览器', default='')
-    major = models.CharField(max_length=255, default='')
-    minor = models.CharField(max_length=255, default='')
-    patch = models.CharField(max_length=255, default='')
+    family = models.CharField(max_length=50, verbose_name=u'浏览器', default='')
+    major = models.CharField(max_length=4, default='')
+    minor = models.CharField(max_length=4, default='')
+    patch = models.CharField(max_length=4, default='')
+
+    class Meta:
+        unique_together = (('family','major','minor','patch'))
 
 
 class UserOS(models.Model):
-    family = models.CharField(max_length=255, verbose_name=u'操作系统', default='')
-    major = models.CharField(max_length=255, default='')
-    minor = models.CharField(max_length=255, default='')
-    patch = models.CharField(max_length=255, default='')
-    patch_minor = models.CharField(max_length=255, default='')
+    family = models.CharField(max_length=50, verbose_name=u'操作系统', default='')
+    major = models.CharField(max_length=4, default='')
+    minor = models.CharField(max_length=4, default='')
+    patch = models.CharField(max_length=4, default='')
+    patch_minor = models.CharField(max_length=4, default='')
+
+    class Meta:
+        unique_together = (('family','major','minor','patch', 'patch_minor'))
 
 
 class UserDevice(models.Model):
-    family = models.CharField(max_length=255, verbose_name=u'设备', default='')
+    family = models.CharField(max_length=50, verbose_name=u'设备', default='')
     is_mobile = models.BooleanField(default=False)
     is_spider = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (('family','is_mobile','is_spider'))
 
 
 class Session(models.Model):
