@@ -1,4 +1,4 @@
-var host = '111.67.195.174';
+var host = 'www.ezaiai.com';
 var key = '{{params.key}}';
 
 jx = {
