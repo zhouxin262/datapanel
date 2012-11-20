@@ -135,8 +135,6 @@ def decode_keyword(s):
     res = res.replace('site:', '')
     p = re.compile('[\(\)\+\;\,\>\<\\\ ]')
     res = p.sub('', res, re.U)
-    if res:
-        print res
     return res
 
 
