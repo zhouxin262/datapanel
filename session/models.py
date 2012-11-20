@@ -203,7 +203,7 @@ class GReferrerSite(models.Model):
     Session Group by ReferrerSite and Time
     '''
     project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerSite')
-    user_referrer_site = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
+    site = models.ForeignKey(Site, related_name='GReferrerSite')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
@@ -216,6 +216,7 @@ class GReferrerKeyword(models.Model):
     Session Group by ReferrerSite and Time
     '''
     project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerkeyword')
+    keyword = models.ForeignKey(Keyword, related_name='GReferrerKeyword')
     user_referrer_keyword = models.CharField(max_length=255, verbose_name=u'来源关键词', default='')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
