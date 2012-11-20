@@ -4,8 +4,8 @@ from django.db import models
 from project.models import Project
 from referrer.models import Site, Keyword
 from datapanel.ua_parser import user_agent_parser
-
 from datetime import timedelta
+from datapanel.utils import parse_url
 
 
 class UserAgent(models.Model):
@@ -41,6 +41,7 @@ class Session(models.Model):
     user_timezone = models.CharField(max_length=255, verbose_name=u'客户端时区', default='')
 
     # todo remove this
+    user_referrer = models.TextField(verbose_name=u'客户端来源', default='')
     user_agent = models.CharField(max_length=255, verbose_name=u'客户端类型', default='')
 
     # client
@@ -49,7 +50,6 @@ class Session(models.Model):
     device = models.ForeignKey(UserDevice, related_name='session', null=True)
 
     # referrer
-    user_referrer = models.CharField(max_length=255, verbose_name=u'客户端来源', default='')
     referrer_site = models.ForeignKey(Site, related_name='session', null=True)
     referrer_keyword = models.ForeignKey(Keyword, related_name='session', null=True)
 
@@ -125,6 +125,7 @@ class Session(models.Model):
             return None
 
     def set_user_agent(self, user_agent_string, save=True):
+        self.user_agent = user_agent_string
         parsed = user_agent_parser.Parse(user_agent_string)
         for name, obj in parsed.items():
             T = None
@@ -145,9 +146,10 @@ class Session(models.Model):
                 if v is None:
                     v = ''
                 args[k] = v
+
             try:
                 t = T.objects.get(**args)
-            except:
+            except T.DoesNotExist:
                 t = T()
                 for k, v in args.items():
                     setattr(t, k, v)
@@ -157,6 +159,27 @@ class Session(models.Model):
             self.save()
         return None
 
+    def set_referrer(self, referrer_string, save=True):
+        url = parse_url(referrer_string)
+        self.user_referrer  = url['url']
+        try:
+            s = Site.objects.get(name = url['netloc'])
+        except Site.DoesNotExist:
+            s = Site()
+            s.name = url['netloc']
+            s.save()
+        self.referrer_site_id = s.id
+
+        try:
+            s = Keyword.objects.get(name = url['kw'])
+        except Keyword.DoesNotExist:
+            s = Keyword()
+            s.name = url['kw']
+            s.save()
+        self.referrer_keyword_id = s.id
+        if save:
+            self.save()
+        return None
 
 class SessionValue(models.Model):
     session = models.ForeignKey(Session, related_name='value')

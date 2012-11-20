@@ -1,6 +1,7 @@
 #coding=utf-8
 import time
 import urlparse
+import re
 from datetime import timedelta
 from django.conf import settings
 from datetime import tzinfo, timedelta, datetime
@@ -102,32 +103,42 @@ def parse_url(url):
             if parsed_url.netloc.find('baidu') != -1:
                 #baidu
                 if 'wd' in querystring:
-                    url_dict['kw'] = smart_decode(
+                    url_dict['kw'] = decode_keyword(
                         querystring['wd'][0])
                 elif 'word' in querystring:
-                    url_dict['kw'] = smart_decode(
+                    url_dict['kw'] = decode_keyword(
                         querystring['word'][0])
             if parsed_url.netloc.find('sogou') != -1:
                 #sogou
                 if 'query' in querystring:
-                    url_dict['kw'] = smart_decode(
+                    url_dict['kw'] = decode_keyword(
                         querystring['query'][0])
     except:
         pass
     return url_dict
 
 
-def smart_decode(s):
+def decode_keyword(s):
+    s = s.strip()
     if s.find('%u') != -1:
         # '%u5973%u4EBA%u6210%u4EBA%u7528%u54C1' for sogou sb unicode
-        return "".join([unichr(int(i, 16)) for i in s.split('%u')[1:]])
-    try:
-        return s.decode('utf-8', 'strict')
-    except:
+        res =  "".join([unichr(int(i, 16)) for i in s.split('%u')[1:]])
+    else:
         try:
-            return s.decode('gbk', 'strict')
+            res =  s.decode('utf-8', 'strict')
         except:
-            return ''
+            try:
+                res =  s.decode('gbk', 'strict')
+            except:
+                res =  ''
+
+    res = res.replace('site:', '')
+    p = re.compile('[\(\)\+\;\,\>\<\\\ ]')
+    res = p.sub('', res, re.U)
+    if res:
+        print res
+    return res
+
 
 
 def now():

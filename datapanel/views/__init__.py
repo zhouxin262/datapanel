@@ -55,10 +55,7 @@ def get_or_create_session(request):
 
         #try:
         params = ast.literal_eval(request.GET.get('p', ''))
-        url = parse_url(params['referrer'])
-        s[0].user_referrer = url['url']
-        s[0].user_referrer_site = url['netloc']
-        s[0].user_referrer_keyword = url['kw']
+        s[0].set_referrer(params['referrer'])
         # except:
         #     pass
 
