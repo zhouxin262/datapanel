@@ -16,8 +16,15 @@
             <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=30">最近30天</a></li>
             <li><a href="{%url project_monitor project.id%}">实时数据</a></li>
         </ul>
-        <div id="placeholder" style="width:969px;height:500px;margin:10px 0"></div>
+        <div id="placeholder" style="width:969px;height:500px;margin:10px 0;display:none"></div>
+        <div>
+        <div style="float:left;margin-left:50px;"><label><input type="radio" id="id_type_1" name="type" class="radios" value="chart" checked="checked"> 浏览量</label></div>
+        <div style="float:left"><label><input type="radio" id="id_type_2" name="type" class="radios" value="chart1"> 访问量</label></div>
+        <div style="float:left"><label><input type="radio" id="id_type_3" name="type" class="radios" value="chart2"> 平均访问时长</label></div>
+        </div>
         <div id="chart" ></div>
+        <div id="chart1" ></div>
+        <div id="chart2" ></div>
     </div>
 	<SCRIPT LANGUAGE="Javascript" SRC="{{ STATIC_URL }}js/FusionCharts.js"></SCRIPT>
     <script type="text/javascript">
@@ -25,8 +32,12 @@
         var tooltips = [];
         var d1 = [];
         var xmlData="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'>";
+        var xmlData1="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'>";
+        var xmlData2="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'>";
         {% for sb in sbt %}
         	xmlData+="<set value='{{sb.count}}' name = '{% if sb.datetype == 'hour' %}{{sb.dateline|date:"H"|safe}}{% endif %}'/>";
+        	xmlData1+="<set value='{{sb.track_count}}' name = '{% if sb.datetype == 'hour' %}{{sb.dateline|date:"H"|safe}}{% endif %}'/>";
+            xmlData2+="<set value='{{sb.timelength}}' name = '{% if sb.datetype == 'hour' %}{{sb.dateline|date:"H"|safe}}{% endif %}'/>";
             d1.push(['{{forloop.counter|add:-1}}', {{ sb.count }}]);
             tooltips[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"Y/m/d\<\b\r\/\>H:i"|safe}}'];
             {% if sb.datetype == 'hour' %}
@@ -40,6 +51,17 @@
 	    chart.setTransparent(true);
 	    chart.render("chart");
 
+		xmlData1+="</graph>";
+	    var chart = new FusionCharts("{{ STATIC_URL }}flash/FCF_Line.swf", "chartId", "969", "300", "0", "1");
+	    chart.setDataXML(xmlData1);
+	    chart.setTransparent(true);
+	    chart.render("chart1");
+	    
+	    xmlData2+="</graph>";
+	    var chart = new FusionCharts("{{ STATIC_URL }}flash/FCF_Line.swf", "chartId", "969", "300", "0", "1");
+	    chart.setDataXML(xmlData2);
+	    chart.setTransparent(true);
+	    chart.render("chart2");
         $('.dropdown-toggle').dropdown();
         $('.datepicker').datepicker();
         $.plot($("#placeholder"), [{data:d1}], {
@@ -79,5 +101,28 @@
                 previousPoint = null;
             }
         });
+        $(document).ready(function(){
+        	$('#chart1').hide();
+        	$('#chart2').hide();
+        	$("input[name='type']").change(function() {
+        	var svalue = $("input[name='type']:checked").val();
+			if (svalue =='chart'){
+			$('#chart').show();
+        	$('#chart1').hide();
+        	$('#chart2').hide();
+			}
+			if (svalue =='chart1'){
+			$('#chart1').show();
+        	$('#chart').hide();
+        	$('#chart2').hide();
+			}
+			if (svalue =='chart2'){
+			$('#chart2').show();
+        	$('#chart1').hide();
+        	$('#chart').hide();
+			}
+        	});
+        	
+          });
     </script>
 {% endblock content %}
