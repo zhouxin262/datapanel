@@ -14,7 +14,7 @@ class Command(LabelCommand):
         _l = _c
         while _l:
             used_time = (datetime.now() - _s).seconds
-            if used_time:
+            if used_time and _c > _l:
                 print used_time, 'used', round(float(_l) / (float(_c - _l) / used_time), 2), 'left'
 
             for s in Session.objects.filter(agent__isnull=True)[:3000]:
