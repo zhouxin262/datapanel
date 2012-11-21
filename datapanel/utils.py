@@ -1,8 +1,6 @@
 #coding=utf-8
-import time
 import urlparse
 import re
-from datetime import timedelta
 from django.conf import settings
 from datetime import tzinfo, timedelta, datetime
 
@@ -122,21 +120,20 @@ def decode_keyword(s):
     s = s.strip()
     if s.find('%u') != -1:
         # '%u5973%u4EBA%u6210%u4EBA%u7528%u54C1' for sogou sb unicode
-        res =  "".join([unichr(int(i, 16)) for i in s.split('%u')[1:]])
+        res = "".join([unichr(int(i, 16)) for i in s.split('%u')[1:]])
     else:
         try:
-            res =  s.decode('utf-8', 'strict')
+            res = s.decode('utf-8', 'strict')
         except:
             try:
-                res =  s.decode('gbk', 'strict')
+                res = s.decode('gbk', 'strict')
             except:
-                res =  ''
+                res = ''
 
     res = res.replace('site:', '')
     p = re.compile('[\(\)\+\;\,\>\<\\\ ]')
     res = p.sub('', res, re.U)
     return res
-
 
 
 def now():

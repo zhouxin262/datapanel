@@ -6,6 +6,7 @@ from django.db import models
 
 from project.models import Project, Action
 from session.models import Session
+from referrer.models import Site, Keyword
 from datapanel.utils import parse_url
 
 
@@ -23,12 +24,15 @@ class Track(models.Model):
     ADD INDEX `track_track_project` (`project_id`);
     """
     project = models.ForeignKey(Project, related_name='track')
-    session = models.ForeignKey(
-        Session, related_name='track', verbose_name=u'用户会话')
-    action = models.ForeignKey(
-        Action, related_name='track', verbose_name=u'事件')
+    session = models.ForeignKey(Session, related_name='track', verbose_name=u'用户会话')
+    action = models.ForeignKey(Action, related_name='track', verbose_name=u'事件')
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
     from_track = models.ForeignKey("Track", null=True)
+
+    # referrer
+    referrer_site = models.ForeignKey(Site, related_name='track', null=True)
+    referrer_keyword = models.ForeignKey(Keyword, related_name='track', null=True)
+
     # xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
     # event = models.CharField(max_length=255, verbose_name=u'event', default='')
     # param = models.TextField(verbose_name=u'参数', default='')
@@ -37,6 +41,20 @@ class Track(models.Model):
     step = models.IntegerField(max_length=50, null=False, default=0)
     timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
+
+    def set_referrer(self, referrer_string, save=True):
+        url = parse_url(referrer_string)
+        self.user_referrer = url['url']
+
+        s = Site.objects.get_or_create(name=url['netloc'])
+        self.referrer_site_id = s[0].id
+
+        s = Keyword.objects.get_or_create(name=url['kw'])
+        self.referrer_keyword_id = s[0].id
+
+        if save:
+            self.save()
+        return None
 
     def referrer(self):
         try:
@@ -105,11 +123,6 @@ class Track(models.Model):
     def param_display(self):
         try:
             param = ast.literal_eval(self.param)
-            referrer_dict = parse_url(param['referrer'])
-            if referrer_dict['netloc']:
-                param['referrer_site'] = referrer_dict['netloc']
-            if referrer_dict['kw']:
-                param['referrer_keyword'] = referrer_dict['kw']
             return param
         except:
             return None
