@@ -12,21 +12,21 @@ class UserAgent(models.Model):
     family = models.CharField(max_length=50, verbose_name=u'浏览器', default='')
     major = models.CharField(max_length=4, default='')
     minor = models.CharField(max_length=4, default='')
-    patch = models.CharField(max_length=4, default='')
+    patch = models.CharField(max_length=10, default='')
 
     class Meta:
-        unique_together = (('family','major','minor','patch'))
+        unique_together = (('family', 'major', 'minor', 'patch'))
 
 
 class UserOS(models.Model):
     family = models.CharField(max_length=50, verbose_name=u'操作系统', default='')
     major = models.CharField(max_length=4, default='')
     minor = models.CharField(max_length=4, default='')
-    patch = models.CharField(max_length=4, default='')
-    patch_minor = models.CharField(max_length=4, default='')
+    patch = models.CharField(max_length=10, default='')
+    patch_minor = models.CharField(max_length=10, default='')
 
     class Meta:
-        unique_together = (('family','major','minor','patch', 'patch_minor'))
+        unique_together = (('family', 'major', 'minor', 'patch', 'patch_minor'))
 
 
 class UserDevice(models.Model):
@@ -35,7 +35,7 @@ class UserDevice(models.Model):
     is_spider = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = (('family','is_mobile','is_spider'))
+        unique_together = (('family', 'is_mobile', 'is_spider'))
 
 
 class Session(models.Model):
@@ -156,6 +156,7 @@ class Session(models.Model):
                     v = ''
                 args[k] = v
 
+            print args
             t = T.objects.get_or_create(**args)
             setattr(self, f + '_id', t[0].id)
         if save:
@@ -164,17 +165,18 @@ class Session(models.Model):
 
     def set_referrer(self, referrer_string, save=True):
         url = parse_url(referrer_string)
-        self.user_referrer  = url['url']
+        self.user_referrer = url['url']
 
-        s = Site.objects.get_or_create(name = url['netloc'])
+        s = Site.objects.get_or_create(name=url['netloc'])
         self.referrer_site_id = s[0].id
 
-        s = Keyword.objects.get_or_create(name = url['kw'])
+        s = Keyword.objects.get_or_create(name=url['kw'])
         self.referrer_keyword_id = s[0].id
 
         if save:
             self.save()
         return None
+
 
 class SessionValue(models.Model):
     session = models.ForeignKey(Session, related_name='value')
