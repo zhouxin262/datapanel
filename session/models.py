@@ -156,7 +156,6 @@ class Session(models.Model):
                     v = ''
                 args[k] = v
 
-            print args
             t = T.objects.get_or_create(**args)
             setattr(self, f + '_id', t[0].id)
         if save:
