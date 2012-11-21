@@ -117,7 +117,10 @@ def t(request):
                 if len(k.split("__")) > 1:
                     getattr(t, k.split("__")[0]).set_value(k.split("__")[1], v)
                 else:
-                    t.set_value(k, v)
+                    if k.find('referrer') == -1:
+                        t.set_value(k, v)
+                    else:
+                        t.set_referrer(v)
 
     if request.GET.get('p', ''):
         params = ast.literal_eval(request.GET.get('p', ''))
