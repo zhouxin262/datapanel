@@ -69,10 +69,10 @@ def t(request):
         request.session.save()
 
     token = request.GET.get('k', -1)
-    p = Project.objects.get(token=token)
+    project = Project.objects.get(token=token)
 
     # verify the url
-    if request.META.get('HTTP_REFERER', '').find(p.url) == -1 and not request.GET.get('DEBUG'):
+    if request.META.get('HTTP_REFERER', '').find(project.url) == -1 and not request.GET.get('DEBUG'):
         return response
 
     s = get_or_create_session(request, project)
