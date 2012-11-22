@@ -40,7 +40,6 @@ def session(request, id, referrer_attr):
             track_count=Avg('track_count'),
             timelength=Avg('timelength'),
         ).order_by('-count')
-    print tmp.query.__str__()
     for datarow in tmp:
         datarow['timelength_display'] = "%d分%d秒" % (datarow['timelength'] / 60, datarow['timelength'] % 60)
         dataset.append({"label": datarow['referrer_' + referrer_attr + '__name'],
