@@ -1,4 +1,5 @@
 #coding=utf-8
+import time
 from datetime import datetime
 
 from django.core.management.base import LabelCommand
@@ -15,9 +16,10 @@ class Command(LabelCommand):
         while _l:
             used_time = (datetime.now() - _s).seconds
             if used_time and _c > _l:
-                print used_time, 'used', round(float(_l) / (float(_c - _l) / used_time), 2), 'left'
+                print _l, 'left', used_time, 'used', round(float(_l) / (float(_c - _l) / used_time), 2), 'left'
 
-            for s in Track.objects.filter(referrer_site__isnull=True).order_by('id')[:3000]:
+            for s in Track.objects.filter(referrer_site__isnull=True).order_by('id')[:100]:
                 s.set_referrer(s.get_value('referrer'))
                 # print s.agent_id
             _l = Track.objects.filter(referrer_site__isnull=True).count()
+            time.sleep(1)
