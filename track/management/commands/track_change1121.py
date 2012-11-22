@@ -18,8 +18,8 @@ class Command(LabelCommand):
             if used_time and _c > _l:
                 print _l, 'left', used_time, 'used', round(float(_l) / (float(_c - _l) / used_time), 2), 'left'
 
-            for s in Track.objects.filter(referrer_site__isnull=True).order_by('id')[:100]:
+            for s in Track.objects.filter(referrer_site__isnull=True)[:100]:
                 s.set_referrer(s.get_value('referrer'))
                 # print s.agent_id
-            _l = Track.objects.filter(referrer_site__isnull=True).count()
+            _l = _l - 100
             time.sleep(1)

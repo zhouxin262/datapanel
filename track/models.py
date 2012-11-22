@@ -218,9 +218,9 @@ class GReferrerSiteAndAction(models.Model):
     '''
     Group by Session ReferrerSite and Time and Action
     '''
-    project = models.ForeignKey(Project, related_name='trackgroupbyReferrerSiteandaction')
-    action = models.ForeignKey(Action, related_name='trackgroupbyReferrersiteandaction', verbose_name=u'事件')
-    value = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
+    project = models.ForeignKey(Project, related_name='GReferrerSiteAndAction')
+    action = models.ForeignKey(Action, related_name='GReferrerSiteAndAction', verbose_name=u'事件')
+    referrer_site = models.ForeignKey(Site, related_name='GReferrerSiteAndAction', null=True)
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
@@ -231,10 +231,9 @@ class GReferrerKeywordAndAction(models.Model):
     '''
     Group by Session Referrer Keyword and Time and Action
     '''
-    project = models.ForeignKey(Project, related_name='trackgroupbyReferrerkeywordandaction')
-    action = models.ForeignKey(
-        Action, related_name='trackgroupbyReferrerkeywordandaction', verbose_name=u'事件')
-    value = models.CharField(max_length=255, verbose_name=u'来源关键词', default='')
+    project = models.ForeignKey(Project, related_name='GReferrerKeywordAndAction')
+    action = models.ForeignKey(Action, related_name='GReferrerKeywordAndAction', verbose_name=u'事件')
+    referrer_keyword = models.ForeignKey(Keyword, related_name='GReferrerKeywordAndAction', null=True)
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
