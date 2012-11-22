@@ -90,22 +90,6 @@ class Track(models.Model):
         except TrackValue.DoesNotExist:
             return ""
 
-    # def set_condition_result(self, condition, result):
-    #     tcr = TrackConditionResult.objects.get_or_create(track=self, condition=condition)
-    #     tcr[0].result = result
-    #     tcr[0].save()
-    #     return tcr[0]
-    #
-    # def get_condition_result(self, condition):
-    #     try:
-    #         tcr = TrackConditionResult.objects.get(track=self, condition=condition)
-    #         return tcr.result
-    #     except TrackConditionResult.DoesNotExist:
-    #         return None
-    #
-    # def action_display(self):
-    #     return smart_decode(slef.action).encode('utf-8')
-
     def get_time(self, datetype):
         if self.dateline:
             self.hour = self.dateline.replace(
@@ -209,8 +193,7 @@ class GAction(models.Model):
     ALTER TABLE `datapanel`.`datapanel_trackgroupbyclick` RENAME TO  `datapanel`.`datapanel_trackgroupbycondition` ;
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyaction')
-    action = models.ForeignKey(
-        Action, related_name='trackgroupbyaction', verbose_name=u'事件')
+    action = models.ForeignKey(Action, related_name='trackgroupbyaction', verbose_name=u'事件')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
     count = models.IntegerField(u'统计数值', null=False, default=0)
@@ -236,8 +219,7 @@ class GReferrerSiteAndAction(models.Model):
     Group by Session ReferrerSite and Time and Action
     '''
     project = models.ForeignKey(Project, related_name='trackgroupbyReferrerSiteandaction')
-    action = models.ForeignKey(
-        Action, related_name='trackgroupbyReferrersiteandaction', verbose_name=u'事件')
+    action = models.ForeignKey(Action, related_name='trackgroupbyReferrersiteandaction', verbose_name=u'事件')
     value = models.CharField(max_length=255, verbose_name=u'来源网站', default='')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
