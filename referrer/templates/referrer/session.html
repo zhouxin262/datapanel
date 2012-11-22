@@ -35,9 +35,12 @@
 				<th>
 					访客数
 				</th>
-				<th>
-					浏览量
-				</th>
+                <th>
+                    浏览量
+                </th>
+                <th>
+                    访问时长
+                </th>
 			</tr>
 			</thead>
 			<tbody>
@@ -45,7 +48,8 @@
 			<tr>
 				<td>{{datarow.label}}</td>
 				<td>{{datarow.datarow.count}}</td>
-				<td>{{datarow.avg_track_count}}</td>
+                <td>{{datarow.datarow.track_count}}</td>
+                <td>{{datarow.datarow.timelength_display}}</td>
 			</tr>
 			{% endfor %}
 			</tbody>
@@ -60,6 +64,9 @@
                 <th>
                     浏览量
                 </th>
+                <th>
+                    访问时长
+                </th>
             </tr>
             </tfoot>
 		</table>
@@ -67,26 +74,7 @@
 </div>
 <script type="text/javascript">
 $(function(){
-    $('#datatables').dataTable({
-        "iDisplayLength": 25,
-        "sPaginationType": "full_numbers",
-        "bLengthChange": false,
-        "bInfo": false,
-        "bFilter": false,
-        "bAutoWidth": false,
-        "sScrollX": "100%",
-        "bScrollCollapse": true,
-        "aaSorting": [[1,"desc"]],
-        "oLanguage": {
-          "oPaginate": {
-            "sFirst": "第一页",
-            "sLast": "最后页",
-            "sPrevious": "上一页",
-            "sNext": "下一页"
-          }
-        }
 
-    });
 });
 </script>
 {% endblock content %}

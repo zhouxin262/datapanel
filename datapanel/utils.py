@@ -42,6 +42,7 @@ class Group():
                 dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
                 data = []
                 for datarow in dataset:
+                    # print datarow
                     obj = self.ToModel()
                     for k, v in static_attr.items():
                         setattr(obj, k, v)
