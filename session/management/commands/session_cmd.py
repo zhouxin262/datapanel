@@ -1,4 +1,5 @@
 #coding=utf-8
+import time
 from datetime import datetime, timedelta
 
 from django.db.models import Count, Sum, Avg
@@ -44,6 +45,9 @@ class Command(LabelCommand):
                 g.annotate = {'count': Count('id'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
                 g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
                 g.easy_group()
+
+                # delay
+                time.sleep(1)
         """
         group by time per day
         """
@@ -60,6 +64,8 @@ class Command(LabelCommand):
             g.fargs = {'dateline__range': [s, e], 'project': p}
             g.easy_group()
 
+            # delay
+            time.sleep(1)
             # group by user_referrer_site and time
             g = Group(Session, GReferrerSite)
             g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
@@ -69,6 +75,8 @@ class Command(LabelCommand):
             g.annotate = {'count': Count('referrer_site'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
             g.easy_group()
 
+            # delay
+            time.sleep(1)
             # group by user_referrer_keyword and time
             g = Group(Session, GReferrerKeyword)
             g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
@@ -78,4 +86,6 @@ class Command(LabelCommand):
             g.annotate = {'count': Count('referrer_keyword'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
             g.easy_group()
 
+            # delay
+            time.sleep(1)
         print label, '====finished====', datetime.now()
