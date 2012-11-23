@@ -30,6 +30,7 @@ class Track(models.Model):
     from_track = models.ForeignKey("Track", null=True)
 
     # referrer
+    referrer = models.TextField(related_name=u'来源', null=True)
     referrer_site = models.ForeignKey(Site, related_name='track', null=True)
     referrer_keyword = models.ForeignKey(Keyword, related_name='track', null=True)
 
@@ -56,23 +57,6 @@ class Track(models.Model):
             self.save()
         return None
 
-    def referrer(self):
-        try:
-            referrer = self.get_value('referrer')
-            referrer_site = self.get_value('referrer_site')
-            referrer_keyword = self.get_value('referrer_keyword')
-
-            if not referrer_site and self.from_track:
-                referrer = self.from_track.url
-                referrer_site = u'站内'
-                referrer_keyword = self.from_track.action
-
-            return {'referrer': referrer,
-                    'referrer_site': referrer_site,
-                    'referrer_keyword': referrer_keyword}
-        except IndexError:
-            return None
-
     def set_value(self, name, value, save=True):
         try:
             tv = TrackValue.objects.get_or_create(track=self, name=name)
@@ -89,20 +73,6 @@ class Track(models.Model):
             return tv.value
         except TrackValue.DoesNotExist:
             return ""
-
-    def get_time(self, datetype):
-        if self.dateline:
-            self.hour = self.dateline.replace(
-                minute=0, second=0, microsecond=0)
-            self.day = self.dateline.replace(
-                hour=0, minute=0, second=0, microsecond=0)
-            self.week = self.dateline.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
-                days=self.dateline.weekday())
-            self.month = self.dateline.replace(
-                day=1, hour=0, minute=0, second=0, microsecond=0)
-            return getattr(self, datetype)
-        else:
-            return None
 
     def param_display(self):
         try:
@@ -123,12 +93,16 @@ class Track(models.Model):
         except:
             return None
 
+    def to_tracks(self):
+        return self.models.objects.filter(from_track=self)
+
     def set_from_track(self, save=True):
         probably_from_tracks = self.session.track.filter(id__lt=self.id,
-                                                         url=self.get_value('referrer')).order_by('id')
+                                                         url=self.referrer).order_by('id')
         if not probably_from_tracks:
             probably_from_tracks = self.session.track.filter(
                 id__lt=self.id).order_by('-id')
+
         if probably_from_tracks:
             self.from_track = probably_from_tracks[0]
         else:
@@ -143,10 +117,6 @@ class Track(models.Model):
         # set timelength
         if next_track:
             timelength = next_track.dateline - self.dateline
-            # don't care the break
-            # if timelength.seconds < 900:
-            # 15min no move, definitely away from keyboard!
-            #
             self.timelength = timelength.seconds + 1
             if save:
                 self.save()
@@ -159,10 +129,6 @@ class Track(models.Model):
         # set timelength
         if prev_track:
             timelength = self.dateline - prev_track.dateline
-            # don't care the break
-            # if timelength.seconds < 900:
-            # 15min no move, definitely away from keyboard!
-            #
             prev_track.timelength = timelength.seconds + 1
             if save:
                 prev_track.save()
