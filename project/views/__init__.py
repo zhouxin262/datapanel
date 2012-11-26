@@ -37,10 +37,12 @@ def overview(request, id):
 
 
 def home(request, id):
+    print id
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
         return redirect_to_login(request.get_full_path())
+
     project.save()
     interval = request.GET.get('interval', '0')
     datetype = ""

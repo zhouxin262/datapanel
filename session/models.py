@@ -42,8 +42,8 @@ class Session(models.Model):
     """
     User sessions
     """
-    project = models.ForeignKey(Project, related_name='session')
-    sn = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
+    project = models.ForeignKey(Project, related_name='session', null=True, blank=True, default=None)
+    session_key = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
     start_time = models.DateTimeField(auto_now_add=True, verbose_name=u'会话开始时间')
     end_time = models.DateTimeField(auto_now=True, verbose_name=u'会话结束时间')
     user_language = models.CharField(max_length=255, verbose_name=u'客户端语言', default='')

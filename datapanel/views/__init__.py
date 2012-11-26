@@ -9,8 +9,7 @@ from project.models import Project
 from session.models import Session
 from track.models import Track
 from datapanel.models import CmdSerialNumber
-from datapanel.utils import now, parse_url
-from track.caches import add_track
+from datapanel.utils import now
 
 
 def index(request):
@@ -63,7 +62,6 @@ def get_or_create_session(request, project):
 
 def t(request):
     response = HttpResponse(mimetype="application/x-javascript")
-    response["P3P"] = "CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"
     if not request.session.session_key:
         request.session.flush()
         request.session.save()

@@ -99,7 +99,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'datapanel.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -169,7 +169,10 @@ LOGGING = {
     }
 }
 
-SESSION_COOKIE_AGE = 60 * 60 * 24
+
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
+TMP_SESSION_ENGINE = 'db'
+TMP_SESSION_COOKIE_NAME = 'tmp_sessionid'
 
 ACCOUNT_ACTIVATION_DAYS = 7
 LOGIN_REDIRECT_URL = '/'

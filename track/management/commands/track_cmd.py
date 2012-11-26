@@ -66,8 +66,6 @@ class Command(LabelCommand):
                 g.easy_group()
 
                 # group by track action and time and sessionreferrersite
-
-                # get actions that need to calc
                 g = Group(Track, GReferrerSiteAndAction)
                 g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
                 g.values = ['action', 'session__user_referrer_site']
