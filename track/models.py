@@ -30,7 +30,7 @@ class Track(models.Model):
     from_track = models.ForeignKey("Track", null=True)
 
     # referrer
-    referrer = models.TextField(related_name=u'来源', null=True)
+    referrer = models.TextField(verbose_name=u'来源', null=True)
     referrer_site = models.ForeignKey(Site, related_name='track', null=True)
     referrer_keyword = models.ForeignKey(Keyword, related_name='track', null=True)
 
