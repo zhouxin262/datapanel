@@ -21,6 +21,13 @@ class SessionMiddleware(object):
         tmp_session_key = request.COOKIES.get(settings.TMP_SESSION_COOKIE_NAME, None)
         if tmp_session_key and Session.objects.exists(tmp_session_key):
             request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_session_key
+
+            token = request.GET.get('k', -1)
+            if token and not Session.objects.get(session_key=tmp_session_key).project:
+                s = Session.objects.get(session_key=tmp_session_key)
+                s.project = Project.objects.get(token=token)
+                s.save()
+
         else:
             tmp_obj = Session.objects.create_new()
             try:
