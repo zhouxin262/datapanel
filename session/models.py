@@ -69,11 +69,17 @@ class SessionManager(models.Manager):
 class Session(models.Model):
     """
     User sessions
+
     ALTER TABLE `session_session`
     ALTER `sn` DROP DEFAULT;
     ALTER TABLE `session_session`
-        CHANGE COLUMN `sn` `session_key` INT(11) NOT NULL AFTER `project_id`;
-
+    CHANGE COLUMN `sn` `session_key` VARCHAR(40) NOT NULL AFTER `project_id`;
+    ALTER TABLE `session_session`
+    ADD COLUMN `permanent_session_key` VARCHAR(40) NOT NULL AFTER `session_key`,
+    ADD INDEX `permanent_session_key` (`permanent_session_key`);
+    ALTER TABLE `session_session`
+    DROP COLUMN `user_agent`,
+    DROP COLUMN `user_referrer`;
     """
     project = models.ForeignKey(Project, related_name='session', null=True, blank=True, default=None)
     session_key = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
