@@ -1,8 +1,8 @@
 from django.contrib.sessions.backends.base import SessionBase, CreateError
 from django.core.exceptions import SuspiciousOperation
-# from django.db import IntegrityError, transaction, router
-# from django.utils.encoding import force_unicode
-# from django.utils import timezone
+from django.db import IntegrityError, transaction, router
+from django.utils.encoding import force_unicode
+from django.utils import timezone
 
 
 class SessionStore(SessionBase):
@@ -14,15 +14,16 @@ class SessionStore(SessionBase):
 
     def load(self):
         try:
-            s = Session.objects.get(
+            Session.objects.get(
                 session_key=self.session_key
             )
+            return {}
         except (Session.DoesNotExist, SuspiciousOperation):
-            s = Session()
-            s.session_key = self.session_key
-            s.save()
+            self.create()
+            return {}
 
-        return s
+    def exists(self, session_key):
+        return Session.objects.filter(session_key=session_key).exists()
 
     def create(self):
         while True:
@@ -38,11 +39,34 @@ class SessionStore(SessionBase):
             self._session_cache = {}
             return
 
-    def save(self):
-        s = self.load()
-        if s:
-            s.save()
+    def save(self, must_create=False):
+        """
+        Saves the current session data to the database. If 'must_create' is
+        True, a database error will be raised if the saving operation doesn't
+        create a *new* entry (as opposed to possibly updating an existing
+        entry).
+        """
+        obj = Session()
+        obj.session_key = self._get_or_create_session_key()
+        using = router.db_for_write(Session, instance=obj)
+        sid = transaction.savepoint(using=using)
+        try:
+            obj.save(force_insert=must_create, using=using)
+        except IntegrityError:
+            if must_create:
+                transaction.savepoint_rollback(sid, using=using)
+                raise CreateError
+            raise
 
+    def delete(self, session_key=None):
+        if session_key is None:
+            if self.session_key is None:
+                return
+            session_key = self.session_key
+        try:
+            Session.objects.get(session_key=session_key).delete()
+        except Session.DoesNotExist:
+            pass
 
 # At bottom to avoid circular import
 from session.models import Session

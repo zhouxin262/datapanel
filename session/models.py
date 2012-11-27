@@ -1,5 +1,6 @@
 #coding=utf-8
 from django.db import models
+from django.utils.crypto import get_random_string
 
 from project.models import Project
 from referrer.models import Site, Keyword
@@ -38,20 +39,49 @@ class UserDevice(models.Model):
         unique_together = (('family', 'is_mobile', 'is_spider'))
 
 
+class SessionManager(models.Manager):
+    def exists(self, session_key):
+        return Session.objects.filter(session_key=session_key).exists()
+
+    def _get_new_session_key(self):
+        "Returns session key that isn't being used."
+        # Todo: move to 0-9a-z charset in 1.5
+        hex_chars = '1234567890abcdef'
+        # session_key should not be case sensitive because some backends
+        # can store it on case insensitive file systems.
+        while True:
+            session_key = get_random_string(32, hex_chars)
+            if not self.exists(session_key):
+                break
+        return session_key
+
+    def create_new(self):
+        while True:
+            obj = Session()
+            obj.session_key = self._get_new_session_key()
+            try:
+                obj.save()
+            except:
+                continue
+            return obj
+
+
 class Session(models.Model):
     """
     User sessions
+    ALTER TABLE `session_session`
+    ALTER `sn` DROP DEFAULT;
+    ALTER TABLE `session_session`
+        CHANGE COLUMN `sn` `session_key` INT(11) NOT NULL AFTER `project_id`;
+
     """
     project = models.ForeignKey(Project, related_name='session', null=True, blank=True, default=None)
     session_key = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
+    permanent_session_key = models.CharField(max_length=40, verbose_name=u'用户记录', default='')
     start_time = models.DateTimeField(auto_now_add=True, verbose_name=u'会话开始时间')
     end_time = models.DateTimeField(auto_now=True, verbose_name=u'会话结束时间')
     user_language = models.CharField(max_length=255, verbose_name=u'客户端语言', default='')
     user_timezone = models.CharField(max_length=255, verbose_name=u'客户端时区', default='')
-
-    # todo remove this
-    user_referrer = models.TextField(verbose_name=u'客户端来源', default='')
-    user_agent = models.CharField(max_length=255, verbose_name=u'客户端类型', default='')
 
     # client
     agent = models.ForeignKey(UserAgent, related_name='session', null=True)
@@ -65,6 +95,8 @@ class Session(models.Model):
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
     timelength = models.IntegerField(verbose_name=u'访问时长', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
+
+    objects = SessionManager()
 
     def first_track(self):
         try:
@@ -134,7 +166,6 @@ class Session(models.Model):
             return None
 
     def set_user_agent(self, user_agent_string, save=True):
-        self.user_agent = user_agent_string
         parsed = user_agent_parser.Parse(user_agent_string)
         for name, obj in parsed.items():
             T = None
@@ -164,7 +195,6 @@ class Session(models.Model):
 
     def set_referrer(self, referrer_string, save=True):
         url = parse_url(referrer_string)
-        self.user_referrer = url['url']
 
         s = Site.objects.get_or_create(name=url['netloc'])
         self.referrer_site_id = s[0].id

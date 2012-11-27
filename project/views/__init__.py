@@ -37,7 +37,6 @@ def overview(request, id):
 
 
 def home(request, id):
-    print id
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
@@ -63,7 +62,6 @@ def home(request, id):
         datetype = "hour"
 
     s1 = GTime.objects.filter(project=project, datetype=datetype, dateline__range=[start_day, end_day]).order_by("dateline")
-    print s1
     return render(request, 'project/index.html', {'project': project, 'sbt': s1, 'interval': interval})
 
 
