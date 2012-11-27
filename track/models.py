@@ -30,7 +30,6 @@ class Track(models.Model):
     from_track = models.ForeignKey("Track", null=True)
 
     # referrer
-    referrer = models.TextField(verbose_name=u'来源', null=True)
     referrer_site = models.ForeignKey(Site, related_name='track', null=True)
     referrer_keyword = models.ForeignKey(Keyword, related_name='track', null=True)
 
@@ -45,7 +44,6 @@ class Track(models.Model):
 
     def set_referrer(self, referrer_string, save=True):
         url = parse_url(referrer_string)
-        self.user_referrer = url['url']
 
         s = Site.objects.get_or_create(name=url['netloc'])
         self.referrer_site_id = s[0].id
