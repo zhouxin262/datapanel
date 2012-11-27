@@ -94,9 +94,9 @@ class Track(models.Model):
     def to_tracks(self):
         return self.models.objects.filter(from_track=self)
 
-    def set_from_track(self, save=True):
+    def set_from_track(self, referrer_string, save=True):
         probably_from_tracks = self.session.track.filter(id__lt=self.id,
-                                                         url=self.referrer).order_by('id')
+                                                         url=referrer_string)
         if not probably_from_tracks:
             probably_from_tracks = self.session.track.filter(
                 id__lt=self.id).order_by('-id')

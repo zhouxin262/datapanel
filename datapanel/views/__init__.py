@@ -68,7 +68,6 @@ def t(request):
         t.dateline = now()
         t.save()
 
-        t.set_from_track()
         add_timelength = t.set_prev_timelength()
 
         # add_track to update the cache data
@@ -81,6 +80,7 @@ def t(request):
 
         # deal with param
         if t.param_display():
+            t.set_from_track(t.param_display()['referrer'])
             for k, v in t.param_display().items():
                 if len(k.split("__")) > 1:
                     getattr(t, k.split("__")[0]).set_value(k.split("__")[1], v)
