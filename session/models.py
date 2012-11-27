@@ -59,10 +59,10 @@ class SessionManager(models.Manager):
         while True:
             obj = Session()
             obj.session_key = self._get_new_session_key()
-            try:
-                obj.save()
-            except:
-                continue
+            # try:
+            obj.save()
+            # except:
+            #     continue
             return obj
 
 
@@ -80,6 +80,12 @@ class Session(models.Model):
     ALTER TABLE `session_session`
     DROP COLUMN `user_agent`,
     DROP COLUMN `user_referrer`;
+
+    ALTER TABLE `session_session`
+    ALTER `project_id` DROP DEFAULT;
+    ALTER TABLE `session_session`
+    CHANGE COLUMN `project_id` `project_id` INT(11) NULL AFTER `id`,
+    CHANGE COLUMN `permanent_session_key` `permanent_session_key` VARCHAR(40) NULL AFTER `session_key`;
     """
     project = models.ForeignKey(Project, related_name='session', null=True, blank=True, default=None)
     session_key = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
