@@ -86,6 +86,7 @@ class Session(models.Model):
     ALTER TABLE `session_session`
     CHANGE COLUMN `project_id` `project_id` INT(11) NULL AFTER `id`,
     CHANGE COLUMN `permanent_session_key` `permanent_session_key` VARCHAR(40) NULL AFTER `session_key`;
+    update session_session set permanent_session_key = session_key where permanent_session_key = '';
     """
     project = models.ForeignKey(Project, related_name='session', null=True, blank=True, default=None)
     session_key = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
