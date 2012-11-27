@@ -39,19 +39,14 @@ def server_info(request):
 
 def t(request):
     response = HttpResponse(mimetype="application/x-javascript")
-    if not request.session.session_key:
-        request.session.flush()
-        request.session.save()
-
-    token = request.GET.get('k', -1)
-    project = Project.objects.get(token=token)
+    session = Session.objects.get(session_key=request.session[settings.TMP_SESSION_COOKIE_NAME])
 
     # verify the url
-    if request.META.get('HTTP_REFERER', '').find(project.url) == -1 and not request.GET.get('DEBUG'):
+    if request.META.get('HTTP_REFERER', '').find(session.project.url) == -1 and not request.GET.get('DEBUG'):
         return response
 
     if request.GET.get('t', ''):
-        session = Session.objects.get(session_key=request.session[settings.TMP_SESSION_COOKIE_NAME])
+
         # filter actions
         try:
             prv_track = Track.objects.filter(session=session).order_by('-dateline')[0]
