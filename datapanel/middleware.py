@@ -22,7 +22,7 @@ class SessionMiddleware(object):
         if tmp_session_key and Session.objects.exists(tmp_session_key):
             request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_session_key
 
-            token = request.GET.get('k', -1)
+            token = request.GET.get('k', None)
             if token and not Session.objects.get(session_key=tmp_session_key).project:
                 s = Session.objects.get(session_key=tmp_session_key)
                 s.project = Project.objects.get(token=token)
@@ -31,7 +31,7 @@ class SessionMiddleware(object):
         else:
             tmp_obj = Session.objects.create_new()
             try:
-                token = request.GET.get('k', -1)
+                token = request.GET.get('k', None)
                 project = Project.objects.get(token=token)
             except:
                 project = None
