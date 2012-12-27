@@ -1,5 +1,5 @@
 import os
-ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
+ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 # Django settings for datapanel project.
 
 DEBUG = True
@@ -13,8 +13,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'datapanel',                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'datapanel',                  # Or path to database file if using sqlite3.
         'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -84,7 +84,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -94,7 +94,7 @@ SECRET_KEY = 'i#koiiah90xz5fv*pno#wg0ti9hev^r(bbrrvnw)=azr%d_ih&amp;'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'funnel',
     'referrer',
     'registration',
+    'ecshop',
     'south',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',

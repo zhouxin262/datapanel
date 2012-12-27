@@ -38,7 +38,7 @@ How to migrate DB:
     1. install south
     2. syncdb - 以后都不用再syncdb了
     3. new app:
-        ./manage.py schemamigration appname –initial
+        ./manage.py schemamigration appname --initial
         ./manage.py migrate appname
     4. changed model:
         ./manage.py schemamigration appname --auto
