@@ -94,7 +94,7 @@ def t(request):
                         function_param = v[1]
                         if function_name == 'set_user':
                             pass
-                        elif function_name == 'esc_order':
+                        elif function_name == 'ecs_order':
                             from ecshop.models import OrderInfo
                             function_param.update({"project": session.project, "session": session})
                             OrderInfo.objects.process(**function_param)
