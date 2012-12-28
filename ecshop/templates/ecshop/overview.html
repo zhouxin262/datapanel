@@ -1,0 +1,18 @@
+{% extends 'datapanel/datapanel_base.html' %}
+{% block subnav-ecs %}
+    <li class="active">
+        <a href="{% url project_home project.id %}">网店概况</a>
+    </li>
+{% endblock subnav-ecs %}
+{% block content %}
+    <div class="span10">
+        <div class="page-header">
+            <h1>{{ project.name }} / ECSHOP / 概况</h1>
+        </div>
+        <div class="row">
+        <table class="display datatables" id="datatables">
+        </table>
+        </div>
+
+    </div>
+{% endblock content %}

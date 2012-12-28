@@ -54,6 +54,12 @@
 		<a href="{%url project_home project.id%}">网站概况</a>
 	</li>
 	{% endblock subnav-home %}
+    <li class="nav-header">ECSHOP</li>
+    {% block subnav-ecs %}
+    <li>
+        <a href="{%url ecshop_overview project.id%}">网店概况</a>
+    </li>
+    {% endblock subnav-ecs %}
 	<li class="nav-header">分析</li>
 	{% block subnav-group %}
 	<li>

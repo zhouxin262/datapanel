@@ -42,8 +42,10 @@ def home(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
+    # save for update the last view datetime
     project.save()
-    interval = request.GET.get('interval', '0')
+
+    interval = request.GET.get('interval', '1')
     datetype = ""
     if interval == "1":
         start_day = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -56,10 +58,6 @@ def home(request, id):
     elif interval == "30":
         start_day = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
         end_day = (datetime.today()).strftime("%Y-%m-%d")
-    else:
-        start_day = datetime.today().strftime("%Y-%m-%d")
-        end_day = (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")
-        datetype = "hour"
 
     s1 = GTime.objects.filter(project=project, datetype=datetype, dateline__range=[start_day, end_day]).order_by("dateline")
     return render(request, 'project/index.html', {'project': project, 'sbt': s1, 'interval': interval})

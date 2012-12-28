@@ -46,8 +46,6 @@ def t(request):
         return response
 
     if request.GET.get('t', ''):
-
-        # filter actions
         try:
             prv_track = Track.objects.filter(session=session).order_by('-dateline')[0]
             if request.META.get('HTTP_REFERER', '') and prv_track.url == request.META.get('HTTP_REFERER', '') and prv_track.action == request.GET.get('t', ''):
@@ -80,21 +78,24 @@ def t(request):
 
         # deal with param
         if t.param_display():
+            # set from track by referrer
             t.set_from_track(t.param_display()['referrer'])
+            # set params
             for k, v in t.param_display().items():
                 if len(k.split("__")) > 1:
                     getattr(t, k.split("__")[0]).set_value(k.split("__")[1], v)
                 else:
-                    if k.find('referrer') == -1:
+                    if k.find('referrer') == -1 and k.find('function') == -1:
                         t.set_value(k, v)
-                    else:
+                    elif k.find('referrer') >= 0:
                         t.set_referrer(v)
-
-    if request.GET.get('p', ''):
-        params = ast.literal_eval(request.GET.get('p', ''))
-        if 'function' in params and params['function']:
-            f = params['function']
-            if f[0] == 'set_user':
-                pass
-
+                    elif k.find('function') >= 0:
+                        function_name = v[0]
+                        function_param = v[1]
+                        if function_name == 'set_user':
+                            pass
+                        elif function_name == 'esc_order':
+                            from ecshop.models import OrderInfo
+                            function_param.update({"project": session.project, "session": session})
+                            OrderInfo.objects.process(**function_param)
     return response

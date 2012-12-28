@@ -10,7 +10,6 @@
             <h1>{{ project.name }} / 访问量</h1>
         </div>
         <ul class="nav nav-pills">
-            <li {% if interval == "0" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=0">今天</a></li>
             <li {% if interval == "1" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">昨天</a></li>
             <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=7">最近7天</a></li>
             <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=30">最近30天</a></li>
