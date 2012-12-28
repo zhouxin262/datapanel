@@ -29,7 +29,7 @@ class OrderInfo(models.Model):
     session = models.ForeignKey(Session, related_name='esc_orderinfo')
     order_sn = models.CharField(max_length=50, verbose_name=u"订单编号")
     order_amount = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
-    dateline = models.DateTimeField(auto_now_add=True)
+    dateline = models.DateTimeField(auto_now_add=True, null=True)
 
     objects = OrderManager()
 
