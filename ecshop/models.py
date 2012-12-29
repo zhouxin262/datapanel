@@ -7,7 +7,6 @@ from session.models import Session
 
 class OrderManager(models.Manager):
     def process(self, project, session, order_sn, order_amount=0, goods_list={}, *args, **kwargs):
-        print order_sn
         order = OrderInfo()
         order.project = Project.objects.get(id=session.project.id)
         order.session = session
