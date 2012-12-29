@@ -27,7 +27,9 @@ def server_info(request):
     from django.contrib.sessions.models import Session as DjangoSession
     e = datetime.now()
     s = datetime.now() - timedelta(seconds=60)
-    html = 'django_session_count: %d' % DjangoSession.objects.filter().count()
+    ee = e + timedelta(days=365)
+    es = s + timedelta(days=365)
+    html = 'django_session_count: %d, increasing by %d/min' % (DjangoSession.objects.filter().count(), DjangoSession.objects.filter(expire_date__range=[es, ee]).count())
     html += '<br/>project_count: %d' % Project.objects.filter().order_by('-id')[0].id
     html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().order_by('-id')[0].id, Session.objects.filter(start_time__range=[s, e]).count())
     html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().order_by('-id')[0].id, Track.objects.filter(dateline__range=[s, e]).count())
