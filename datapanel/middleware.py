@@ -71,7 +71,7 @@ class SessionMiddleware(object):
                     expires_time = time.time() + max_age
                     expires = cookie_date(expires_time)
                 # Save the session data and refresh the client cookie.
-                request.session.save()
+
                 response["P3P"] = "CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"
                 response.set_cookie(settings.SESSION_COOKIE_NAME,
                                     request.session.session_key, max_age=max_age,
