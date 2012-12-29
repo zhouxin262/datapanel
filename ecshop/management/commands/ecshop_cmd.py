@@ -6,13 +6,15 @@ from django.db.models import Count, Sum, Avg
 from django.core.management.base import LabelCommand
 
 from project.models import Project
-from session.models import GTime, Session, GReferrerKeyword, GReferrerSite
-from datapanel.utils import Group
+from session.models import Session
+from track.models import Track
+from ecshop.models import Report1
 
 
 class Command(LabelCommand):
 
     def handle_label(self, label, **options):
+        print label, '====start====', datetime.now()
         days_before = 0
         try:
             days_before = int(label)
@@ -20,34 +22,6 @@ class Command(LabelCommand):
             print 'wrong label, should be int'
             return None
 
-        _s = datetime.now()
-
-        """
-        group by time per hour
-        """
-        for i in range(24):
-            used_time = (datetime.now() - _s).seconds
-            if used_time > 0:
-                print used_time, 'seconds used', '%d seconds left' % (float(23 - i) / (float(i) / used_time))
-
-            # print i,
-
-            # get time range
-            s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
-            e = s + timedelta(seconds=3600)
-            dateline = s
-
-            # foreach project
-            for p in Project.objects.filter():
-                # group by time
-                g = Group(Session, GTime)
-                g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
-                g.annotate = {'count': Count('id'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
-                g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
-                g.easy_group()
-
-                # delay
-                time.sleep(1)
         """
         group by time per day
         """
@@ -55,37 +29,32 @@ class Command(LabelCommand):
         s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
         e = s + timedelta(days=1)
 
+        import MySQLdb as mdb
+        con = mdb.connect('localhost', 'root', '', 'datapanel')
+        cur = con.cursor()
         # foreach projects
         for p in Project.objects.filter():
-            # group by time
-            g = Group(GTime, GTime)
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
-            g.annotate = {'count': Sum('count'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
-            g.fargs = {'dateline__range': [s, e], 'project': p}
-            g.easy_group()
+            r = Report1()
+            r.project = p
+            r.datetype = 'day'
+            r.dateline = s
 
-            # delay
-            time.sleep(1)
-            # group by user_referrer_site and time
-            g = Group(Session, GReferrerSite)
-            g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
-            g.values = ['referrer_site', ]
-            g.dynamic_attr = {'referrer_site_id': 'referrer_site'}
-            g.annotate = {'count': Count('referrer_site'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
-            g.easy_group()
+            sql = """select count(distinct ipaddress) from session_session where end_time>='%s' and end_time<'%s'""" % (s.isoformat(),  e.isoformat())
+            cur.execute(sql)
+            r.userview = cur.fetchone()[0]
+            r.pageview = Track.objects.filter(session__project=p, dateline__range=[s, e]).count()
 
-            # delay
-            time.sleep(1)
-            # group by user_referrer_keyword and time
-            g = Group(Session, GReferrerKeyword)
-            g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
-            g.values = ['referrer_keyword', ]
-            g.dynamic_attr = {'referrer_keyword_id': 'referrer_keyword'}
-            g.annotate = {'count': Count('referrer_keyword'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
-            g.easy_group()
-
-            # delay
-            time.sleep(1)
+            sql = """select count(distinct tv.value) from track_trackvalue tv join track_track t
+on tv.track_id = t.id
+where name='goods_goods_id' and t.dateline>='%s' and t.dateline<'%s'""" % (s.isoformat(), e.isoformat())
+            cur.execute(sql)
+            r.goodsview = cur.fetchone()[0]
+            r.goodspageview = Track.objects.filter(session__project=p, dateline__range=[s, e], action__name='goods').count()
+            sql = """select count(distinct sv.value) from session_sessionvalue sv join session_session s
+on sv.session_id = s.id
+where name='order_sn' and s.end_time>='%s' and s.end_time<'%s'""" % (s.isoformat(), e.isoformat())
+            cur.execute(sql)
+            r.ordercount = cur.fetchone()[0]
+            r.orderamount = 0
+            r.save()
         print label, '====finished====', datetime.now()

@@ -29,6 +29,11 @@ class Project(models.Model):
         return a[0]
 
 
+# class ProjectModel(models.Model):
+#     name = models.CharField(max_length=20, verbose_name=u'项目模板')
+#     projects = models.ManyToManyField(Project, related_name='projectmodels')
+
+
 class Action(models.Model):
     """
     Websites' managers defined their own actions

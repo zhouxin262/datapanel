@@ -47,5 +47,27 @@ class Report1(models.Model):
     project = models.ForeignKey(Project, related_name='esc_report1')
     datetype = models.CharField(u'统计类型', null=True, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
-    name = models.CharField(max_length=50, verbose_name=u"统计内容", null=False, default="")
-    count = models.IntegerField(u'统计数值', null=True, default=0)
+    userview = models.IntegerField(u'UV', null=True, default=0)
+    pageview = models.IntegerField(u'PV', null=True, default=0)
+    goodsview = models.IntegerField(u'访问产品的个数', null=True, default=0)
+    goodspageview = models.IntegerField(u'产品页访问数', null=True, default=0)
+    ordercount = models.IntegerField(u'订单量', null=True, default=0)
+    orderamount = models.IntegerField(u'订单总额', null=True, default=0)
+
+    def ip_convert_ratio(self):
+        if not self.userview == 0:
+            return round(float(self.goodspageview) / float(self.userview), 4) * 100
+        else:
+            return 0
+
+    def ip_pageview_ratio(self):
+        if not self.userview == 0:
+            return round(float(self.pageview) / float(self.userview), 4) * 100
+        else:
+            return 0
+
+    def ip_order_ratio(self):
+        if not self.userview == 0:
+            return round(float(self.ordercount) / float(self.userview), 5) * 1000
+        else:
+            return 0
