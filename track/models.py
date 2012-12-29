@@ -57,7 +57,8 @@ class Track(models.Model):
 
     def set_value(self, name, value, save=True):
         try:
-            tv = TrackValue.objects.get_or_create(track=self, name=name)
+            tvt = TrackValueType.objects.get_or_create(project=self.session.project, name=name)
+            tv = TrackValue.objects.get_or_create(track=self, valuetype=tvt)
             tv[0].value = value
             if save:
                 tv[0].save()
@@ -67,7 +68,7 @@ class Track(models.Model):
 
     def get_value(self, name):
         try:
-            tv = TrackValue.objects.get(track=self, name=name)
+            tv = TrackValue.objects.get(track=self, valuetype__name=name)
             return tv.value
         except TrackValue.DoesNotExist:
             return ""
@@ -135,18 +136,21 @@ class Track(models.Model):
             return 0
 
 
+class TrackValueType(models.Model):
+    project = models.ForeignKey(Project, related_name='trackvaluetype')
+    name = models.CharField(max_length=20, verbose_name=u'参数', default='')
+
+
 class TrackValue(models.Model):
     """
-    update track_trackvalue set name = 'referrer_site' where name = 'referer_site';
-    update track_trackvalue set name = 'referer_keyword' where name = 'referer_keyword';
-    update track_trackvalue set name = 'referer' where name = 'referer'
+    trackvalue from params
     """
     track = models.ForeignKey(Track, related_name='value')
-    name = models.CharField(max_length=20, verbose_name=u'参数')
+    valuetype = models.ForeignKey(TrackValueType, related_name='value', null=True)
     value = models.TextField(verbose_name=u'值')
 
     class Meta:
-        unique_together = (('track', 'name'), )
+        unique_together = (('track', 'valuetype'), )
 
 
 class GAction(models.Model):
@@ -170,7 +174,7 @@ class GValue(models.Model):
     TrackGroupbyValue, likes TrackGroupByCondition
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
-    name = models.CharField(max_length=20, verbose_name=u'参数名', default='')
+    valuetype = models.ForeignKey(TrackValueType, related_name='gvalue', null=True)
     value = models.CharField(u'参数值', max_length=255, null=False, default='')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)

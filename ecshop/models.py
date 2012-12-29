@@ -7,18 +7,19 @@ from session.models import Session
 
 class OrderManager(models.Manager):
     def process(self, project, session, order_sn, order_amount=0, goods_list={}, *args, **kwargs):
-        o = OrderInfo()
-        o.project = project
-        o.session = session
-        o.order_sn = order_sn
-        o.order_amount = order_amount
-        o.save()
+        print order_sn
+        order = OrderInfo()
+        order.project = Project.objects.get(id=session.project.id)
+        order.session = session
+        order.order_sn = order_sn
+        order.order_amount = order_amount
+        order.save()
 
         for goods_id, goods_number in goods_list.items():
             og = OrderGoods()
             og.project = project
             og.session = session
-            og.order = o
+            og.order = order
             og.goods_id = goods_id
             og.goods_number = goods_number
             og.save()
@@ -40,3 +41,12 @@ class OrderGoods(models.Model):
     order = models.ForeignKey(OrderInfo, related_name='esc_ordergoods')
     goods_id = models.IntegerField(null=True, default=0)
     goods_number = models.IntegerField(null=True, default=0)
+
+
+class Report1(models.Model):
+    """ overview """
+    project = models.ForeignKey(Project, related_name='esc_report1')
+    datetype = models.CharField(u'统计类型', null=True, max_length=12)
+    dateline = models.DateTimeField(verbose_name=u"时间", null=False)
+    name = models.CharField(max_length=50, verbose_name=u"统计内容", null=False, default="")
+    count = models.IntegerField(u'统计数值', null=True, default=0)
