@@ -172,7 +172,7 @@ LOGGING = {
 
 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
-SESSION_COOKIE_DOMAIN = 'ezaiai.com'
+SESSION_COOKIE_DOMAIN = 'www.ezaiai.com'
 TMP_SESSION_ENGINE = 'db'
 TMP_SESSION_COOKIE_NAME = 'tmp_sessionid'
 
