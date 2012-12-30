@@ -9,7 +9,6 @@ from django.conf import settings
 from project.models import Project
 from session.models import Session
 from track.models import Track
-from datapanel.models import CmdSerialNumber
 from datapanel.utils import now
 
 
@@ -34,8 +33,6 @@ def server_info(request):
     html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().order_by('-id')[0].id, Session.objects.filter(start_time__range=[s, e]).count())
     html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().order_by('-id')[0].id, Track.objects.filter(dateline__range=[s, e]).count())
     # html += '<br/>swipe_count: %d' % Swipe.objects.filter().count()
-    for cmdSerialNumber in CmdSerialNumber.objects.filter():
-        html += '<br/>%s: %d of %s' % (cmdSerialNumber.name, cmdSerialNumber.last_id, cmdSerialNumber.class_name)
     return HttpResponse(html)
 
 

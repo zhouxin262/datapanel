@@ -5,6 +5,7 @@ from django.conf import settings
 
 from track.models import Track, TrackValue
 from session.models import Session
+from datapanel.utils import now
 
 
 def track(request, response):
