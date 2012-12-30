@@ -12,7 +12,7 @@ from track.views import track
 
 
 class SessionMiddleware(object):
-     def should_process(self, request):
+    def should_process(self, request):
         if getattr(settings, 'STATIC_URL', None) and request.build_absolute_uri().startswith(request.build_absolute_uri(settings.STATIC_URL)):
             return False
         if settings.MEDIA_URL and request.build_absolute_uri().startswith(request.build_absolute_uri(settings.MEDIA_URL)):
