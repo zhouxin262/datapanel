@@ -40,11 +40,9 @@ def server_info(request):
 
 
 def t(request):
-    return HttpResponse('fuck')
     response = HttpResponse(mimetype="application/x-javascript")
     session = Session.objects.get(session_key=request.session[settings.TMP_SESSION_COOKIE_NAME])
 
-    print 11, request.session.session_key
     # verify the url
     if request.META.get('HTTP_REFERER', '').find(session.project.url) == -1 and not request.GET.get('DEBUG'):
         return response
@@ -103,5 +101,4 @@ def t(request):
                             function_param.update({"project": session.project, "session": session})
                             OrderInfo.objects.process(**function_param)
 
-    print 22, request.session.session_key
     return response
