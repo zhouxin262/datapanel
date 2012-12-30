@@ -34,8 +34,9 @@ class SessionMiddleware(object):
             request.session = engine.SessionStore(session_key)
 
             tmp_session_key = request.COOKIES.get(settings.TMP_SESSION_COOKIE_NAME, None)
-            if tmp_session_key and Session.objects.exists(tmp_session_key):
-                if not tmp_session_key == request.session[settings.TMP_SESSION_COOKIE_NAME]:
+            if tmp_session_key and Session.objects.exists(tmp_session_key) and \
+                settings.TMP_SESSION_COOKIE_NAME in request.session and \
+                not tmp_session_key == request.session[settings.TMP_SESSION_COOKIE_NAME]:
                     request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_session_key
             else:
                 request.session[settings.TMP_SESSION_COOKIE_NAME] = None
@@ -73,15 +74,14 @@ class SessionMiddleware(object):
                                         secure=settings.SESSION_COOKIE_SECURE or None,
                                         httponly=settings.SESSION_COOKIE_HTTPONLY or None)
 
-
-
-                    if not request.session[settings.TMP_SESSION_COOKIE_NAME] or not settings.TMP_SESSION_COOKIE_NAME in request.session:
+                    if not (settings.TMP_SESSION_COOKIE_NAME in request.session and request.session[settings.TMP_SESSION_COOKIE_NAME]):
                         tmp_obj = Session.objects.create_new()
                         try:
                             token = request.GET.get('k', None)
                             project = Project.objects.get(token=token)
                         except:
                             project = None
+                        print request.session.session_key
                         tmp_obj.permanent_session_key = request.session.session_key
                         tmp_obj.project = project
                         tmp_obj.ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')
