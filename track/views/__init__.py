@@ -5,11 +5,16 @@ from django.conf import settings
 
 from track.models import Track, TrackValue
 from session.models import Session
+from project.models import Project
 from datapanel.utils import now
 
 
 def track(request, response):
     session = Session.objects.get(session_key=request.session[settings.TMP_SESSION_COOKIE_NAME])
+    if not session.project and request.GET.get('k', None):
+        token = request.GET.get('k', None)
+        session.project = Project.objects.get(token=token)
+        session.save()
 
     # verify the url
     if request.META.get('HTTP_REFERER', '').find(session.project.url) == -1 and not request.GET.get('DEBUG'):
