@@ -1,15 +1,12 @@
 #coding=utf-8
-import ast
 from datetime import datetime, timedelta
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from django.conf import settings
 
 from project.models import Project
 from session.models import Session
 from track.models import Track
-from datapanel.utils import now
 
 
 def index(request):

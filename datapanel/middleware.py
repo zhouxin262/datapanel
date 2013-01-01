@@ -34,9 +34,10 @@ class SessionMiddleware(object):
             request.session = engine.SessionStore(session_key)
 
             tmp_session_key = request.COOKIES.get(settings.TMP_SESSION_COOKIE_NAME, None)
+
             if tmp_session_key and Session.objects.exists(tmp_session_key) and \
-                settings.TMP_SESSION_COOKIE_NAME in request.session and \
-                not tmp_session_key == request.session[settings.TMP_SESSION_COOKIE_NAME]:
+                settings.TMP_SESSION_COOKIE_NAME in request.session:
+                if not tmp_session_key == request.session[settings.TMP_SESSION_COOKIE_NAME]:
                     request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_session_key
             else:
                 request.session[settings.TMP_SESSION_COOKIE_NAME] = None
