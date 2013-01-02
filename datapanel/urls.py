@@ -1,4 +1,6 @@
 from django.conf.urls import patterns, include, url
+from django.views.decorators.cache import cache_page
+from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
                        url(r'^$', 'datapanel.views.index', name='index'),
@@ -31,5 +33,5 @@ urlpatterns = patterns('',
                        )
 
 urlpatterns += patterns('django.views.generic.simple',
-                        (r'^js/(?P<key>\w+)/$', 'direct_to_template', {'template': 'js_template.js', 'mimetype': "application/x-javascript"}),
+                        (r'^js/(?P<key>\w+)/$', cache_page(60 * 60 * 24)(direct_to_template), {'template': 'js_template.js', 'mimetype': "application/x-javascript"}),
                         )
