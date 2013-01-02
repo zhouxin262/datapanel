@@ -58,7 +58,7 @@ class Track(models.Model):
     def set_value(self, name, value, save=True):
         try:
             tvt = TrackValueType.objects.get_or_create(project=self.session.project, name=name)
-            tv = TrackValue.objects.get_or_create(track=self, valuetype=tvt)
+            tv = TrackValue.objects.get_or_create(track=self, valuetype=tvt[0])
             tv[0].value = value
             if save:
                 tv[0].save()

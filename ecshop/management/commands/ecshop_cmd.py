@@ -46,15 +46,15 @@ class Command(LabelCommand):
 
             sql = """select count(distinct tv.value) from track_trackvalue tv join track_track t
 on tv.track_id = t.id
-where name='goods_goods_id' and t.dateline>='%s' and t.dateline<'%s'""" % (s.isoformat(), e.isoformat())
+where valuetype_id='2' and t.dateline>='%s' and t.dateline<'%s'""" % (s.isoformat(), e.isoformat())
             cur.execute(sql)
             r.goodsview = cur.fetchone()[0]
             r.goodspageview = Track.objects.filter(session__project=p, dateline__range=[s, e], action__name='goods').count()
-            sql = """select count(distinct sv.value) from session_sessionvalue sv join session_session s
-on sv.session_id = s.id
-where name='order_sn' and s.end_time>='%s' and s.end_time<'%s'""" % (s.isoformat(), e.isoformat())
+            sql = """select count(*) from ecshop_orderinfo where dateline>='%s' and dateline<'%s'""" % (s.isoformat(), e.isoformat())
             cur.execute(sql)
             r.ordercount = cur.fetchone()[0]
-            r.orderamount = 0
+            sql = sql = """select sum(order_amount) from ecshop_orderinfo where dateline>='%s' and dateline<'%s'""" % (s.isoformat(), e.isoformat())
+            cur.execute(sql)
+            r.orderamount = cur.fetchone()[0]
             r.save()
         print label, '====finished====', datetime.now()
