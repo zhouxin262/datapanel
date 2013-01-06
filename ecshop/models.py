@@ -52,6 +52,7 @@ class Report1(models.Model):
     goodsview = models.IntegerField(u'访问产品的个数', null=True, default=0)
     goodspageview = models.IntegerField(u'产品页访问数', null=True, default=0)
     ordercount = models.IntegerField(u'订单量', null=True, default=0)
+    ordergoodscount = models.IntegerField(u'订单商品件数', null=True, default=0)
     orderamount = models.IntegerField(u'订单总额', null=True, default=0)
 
     def ip_convert_ratio(self):

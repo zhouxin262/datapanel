@@ -1,14 +1,12 @@
 #coding=utf-8
-import time
 from datetime import datetime, timedelta
 
-from django.db.models import Count, Sum, Avg
 from django.core.management.base import LabelCommand
+from django.db.models import Sum, Count
 
 from project.models import Project
-from session.models import Session
 from track.models import Track
-from ecshop.models import Report1
+from ecshop.models import Report1, OrderGoods, OrderInfo
 
 
 class Command(LabelCommand):
@@ -43,18 +41,15 @@ class Command(LabelCommand):
             cur.execute(sql)
             r.userview = cur.fetchone()[0]
             r.pageview = Track.objects.filter(session__project=p, dateline__range=[s, e]).count()
-
             sql = """select count(distinct tv.value) from track_trackvalue tv join track_track t
 on tv.track_id = t.id
 where valuetype_id='2' and t.dateline>='%s' and t.dateline<'%s'""" % (s.isoformat(), e.isoformat())
             cur.execute(sql)
             r.goodsview = cur.fetchone()[0]
             r.goodspageview = Track.objects.filter(session__project=p, dateline__range=[s, e], action__name='goods').count()
-            sql = """select count(*) from ecshop_orderinfo where dateline>='%s' and dateline<'%s'""" % (s.isoformat(), e.isoformat())
-            cur.execute(sql)
-            r.ordercount = cur.fetchone()[0]
-            sql = sql = """select sum(order_amount) from ecshop_orderinfo where dateline>='%s' and dateline<'%s'""" % (s.isoformat(), e.isoformat())
-            cur.execute(sql)
-            r.orderamount = cur.fetchone()[0]
+            orderinfo = OrderInfo.objects.filter(dateline__range=[s, e]).aggregate(c=Count('id'), s=Sum('order_amount'))
+            r.ordercount = orderinfo['c']
+            r.ordergoodscount = OrderGoods.objects.filter(order__dateline__range=[s, e]).aggregate(Sum('goods_number'))['goods_number__sum']
+            r.orderamount = orderinfo['s']
             r.save()
         print label, '====finished====', datetime.now()
