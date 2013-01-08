@@ -145,7 +145,7 @@ class AbsSession(models.Model):
 
     def set_value(self, name, value, save=True):
         try:
-            sessionvalueType = SessionValueType.objects.get_or_create(project=self.session.project, name=name)
+            sessionvalueType = SessionValueType.objects.get_or_create(project=self.project, name=name)
             sessionValue = SessionValue.objects.get_or_create(session=self, valuetype=sessionvalueType[0])
             sessionValue[0].value = value
             if save:
