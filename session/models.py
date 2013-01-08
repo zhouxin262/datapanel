@@ -66,29 +66,12 @@ class SessionManager(models.Manager):
             return obj
 
 
-class Session(models.Model):
+class AbsSession(models.Model):
     """
-    User sessions
-
-    ALTER TABLE `session_session`
-    ALTER `sn` DROP DEFAULT;
-    ALTER TABLE `session_session`
-    CHANGE COLUMN `sn` `session_key` VARCHAR(40) NOT NULL AFTER `project_id`;
-    ALTER TABLE `session_session`
-    ADD COLUMN `permanent_session_key` VARCHAR(40) NOT NULL AFTER `session_key`,
-    ADD INDEX `permanent_session_key` (`permanent_session_key`);
-    ALTER TABLE `session_session`
-    DROP COLUMN `user_agent`,
-    DROP COLUMN `user_referrer`;
-
-    ALTER TABLE `session_session`
-    ALTER `project_id` DROP DEFAULT;
-    ALTER TABLE `session_session`
-    CHANGE COLUMN `project_id` `project_id` INT(11) NULL AFTER `id`,
-    CHANGE COLUMN `permanent_session_key` `permanent_session_key` VARCHAR(40) NULL AFTER `session_key`;
-    update session_session set permanent_session_key = session_key where permanent_session_key = '';
+    Abstract Session Model
+    Session, SessionArch
     """
-    project = models.ForeignKey(Project, related_name='session', null=True, blank=True, default=None)
+    project = models.ForeignKey(Project, null=True, blank=True, default=None)
     session_key = models.CharField(unique=True, max_length=40, verbose_name=u'用户会话', default='')
     permanent_session_key = models.CharField(max_length=40, verbose_name=u'用户记录', default='')
     start_time = models.DateTimeField(auto_now_add=True, verbose_name=u'会话开始时间')
@@ -97,19 +80,17 @@ class Session(models.Model):
     user_timezone = models.CharField(max_length=255, verbose_name=u'客户端时区', default='')
 
     # client
-    agent = models.ForeignKey(UserAgent, related_name='session', null=True)
-    os = models.ForeignKey(UserOS, related_name='session', null=True)
-    device = models.ForeignKey(UserDevice, related_name='session', null=True)
+    agent = models.ForeignKey(UserAgent, null=True)
+    os = models.ForeignKey(UserOS, null=True)
+    device = models.ForeignKey(UserDevice, null=True)
 
     # referrer
-    referrer_site = models.ForeignKey(Site, related_name='session', null=True)
-    referrer_keyword = models.ForeignKey(Keyword, related_name='session', null=True)
+    referrer_site = models.ForeignKey(Site, null=True)
+    referrer_keyword = models.ForeignKey(Keyword, null=True)
 
     track_count = models.IntegerField(verbose_name=u'浏览页面数量', default=0)
     timelength = models.IntegerField(verbose_name=u'访问时长', default=0)
     ipaddress = models.IPAddressField(verbose_name=u'IP地址', null=False, default='0.0.0.0')
-
-    objects = SessionManager()
 
     def first_track(self):
         try:
@@ -164,7 +145,9 @@ class Session(models.Model):
 
     def set_value(self, name, value, save=True):
         try:
-            sessionValue = SessionValue.objects.get_or_create(session=self, name=name, value=value)
+            sessionvalueType = SessionValueType.objects.get_or_create(project=self.session.project, name=name)
+            sessionValue = SessionValue.objects.get_or_create(session=self, valuetype=sessionvalueType[0])
+            sessionValue[0].value = value
             if save:
                 sessionValue[0].save()
             return sessionValue[0]
@@ -219,11 +202,44 @@ class Session(models.Model):
             self.save()
         return None
 
+    class Meta:
+        abstract = True
 
-class SessionValue(models.Model):
-    session = models.ForeignKey(Session, related_name='value')
-    name = models.CharField(max_length=20, verbose_name=u'参数')
-    value = models.TextField(verbose_name=u'值')
+
+class Session(AbsSession):
+    """
+    User sessions
+    """
+    objects = SessionManager()
+
+
+class SessionArch(AbsSession):
+    """
+    User sessions archive
+    """
+    pass
+
+
+class SessionValueType(models.Model):
+    project = models.ForeignKey(Project, related_name='sessionvaluetype')
+    name = models.CharField(max_length=20, verbose_name=u'参数', default='')
+
+
+class AbsSessionValue(models.Model):
+    valuetype = models.ForeignKey(SessionValueType, null=True)
+    value = models.TextField(verbose_name=u'值', default='')
+
+    class Meta:
+        abstract = True
+        unique_together = (('session', 'valuetype'), )
+
+
+class SessionValue(AbsSessionValue):
+    session = models.ForeignKey(Session)
+
+
+class SessionValueArch(AbsSessionValue):
+    session = models.ForeignKey(SessionArch)
 
 
 class GTime(models.Model):

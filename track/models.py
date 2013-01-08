@@ -1,37 +1,25 @@
 #coding=utf-8
 import ast
-from datetime import timedelta
 
 from django.db import models
 
 from project.models import Project, Action
-from session.models import Session
+from session.models import Session, SessionArch
 from referrer.models import Site, Keyword
 from datapanel.utils import parse_url
 
 
-class Track(models.Model):
+class AbsTrack(models.Model):
     """
     User behavior action track
-    ALTER TABLE `datapanel`.`track_track` DROP COLUMN `event` , DROP COLUMN `xpath` , ADD COLUMN `from_track` INT NOT NULL DEFAULT 0  AFTER `url` ;
-
-    update track_trackgroupbyvalue set name = 'referrer_keyword' where name = 'referer_keyword';
-    update track_trackgroupbyvalue set name = 'referrer_site' where name = 'referer_site';
-    update track_trackgroupbyvalue set name = 'referrer' where name = 'referer';
-
-    ALTER TABLE `track_track`
-    ADD COLUMN `project_id` INT(11) NOT NULL AFTER `id`,
-    ADD INDEX `track_track_project` (`project_id`);
     """
-    project = models.ForeignKey(Project, related_name='track')
-    session = models.ForeignKey(Session, related_name='track', verbose_name=u'用户会话')
-    action = models.ForeignKey(Action, related_name='track', verbose_name=u'事件')
+    project = models.ForeignKey(Project)
+    action = models.ForeignKey(Action, verbose_name=u'事件')
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
-    from_track = models.ForeignKey("Track", null=True)
 
     # referrer
-    referrer_site = models.ForeignKey(Site, related_name='track', null=True)
-    referrer_keyword = models.ForeignKey(Keyword, related_name='track', null=True)
+    referrer_site = models.ForeignKey(Site, null=True)
+    referrer_keyword = models.ForeignKey(Keyword, null=True)
 
     # xpath = models.CharField(max_length=255, verbose_name=u'dom', default='')
     # event = models.CharField(max_length=255, verbose_name=u'event', default='')
@@ -135,22 +123,43 @@ class Track(models.Model):
         else:
             return 0
 
+    class Meta:
+        abstract = True
+
+
+class Track(AbsTrack):
+    session = models.ForeignKey(Session, verbose_name=u'用户会话')
+    from_track = models.ForeignKey("Track", null=True)
+
+
+class TrackArch(AbsTrack):
+    session = models.ForeignKey(SessionArch, verbose_name=u'用户会话')
+    from_track = models.ForeignKey("TrackArch", null=True)
+
 
 class TrackValueType(models.Model):
     project = models.ForeignKey(Project, related_name='trackvaluetype')
     name = models.CharField(max_length=20, verbose_name=u'参数', default='')
 
 
-class TrackValue(models.Model):
+class AbsTrackValue(models.Model):
     """
     trackvalue from params
     """
-    track = models.ForeignKey(Track, related_name='value')
-    valuetype = models.ForeignKey(TrackValueType, related_name='value', null=True)
-    value = models.TextField(verbose_name=u'值')
+    valuetype = models.ForeignKey(TrackValueType, null=True)
+    value = models.TextField(verbose_name=u'值', default='')
 
     class Meta:
+        abstract = True
         unique_together = (('track', 'valuetype'), )
+
+
+class TrackValue(AbsTrackValue):
+    track = models.ForeignKey(Track)
+
+
+class TrackValueArch(AbsTrackValue):
+    track = models.ForeignKey(TrackArch)
 
 
 class GAction(models.Model):
