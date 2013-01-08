@@ -16,6 +16,7 @@ class AbsTrack(models.Model):
     project = models.ForeignKey(Project)
     action = models.ForeignKey(Action, verbose_name=u'事件')
     url = models.CharField(max_length=255, verbose_name=u'url', default='')
+    from_track = models.ForeignKey('self', null=True)
 
     # referrer
     referrer_site = models.ForeignKey(Site, null=True)
@@ -129,12 +130,10 @@ class AbsTrack(models.Model):
 
 class Track(AbsTrack):
     session = models.ForeignKey(Session, verbose_name=u'用户会话')
-    from_track = models.ForeignKey("Track", null=True)
 
 
 class TrackArch(AbsTrack):
     session = models.ForeignKey(SessionArch, verbose_name=u'用户会话')
-    from_track = models.ForeignKey("TrackArch", null=True)
 
 
 class TrackValueType(models.Model):

@@ -106,9 +106,11 @@ class Command(LabelCommand):
         sql = "SELECT id FROM track_track WHERE dateline<='%s' ORDER BY dateline desc LIMIT 1" % processing_day
         cur.execute(sql)
         last_track_id = cur.fetchone()[0]
-        sql = "INSERT INTO %s SELECT * FROM %s WHERE id <= %d" % ('track_trackarch', 'track_track', last_track_id)
+        sql = "INSERT INTO %s(id, project_id, session_id, action_id, url, from_track_id, referrer_site_id, referrer_keyword_id, step, timelength, dateline) SELECT f.id, f.project_id, f.session_id, f.action_id, f.url, f.from_track_id, f.referrer_site_id, f.referrer_keyword_id, f.step, f.timelength, f.dateline FROM %s f WHERE id <= %d" % ('track_trackarch', 'track_track', last_track_id)
+        print sql
+        exit()
         cur.execute(sql)
-        sql = "INSERT INTO %s SELECT * FROM %s WHERE track_id <= %d" % ('track_trackvaluearch', 'track_trackvalue', last_track_id)
+        sql = "INSERT INTO %s(id, track_id, valuetype_id, value) SELECT id, track_id, valuetype_id, value FROM %s WHERE track_id <= %d" % ('track_trackvaluearch', 'track_trackvalue', last_track_id)
         cur.execute(sql)
 
         print '====finished at %s====' % datetime.now()
