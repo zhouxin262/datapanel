@@ -95,4 +95,10 @@ class Command(LabelCommand):
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE session_id <= %d" % ('session_sessionvalue', last_id)
         cur.execute(sql)
+        sql = "OPTIMIZE TABLE %s" % 'session_session'
+        cur.execute(sql)
+        sql = "OPTIMIZE TABLE %s" % 'session_sessionvalue'
+        cur.execute(sql)
+        sql = "flush tables"
+        cur.execute(sql)
         print '====finished at %s====' % datetime.now()

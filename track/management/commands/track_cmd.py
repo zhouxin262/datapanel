@@ -114,4 +114,10 @@ class Command(LabelCommand):
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE track_id <= %d" % ('track_trackvalue', last_track_id)
         cur.execute(sql)
+        sql = "OPTIMIZE TABLE %s" % 'track_track'
+        cur.execute(sql)
+        sql = "OPTIMIZE TABLE %s" % 'track_trackvalue'
+        cur.execute(sql)
+        sql = "flush tables"
+        cur.execute(sql)
         print '====finished at %s====' % datetime.now()

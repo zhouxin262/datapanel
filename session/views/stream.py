@@ -80,7 +80,7 @@ def view(request, id, sid):
         return redirect_to_login(request.get_full_path())
 
     session = project.session.get(id=sid)
-    tracks = session.track.all().order_by('dateline')
+    tracks = session.track_set.all().order_by('dateline')
 
     paginator = Paginator(tracks, 30)
     page = request.GET.get('page')

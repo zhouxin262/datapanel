@@ -71,13 +71,13 @@ class AbsTrack(models.Model):
 
     def prev_track(self):
         try:
-            return self.session.track.filter(id__lt=self.id).order_by('-id')[0]
+            return self.session.track_set.filter(id__lt=self.id).order_by('-id')[0]
         except:
             return None
 
     def next_track(self):
         try:
-            return self.session.track.filter(id__gt=self.id).order_by('id')[0]
+            return self.session.track_set.filter(id__gt=self.id).order_by('id')[0]
         except:
             return None
 
@@ -85,10 +85,10 @@ class AbsTrack(models.Model):
         return self.models.objects.filter(from_track=self)
 
     def set_from_track(self, referrer_string, save=True):
-        probably_from_tracks = self.session.track.filter(id__lt=self.id,
+        probably_from_tracks = self.session.track_set.filter(id__lt=self.id,
                                                          url=referrer_string)
         if not probably_from_tracks:
-            probably_from_tracks = self.session.track.filter(
+            probably_from_tracks = self.session.track_set.filter(
                 id__lt=self.id).order_by('-id')
 
         if probably_from_tracks:
