@@ -73,6 +73,10 @@ def track(request, response):
                             from ecshop.models import OrderInfo
                             function_param.update({"project": session.project, "session": session})
                             OrderInfo.objects.process(**function_param)
+                        elif function_name == 'ecs_goods':
+                            from ecshop.models import Goods
+                            function_param.update({"project": session.project})
+                            Goods.objects.process(**function_param)
     return response
 
 

@@ -8,7 +8,7 @@ from session.models import Session
 class OrderManager(models.Manager):
     def process(self, project, session, order_sn, order_amount=0, goods_list={}, *args, **kwargs):
         order = OrderInfo()
-        order.project = Project.objects.get(id=session.project.id)
+        order.project = project
         order.session = session
         order.order_sn = order_sn
         order.order_amount = order_amount
@@ -40,6 +40,28 @@ class OrderGoods(models.Model):
     order = models.ForeignKey(OrderInfo, related_name='esc_ordergoods')
     goods_id = models.IntegerField(null=True, default=0)
     goods_number = models.IntegerField(null=True, default=0)
+
+
+class GoodsManager(models.Manager):
+    def process(self, project, goods_id, goods_name='', goods_price=0, *args, **kwargs):
+        g = Goods.objects.get_or_create(project=project, goods_id=goods_id)
+        g.project = project
+        g.goods_id = goods_id
+        g.goods_name = goods_name
+        g.goods_price = goods_price
+        g.save()
+
+
+class Goods(models.Model):
+    project = models.ForeignKey(Project)
+    goods_id = models.IntegerField(null=True, default=0)
+    goods_name = models.CharField(null=True, default='', max_length=255)
+    goods_price = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
+
+    objects = GoodsManager()
+
+    class Meta:
+        unique_together = (('project', 'goods_id'))
 
 
 class Report1(models.Model):
