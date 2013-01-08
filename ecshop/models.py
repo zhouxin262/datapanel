@@ -43,10 +43,9 @@ class OrderGoods(models.Model):
 
 
 class GoodsManager(models.Manager):
-    def process(self, project, goods_id, goods_name='', goods_price=0, *args, **kwargs):
+    def process(self, project, goods_id, cat_id=0, goods_name='', goods_price=0, *args, **kwargs):
         g = Goods.objects.get_or_create(project=project, goods_id=goods_id)
-        g.project = project
-        g.goods_id = goods_id
+        g.cat_id = cat_id
         g.goods_name = goods_name
         g.goods_price = goods_price
         g.save()
@@ -54,6 +53,7 @@ class GoodsManager(models.Manager):
 
 class Goods(models.Model):
     project = models.ForeignKey(Project)
+    cat_id = models.IntegerField(null=True, default=0)
     goods_id = models.IntegerField(null=True, default=0)
     goods_name = models.CharField(null=True, default='', max_length=255)
     goods_price = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
