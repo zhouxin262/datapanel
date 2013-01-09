@@ -68,6 +68,7 @@ def track(request, response):
                         function_name = v[0]
                         function_param = v[1]
                         if function_name == 'set_user':
+                            # todo: set user
                             pass
                         elif function_name == 'ecs_order':
                             from ecshop.models import OrderInfo

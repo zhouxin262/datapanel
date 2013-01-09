@@ -4,6 +4,7 @@ from django.utils.crypto import get_random_string
 
 from project.models import Project
 from referrer.models import Site, Keyword
+from datapanel.models import Timeline
 from datapanel.ua_parser import user_agent_parser
 from datetime import timedelta
 from datapanel.utils import parse_url
@@ -248,6 +249,7 @@ class GTime(models.Model):
     G stands for group by
     '''
     project = models.ForeignKey(Project, related_name='sessiongroupbytime')
+    timeline = models.ForeignKey(Timeline, null=True)
     datetype = models.CharField(u'统计类型', null=True, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
     count = models.IntegerField(u'统计数值', null=True, default=0)
@@ -263,6 +265,7 @@ class GReferrerSite(models.Model):
     Session Group by ReferrerSite and Time
     '''
     project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerSite')
+    timeline = models.ForeignKey(Timeline, null=True)
     referrer_site = models.ForeignKey(Site, related_name='GReferrerSite', null=True)
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
@@ -276,6 +279,7 @@ class GReferrerKeyword(models.Model):
     Session Group by ReferrerSite and Time
     '''
     project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerkeyword')
+    timeline = models.ForeignKey(Timeline, null=True)
     referrer_keyword = models.ForeignKey(Keyword, related_name='GReferrerKeyword', null=True)
     datetype = models.CharField(u'统计时间', max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)

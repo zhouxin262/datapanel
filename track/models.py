@@ -6,6 +6,7 @@ from django.db import models
 from project.models import Project, Action
 from session.models import Session, SessionArch
 from referrer.models import Site, Keyword
+from datapanel.models import Timeline
 from datapanel.utils import parse_url
 
 
@@ -137,13 +138,16 @@ class TrackArch(AbsTrack):
 
 
 class TrackValueType(models.Model):
+    """
+    The name of Track value (Parameters)
+    """
     project = models.ForeignKey(Project, related_name='trackvaluetype')
     name = models.CharField(max_length=20, verbose_name=u'参数', default='')
 
 
 class AbsTrackValue(models.Model):
     """
-    trackvalue from params
+    Trackvalue from params
     """
     valuetype = models.ForeignKey(TrackValueType, null=True)
     value = models.TextField(verbose_name=u'值', default='')
@@ -165,29 +169,31 @@ class GAction(models.Model):
     """
     Brand new Trackgroup only contained data grouped by action, hour, count
     removed other kinds of data such as: url, average timelength
-
-    ALTER TABLE `datapanel`.`datapanel_trackgroupbyclick` RENAME TO  `datapanel`.`datapanel_trackgroupbycondition` ;
     """
     project = models.ForeignKey(Project, related_name='trackgroupbyaction')
     action = models.ForeignKey(Action, related_name='trackgroupbyaction', verbose_name=u'事件')
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
+    timeline = models.ForeignKey(Timeline, null=True)
     count = models.IntegerField(u'统计数值', null=False, default=0)
     timelength = models.IntegerField(u'访问时长', null=False, default=0)
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
 
-class GValue(models.Model):
-    """
-    TrackGroupbyValue, likes TrackGroupByCondition
-    """
-    project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
-    valuetype = models.ForeignKey(TrackValueType, related_name='gvalue', null=True)
-    value = models.CharField(u'参数值', max_length=255, null=False, default='')
-    datetype = models.CharField(u'统计时间', null=False, max_length=12)
-    dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
-    count = models.IntegerField(u'统计数值', null=False, default=0)
-    timelength = models.IntegerField(u'访问时长', null=False, default=0)
+"""
+I think this is useless. Fuck.
+"""
+# class GValue(models.Model):
+#     """
+#     TrackGroupbyValue, likes TrackGroupByCondition
+#     """
+#     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
+#     valuetype = models.ForeignKey(TrackValueType, related_name='gvalue', null=True)
+#     value = models.CharField(u'参数值', max_length=255, null=False, default='')
+#     datetype = models.CharField(u'统计时间', null=False, max_length=12)
+#     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
+#     count = models.IntegerField(u'统计数值', null=False, default=0)
+#     timelength = models.IntegerField(u'访问时长', null=False, default=0)
 
 
 class GReferrerSiteAndAction(models.Model):
@@ -199,6 +205,7 @@ class GReferrerSiteAndAction(models.Model):
     referrer_site = models.ForeignKey(Site, related_name='GReferrerSiteAndAction', null=True)
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
+    timeline = models.ForeignKey(Timeline, null=True)
     count = models.IntegerField(u'统计数值', null=False, default=0)
     timelength = models.IntegerField(u'访问时长', null=False, default=0)
 
@@ -212,5 +219,6 @@ class GReferrerKeywordAndAction(models.Model):
     referrer_keyword = models.ForeignKey(Keyword, related_name='GReferrerKeywordAndAction', null=True)
     datetype = models.CharField(u'统计时间', null=False, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
+    timeline = models.ForeignKey(Timeline, null=True)
     count = models.IntegerField(u'统计数值', null=False, default=0)
     timelength = models.IntegerField(u'访问时长', null=False, default=0)

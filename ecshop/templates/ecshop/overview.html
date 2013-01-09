@@ -34,10 +34,10 @@
                     <td>{{row.goodspageview}}</td>
                     <td>{{row.goodsview}}</td>
                     <td>{{row.ordercount}}({{row.ordergoodscount}})</td>
-                    <td>{{row.ip_convert_ratio}}%</td>
-                    <td>{{row.ip_pageview_ratio}}%</td>
+                    <td title="%">{{row.ip_convert_ratio}}</td>
+                    <td title="%">{{row.ip_pageview_ratio}}</td>
                     <td>{{row.ip_order_ratio}}‰</td>
-                    <td>{{row.orderamount}}</td>
+                    <td title="RMB">{{row.orderamount}}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
