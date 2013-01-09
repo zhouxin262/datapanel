@@ -95,3 +95,22 @@ class Report1(models.Model):
             return round(float(self.ordercount) / float(self.userview), 5) * 1000
         else:
             return 0
+
+
+class Report2(models.Model):
+    """
+    Goods Report
+    including goodsview and goods selling data
+    """
+    project = models.ForeignKey(Project, related_name='esc_report2')
+    datetype = models.CharField(u'统计类型', null=True, max_length=12)
+    dateline = models.DateTimeField(verbose_name=u"时间", null=False)
+    goods_id = models.IntegerField(null=True, default=0)
+    viewcount = models.IntegerField(null=True, default=0)
+    sellcount = models.IntegerField(null=True, default=0)
+
+    def sell_ratio(self):
+        if not self.viewcount == 0:
+            return round(float(self.sellcount) / float(self.viewcount), 5) * 1000
+        else:
+            return 0
