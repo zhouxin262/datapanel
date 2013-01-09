@@ -1,6 +1,7 @@
 #coding=utf8
 from django.db import models
 
+from datapanel.models import Timeline
 from project.models import Project
 from session.models import Session
 
@@ -70,6 +71,7 @@ class Report1(models.Model):
     project = models.ForeignKey(Project, related_name='esc_report1')
     datetype = models.CharField(u'统计类型', null=True, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
+    timeline = models.ForeignKey(Timeline, null=True)
     userview = models.IntegerField(u'UV', null=True, default=0)
     pageview = models.IntegerField(u'PV', null=True, default=0)
     goodsview = models.IntegerField(u'访问产品的个数', null=True, default=0)
@@ -105,6 +107,7 @@ class Report2(models.Model):
     project = models.ForeignKey(Project, related_name='esc_report2')
     datetype = models.CharField(u'统计类型', null=True, max_length=12)
     dateline = models.DateTimeField(verbose_name=u"时间", null=False)
+    timeline = models.ForeignKey(Timeline, null=True)
     goods_id = models.IntegerField(null=True, default=0)
     viewcount = models.IntegerField(null=True, default=0)
     sellcount = models.IntegerField(null=True, default=0)

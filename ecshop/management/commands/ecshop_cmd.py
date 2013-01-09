@@ -8,6 +8,7 @@ from session.models import Session
 from project.models import Project
 from track.models import Track, TrackValue
 from ecshop.models import Report1, OrderGoods, OrderInfo
+from datapanel.models import Timeline
 
 
 class Command(LabelCommand):
@@ -35,8 +36,9 @@ class Command(LabelCommand):
         for p in Project.objects.filter():
             r = Report1()
             r.project = p
-            r.datetype = 'day'
-            r.dateline = s
+
+            timeline = Timeline.objects.get_or_create(datetype = 'day', dateline = s)
+            r.timeline = timeline[0]
 
             r.userview = Session.objects.filter(project=p, end_time__range=[s, e]).values('ipaddress').distinct().count()
             r.pageview = Track.objects.filter(session__project=p, dateline__range=[s, e]).count()

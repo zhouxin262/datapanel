@@ -28,7 +28,7 @@
                 <tbody>
                 {% for row in report %}
                 <tr>
-                    <td>{{row.dateline|date:"Y-m-d, D"}}</td>
+                    <td>{{row.timeline.dateline|date:"Y-m-d, D"}}</td>
                     <td>{{row.userview}}</td>
                     <td>{{row.pageview}}</td>
                     <td>{{row.goodspageview}}</td>

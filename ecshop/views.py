@@ -11,6 +11,6 @@ def overview(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    report = Report1.objects.filter(datetype='day').order_by('-dateline')
+    report = Report1.objects.filter(timeline__datetype='day').order_by('-timeline__dateline')
 
     return render(request, 'ecshop/overview.html', {'project': project, 'report': report})
