@@ -37,7 +37,7 @@
         {% for sb in sbt %}
         	xmlData+="<set value='{{sb.count|default:0}}' name = '{% if sb.datetype == 'hour' %}{{sb.dateline|date:"H"|safe}}{% endif %}'/>";
         	xmlData1+="<set value='{{sb.track_count|default:0}}' name = '{% if sb.datetype == 'hour' %}{{sb.dateline|date:"H"|safe}}{% endif %}'/>";
-            xmlData2+="<set value='{{sb.timelength|default:0}}' name = '{% if sb.datetype == 'hour' %}{{sb.dateline|date:"H"|safe}}{% endif %}'/>";
+            xmlData2+="<set value='{{sb.timelength|default:0}}' name = '{% if sb.datetype == 'hour' %}{{sb.timeline.dateline|date:"H"|safe}}{% endif %}'/>";
             d1.push(['{{forloop.counter|add:-1}}', {{ sb.count }}]);
             tooltips[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.dateline|date:"Y/m/d\<\b\r\/\>H:i"|safe}}'];
             {% if sb.datetype == 'hour' %}

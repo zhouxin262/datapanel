@@ -63,14 +63,14 @@ def action(request, id):
     actions = [a.name for a in project.action.filter().order_by('name')]
 
     times = times[::-1]
-    args = {'project': project, 'datetype': datetype, 'dateline__in': times}
+    args = {'project': project, 'timeline__datetype': datetype, 'timeline__dateline__in': times}
 
     data = {}
     for action in actions:
         data[action] = {'label': action, 'data': [(i, 0) for i in times]}
 
-    for trackGroupByAction in GAction.objects.filter(**args).order_by('action', 'dateline'):
-        data[trackGroupByAction.action.name]['data'][times.index(trackGroupByAction.dateline)] = ((trackGroupByAction.dateline, trackGroupByAction.count))
+    for trackGroupByAction in GAction.objects.filter(**args).order_by('action', 'timeline__dateline'):
+        data[trackGroupByAction.action.name]['data'][times.index(trackGroupByAction.timeline.dateline)] = ((trackGroupByAction.timeline.dateline, trackGroupByAction.count))
 
     params = {'interval': interval, 'datetype': datetype}
     return render(request, 'track/groupby_action.html', {'project': project, 'params': params, 'times': times, 'actions': actions, 'data': data})

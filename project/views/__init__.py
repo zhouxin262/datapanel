@@ -59,7 +59,7 @@ def home(request, id):
         start_day = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
         end_day = (datetime.today()).strftime("%Y-%m-%d")
 
-    s1 = GTime.objects.filter(project=project, datetype=datetype, dateline__range=[start_day, end_day]).order_by("dateline")
+    s1 = GTime.objects.filter(project=project, timeline__datetype=datetype, timeline__dateline__range=[start_day, end_day]).order_by("timeline__dateline")
     return render(request, 'project/index.html', {'project': project, 'sbt': s1, 'interval': interval})
 
 

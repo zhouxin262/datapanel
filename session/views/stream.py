@@ -16,7 +16,7 @@ def list(request, id):
 
     #过滤
     track_count__gt = int(request.GET.get('track_count__gt', 3))
-    project_sessions = project.session.filter(track_count__gt=track_count__gt)
+    project_sessions = project.session_set.filter(track_count__gt=track_count__gt)
 
     #排序
     order = request.GET.get('order', 't')

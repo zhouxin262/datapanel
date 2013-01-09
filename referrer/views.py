@@ -28,7 +28,7 @@ def session(request, id, referrer_attr):
     else:
         e = datetime.now()
 
-    args = {'dateline__range': [s, e], 'datetype': 'day'}
+    args = {'timeline__dateline__range': [s, e], 'timeline__datetype': 'day'}
     dbtable = GReferrerKeyword
     dataset = []
     if referrer_attr == "site":

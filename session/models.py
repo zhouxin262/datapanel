@@ -95,13 +95,13 @@ class AbsSession(models.Model):
 
     def first_track(self):
         try:
-            return self.track.filter().order_by('id')[0]
+            return self.track_set.filter().order_by('id')[0]
         except IndexError:
             return None
 
     def last_track(self):
         try:
-            return self.track.filter().order_by('-id')[0]
+            return self.track_set.filter().order_by('-id')[0]
         except IndexError:
             return None
 
@@ -250,14 +250,9 @@ class GTime(models.Model):
     '''
     project = models.ForeignKey(Project, related_name='sessiongroupbytime')
     timeline = models.ForeignKey(Timeline, null=True)
-    datetype = models.CharField(u'统计类型', null=True, max_length=12)
-    dateline = models.DateTimeField(verbose_name=u"时间", null=False)
     count = models.IntegerField(u'统计数值', null=True, default=0)
     track_count = models.IntegerField(u'点击数', null=True, default=0)
     timelength = models.IntegerField(u'访问时长', null=True, default=0)
-
-    class Meta:
-        unique_together = (('datetype', 'dateline'),)
 
 
 class GReferrerSite(models.Model):
@@ -267,8 +262,6 @@ class GReferrerSite(models.Model):
     project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerSite')
     timeline = models.ForeignKey(Timeline, null=True)
     referrer_site = models.ForeignKey(Site, related_name='GReferrerSite', null=True)
-    datetype = models.CharField(u'统计时间', null=False, max_length=12)
-    dateline = models.DateTimeField(verbose_name=u"时间", null=False)
     count = models.IntegerField(u'统计数值', default=0, null=True)
     track_count = models.IntegerField(u'点击数', default=0, null=True)
     timelength = models.IntegerField(u'访问时长', default=0, null=True)
@@ -281,8 +274,6 @@ class GReferrerKeyword(models.Model):
     project = models.ForeignKey(Project, related_name='sessiongroupbyReferrerkeyword')
     timeline = models.ForeignKey(Timeline, null=True)
     referrer_keyword = models.ForeignKey(Keyword, related_name='GReferrerKeyword', null=True)
-    datetype = models.CharField(u'统计时间', max_length=12)
-    dateline = models.DateTimeField(verbose_name=u"时间", null=False)
     count = models.IntegerField(u'统计数值', default=0, null=True)
     track_count = models.IntegerField(u'点击数', default=0, null=True)
     timelength = models.IntegerField(u'访问时长', default=0, null=True)
