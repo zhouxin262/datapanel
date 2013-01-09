@@ -5,7 +5,7 @@ from django.core.management.base import LabelCommand
 from django.db.models import Count, Sum, Avg
 
 from project.models import Project
-from track.models import Track, TrackValue, GAction, GValue, GReferrerSiteAndAction, GReferrerKeywordAndAction
+from track.models import Track, TrackValue, GAction, GReferrerSiteAndAction, GReferrerKeywordAndAction
 from datapanel.utils import Group
 
 """
