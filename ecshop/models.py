@@ -45,10 +45,11 @@ class OrderGoods(models.Model):
 class GoodsManager(models.Manager):
     def process(self, project, goods_id, cat_id=0, goods_name='', goods_price=0, *args, **kwargs):
         g = Goods.objects.get_or_create(project=project, goods_id=goods_id)
-        g.cat_id = cat_id
-        g.goods_name = goods_name
-        g.goods_price = goods_price
-        g.save()
+        if not (g[0].cat_id == cat_id and g[0].goods_name == goods_name and g[0].goods_price == goods_price):
+            g[0].cat_id = cat_id
+            g[0].goods_name = goods_name
+            g[0].goods_price = goods_price
+            g[0].save()
 
 
 class Goods(models.Model):
