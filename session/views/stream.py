@@ -48,7 +48,7 @@ def tile(request, id):
 
     #过滤
     track_count__gt = int(request.GET.get('track_count__gt', 3))
-    project_sessions = project.session.filter(track_count__gt=track_count__gt)
+    project_sessions = project.session_set.filter(track_count__gt=track_count__gt)
 
     #排序
     order = request.GET.get('order', 't')
@@ -79,7 +79,7 @@ def view(request, id, sid):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    session = project.session.get(id=sid)
+    session = project.session_set.get(id=sid)
     tracks = session.track_set.all().order_by('dateline')
 
     paginator = Paginator(tracks, 30)

@@ -118,7 +118,7 @@ class AbsSession(models.Model):
         actions = [action.name for action in self.project.action.filter().order_by('id')]
         tracks = []
         prev_track = None
-        for t in self.track.all().order_by('id'):
+        for t in self.track_set.filter().order_by('id'):
             if prev_track:
                 if (prev_track.timelength == 0 or prev_track.timelength > 300) and (t.dateline - prev_track.dateline).seconds > 300:
                     tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline - prev_track.dateline).seconds / 60)
