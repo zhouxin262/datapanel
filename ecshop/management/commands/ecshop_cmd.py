@@ -7,8 +7,9 @@ from django.db.models import Sum, Count
 from session.models import Session
 from project.models import Project
 from track.models import Track, TrackValue
-from ecshop.models import Report1, OrderGoods, OrderInfo
+from ecshop.models import Report1, OrderGoods, OrderInfo, Report2, Goods
 from datapanel.models import Timeline
+from datapanel.utils import Group
 
 
 class Command(LabelCommand):
@@ -34,12 +35,14 @@ class Command(LabelCommand):
         # cur = con.cursor()
         # foreach projects
         for p in Project.objects.filter():
-            r = Report1()
+            timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)
+            try:
+                r = Report1.objects.get(timeline=timeline[0])
+            except Report1.DoesNotExist:
+                r = Report1()
+
             r.project = p
-
-            timeline = Timeline.objects.get_or_create(datetype = 'day', dateline = s)
             r.timeline = timeline[0]
-
             r.userview = Session.objects.filter(project=p, end_time__range=[s, e]).values('ipaddress').distinct().count()
             r.pageview = Track.objects.filter(session__project=p, dateline__range=[s, e]).count()
             r.goodsview = TrackValue.objects.filter(track__session__project=p, valuetype__name='goods_goods_id', track__dateline__range=[s, e]).values('value').distinct().count()
@@ -50,4 +53,31 @@ class Command(LabelCommand):
             r.ordergoodscount = OrderGoods.objects.filter(project=p, order__dateline__range=[s, e]).aggregate(Sum('goods_number'))['goods_number__sum']
             r.orderamount = orderinfo['s']
             r.save()
+
+            def get_goods(datarow):
+                goods = Goods.objects.get_or_create(project=p, goods_id=datarow['value'])
+                return goods[0]
+
+            # group by track value
+            g = Group(TrackValue, Report2)
+            g.static_attr = {'project': p, 'timeline': timeline[0]}
+            g.values = ['value']
+            g.annotate = {'viewcount': Count('value')}
+            g.fargs = {'track__dateline__range': [s, e], 'track__project': p, 'valuetype__name': 'goods_goods_id'}
+            g.function_attr = {'goods': get_goods}
+            g.easy_group()
+
+            def get_goods2(datarow):
+                goods = Goods.objects.get_or_create(project=p, goods_id=datarow['goods_id'])
+                return goods[0]
+
+            g = Group(OrderGoods, Report2)
+            g.static_attr = {'project': p, 'timeline': timeline[0]}
+            g.values = ['goods_id']
+            g.exclude_attr = ['goods_id']
+            g.annotate = {'sellcount': Sum('goods_number')}
+            g.fargs = {'order__dateline__range': [s, e], 'project': p}
+            g.function_attr = {'goods': get_goods2}
+            g.easy_group(update=True)
+
         print label, '====finished====', datetime.now()

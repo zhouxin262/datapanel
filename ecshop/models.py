@@ -104,12 +104,12 @@ class Report2(models.Model):
     """
     project = models.ForeignKey(Project, related_name='esc_report2')
     timeline = models.ForeignKey(Timeline, null=True)
-    goods_id = models.IntegerField(null=True, default=0)
+    goods = models.ForeignKey(Goods, null=True)
     viewcount = models.IntegerField(null=True, default=0)
     sellcount = models.IntegerField(null=True, default=0)
 
     def sell_ratio(self):
         if not self.viewcount == 0:
-            return round(float(self.sellcount) / float(self.viewcount), 5) * 1000
+            return round(float(self.sellcount) / float(self.viewcount), 4) * 100
         else:
             return 0

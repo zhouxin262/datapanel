@@ -14,6 +14,8 @@ class Group():
 
     static_attr = {}
     dynamic_attr = {}
+    function_attr = {}
+    exclude_attr = []
     annotate = {}
     fargs = {}
     eargs = {}
@@ -24,52 +26,98 @@ class Group():
         self.FromModel = FromModel
         self.ToModel = ToModel
 
-    def easy_group(self):
+    def easy_group(self, update=False):
         static_attr = self.static_attr
         dynamic_attr = self.dynamic_attr
+        function_attr = self.function_attr
+        exclude_attr = self.exclude_attr
         values = self.values
         annotate = self.annotate
         fargs = self.fargs
         eargs = self.eargs
         exargs = self.exargs
 
+        exclude_attr.extend([v for v in dynamic_attr.values()])
+
         if static_attr and annotate:
             #clean db
-            self.ToModel.objects.filter(**static_attr).delete()
+            if not update:
+                # delete & bulk_create, most rapidly
+                self.ToModel.objects.filter(**static_attr).delete()
 
-            if values:
-                #group
-                dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
-                data = []
-                for datarow in dataset:
-                    # print datarow
+                if values:
+                    #group
+                    dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
+                    data = []
+                    for datarow in dataset:
+                        # print datarow
+                        obj = self.ToModel()
+                        for k, v in static_attr.items():
+                            setattr(obj, k, v)
+                        for k, v in dynamic_attr.items():
+                            setattr(obj, k, datarow[v])
+                        for i in values:
+                            if i not in exclude_attr:
+                                setattr(obj, i, datarow[i])
+                        for i in annotate.keys():
+                            if i not in exclude_attr:
+                                setattr(obj, i, datarow[i])
+                        for k, v in function_attr.items():
+                            setattr(obj, k, v(datarow))
+                        data.append(obj)
+
+                    # insert into db
+                    self.ToModel.objects.bulk_create(data)
+                else:
+                    datarow = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).aggregate(**annotate)
                     obj = self.ToModel()
                     for k, v in static_attr.items():
                         setattr(obj, k, v)
                     for k, v in dynamic_attr.items():
                         setattr(obj, k, datarow[v])
-                    for i in values:
-                        if i not in dynamic_attr.values():
-                            setattr(obj, i, datarow[i])
                     for i in annotate.keys():
-                        if i not in dynamic_attr.values():
+                        if i not in exclude_attr:
                             setattr(obj, i, datarow[i])
-                    data.append(obj)
-
-                # insert into db
-                self.ToModel.objects.bulk_create(data)
+                    for k, v in function_attr.items():
+                        setattr(obj, k, v(datarow))
+                    obj.save()
             else:
-                datarow = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).aggregate(**annotate)
-                obj = self.ToModel()
-                for k, v in static_attr.items():
-                    setattr(obj, k, v)
-                for k, v in dynamic_attr.items():
-                    setattr(obj, k, datarow[v])
-                for i in annotate.keys():
-                    if i not in dynamic_attr.values():
-                        setattr(obj, i, datarow[i])
-                obj.save()
-
+                # update, for one table's content has to groupby twice
+                if values:
+                    #group
+                    dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
+                    data = []
+                    for datarow in dataset:
+                        # print datarow
+                        get_or_create_args = {}
+                        for k, v in static_attr.items():
+                            get_or_create_args[k] = v
+                        for k, v in dynamic_attr.items():
+                            get_or_create_args[k] = datarow[v]
+                        for i in values:
+                            if i not in exclude_attr:
+                                get_or_create_args[i] = datarow[i]
+                        for k, v in function_attr.items():
+                            get_or_create_args[k] = v(datarow)
+                        obj = self.ToModel.objects.get_or_create(**get_or_create_args)[0]
+                        for i in annotate.keys():
+                            if i not in exclude_attr:
+                                setattr(obj, i, datarow[i])
+                        obj.save()
+                else:
+                    datarow = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).aggregate(**annotate)
+                    get_or_create_args = {}
+                    for k, v in static_attr.items():
+                        get_or_create_args[k] = v
+                    for k, v in dynamic_attr.items():
+                        get_or_create_args[k] = datarow[v]
+                    for k, v in function_attr.items():
+                        get_or_create_args[k] = v(datarow)
+                    obj = self.ToModel.objects.get_or_create(**get_or_create_args)[0]
+                    for i in annotate.keys():
+                        if i not in exclude_attr:
+                            setattr(obj, i, datarow[i])
+                    obj.save()
         else:
             print "missing arguments"
 
