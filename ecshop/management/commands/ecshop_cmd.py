@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from django.core.management.base import LabelCommand
 from django.db.models import Sum, Count
+from django.core.cache import cache
 
 from session.models import Session
 from project.models import Project
@@ -79,5 +80,5 @@ class Command(LabelCommand):
             g.fargs = {'order__dateline__range': [s, e], 'project': p}
             g.function_attr = {'goods': get_goods2}
             g.easy_group(update=True)
-
+        cache.clear()
         print label, '====finished====', datetime.now()
