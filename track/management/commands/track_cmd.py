@@ -5,7 +5,7 @@ from django.core.management.base import LabelCommand
 from django.db.models import Count, Sum, Avg
 
 from project.models import Project
-from track.models import Track, TrackValue, GAction, GReferrerSiteAndAction, GReferrerKeywordAndAction
+from track.models import Track, GAction, GReferrerSiteAndAction, GReferrerKeywordAndAction
 from datapanel.utils import Group
 
 """
@@ -45,7 +45,7 @@ class Command(LabelCommand):
             for p in Project.objects.filter():
                 # group by track action
                 g = Group(Track, GAction)
-                g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
+                g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'hour'}
                 g.values = ['action', ]
                 g.dynamic_attr = {'action_id': 'action'}
                 g.annotate = {'count': Count('action'), 'timelength': Avg('timelength')}
@@ -66,24 +66,24 @@ class Command(LabelCommand):
             # group by track action
 
             g = Group(GAction, GAction)
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
             g.values = ['action', ]
             g.dynamic_attr = {'action_id': 'action'}
             g.annotate = {'count': Sum('count'), 'timelength': Avg('timelength')}
-            g.fargs = {'dateline__range': [s, e], 'project': p}
+            g.fargs = {'timeline__dateline__range': [s, e], 'project': p}
             g.easy_group()
 
-            # group by track value
-            g = Group(TrackValue, GValue)
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
-            g.values = ['valuetype_id', 'value']
-            g.annotate = {'count': Count('value'), 'timelength': Avg('track__timelength')}
-            g.fargs = {'track__dateline__range': [s, e], 'track__project': p}
-            g.easy_group()
+            # # group by track value
+            # g = Group(TrackValue, GValue)
+            # g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            # g.values = ['valuetype_id', 'value']
+            # g.annotate = {'count': Count('value'), 'timelength': Avg('track__timelength')}
+            # g.fargs = {'track__dateline__range': [s, e], 'track__project': p}
+            # g.easy_group()
 
             # group by track action and time and sessionreferrersite
             g = Group(Track, GReferrerSiteAndAction)
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
             g.values = ['action', 'session__referrer_site__id']
             g.dynamic_attr = {'action_id': 'action', 'referrer_site_id': 'session__referrer_site__id'}
             g.annotate = {'count': Count('action'), 'timelength': Avg('timelength')}
@@ -92,7 +92,7 @@ class Command(LabelCommand):
 
             # group by track action and time and sessionreferrerkeyword
             g = Group(Track, GReferrerKeywordAndAction)
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
             g.values = ['action', 'session__referrer_keyword__id']
             g.dynamic_attr = {'action_id': 'action', 'referrer_keyword_id': 'session__referrer_keyword__id'}
             g.annotate = {'count': Count('action'), 'timelength': Avg('timelength')}

@@ -40,7 +40,7 @@ class Command(LabelCommand):
             for p in Project.objects.filter():
                 # group by time
                 g = Group(Session, GTime)
-                g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'hour'}
+                g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'hour'}
                 g.annotate = {'count': Count('id'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
                 g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
                 g.easy_group()
@@ -57,15 +57,15 @@ class Command(LabelCommand):
         for p in Project.objects.filter():
             # group by time
             g = Group(GTime, GTime)
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
             g.annotate = {'count': Sum('count'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
-            g.fargs = {'dateline__range': [s, e], 'project': p}
+            g.fargs = {'timeline__dateline__range': [s, e], 'project': p}
             g.easy_group()
 
             # group by user_referrer_site and time
             g = Group(Session, GReferrerSite)
             g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
             g.values = ['referrer_site', ]
             g.dynamic_attr = {'referrer_site_id': 'referrer_site'}
             g.annotate = {'count': Count('referrer_site'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
@@ -74,7 +74,7 @@ class Command(LabelCommand):
             # group by user_referrer_keyword and time
             g = Group(Session, GReferrerKeyword)
             g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
-            g.static_attr = {'project': p, 'dateline': dateline, 'datetype': 'day'}
+            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
             g.values = ['referrer_keyword', ]
             g.dynamic_attr = {'referrer_keyword_id': 'referrer_keyword'}
             g.annotate = {'count': Count('referrer_keyword'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
