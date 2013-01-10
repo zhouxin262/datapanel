@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.core.management.base import LabelCommand
 from django.db.models import Count, Sum, Avg
 
+from datapanel.models import Timeline
 from project.models import Project
 from track.models import Track, GAction, GReferrerSiteAndAction, GReferrerKeywordAndAction
 from datapanel.utils import Group
@@ -28,7 +29,7 @@ class Command(LabelCommand):
             print 'wrong label, should be int'
             return None
 
-        processing_day = datetime.now() - timedelta(days=days_before + 1)
+        processing_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
         print '====processing %s====' % processing_day.strftime("%Y-%m-%d")
 
         """
@@ -40,12 +41,12 @@ class Command(LabelCommand):
             s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
             e = s + timedelta(seconds=3600)
             dateline = s
-
+            t = Timeline.objects.get_or_create(dateline=dateline, datetype='hour')
             # foreach project
             for p in Project.objects.filter():
                 # group by track action
                 g = Group(Track, GAction)
-                g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'hour'}
+                g.static_attr = {'project': p, 'timeline': t[0]}
                 g.values = ['action', ]
                 g.dynamic_attr = {'action_id': 'action'}
                 g.annotate = {'count': Count('action'), 'timelength': Avg('timelength')}
@@ -59,6 +60,7 @@ class Command(LabelCommand):
         s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
         e = s + timedelta(days=1)
         dateline = s
+        t = Timeline.objects.get_or_create(dateline=dateline, datetype='day')
 
         # foreach projects
         print '====processing by day===='
@@ -66,7 +68,7 @@ class Command(LabelCommand):
             # group by track action
 
             g = Group(GAction, GAction)
-            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
+            g.static_attr = {'project': p,  'timeline': t[0]}
             g.values = ['action', ]
             g.dynamic_attr = {'action_id': 'action'}
             g.annotate = {'count': Sum('count'), 'timelength': Avg('timelength')}
@@ -83,7 +85,7 @@ class Command(LabelCommand):
 
             # group by track action and time and sessionreferrersite
             g = Group(Track, GReferrerSiteAndAction)
-            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
+            g.static_attr = {'project': p, 'timeline': t[0]}
             g.values = ['action', 'session__referrer_site__id']
             g.dynamic_attr = {'action_id': 'action', 'referrer_site_id': 'session__referrer_site__id'}
             g.annotate = {'count': Count('action'), 'timelength': Avg('timelength')}
@@ -92,7 +94,7 @@ class Command(LabelCommand):
 
             # group by track action and time and sessionreferrerkeyword
             g = Group(Track, GReferrerKeywordAndAction)
-            g.static_attr = {'project': p, 'timeline__dateline': dateline, 'timeline__datetype': 'day'}
+            g.static_attr = {'project': p,  'timeline': t[0]}
             g.values = ['action', 'session__referrer_keyword__id']
             g.dynamic_attr = {'action_id': 'action', 'referrer_keyword_id': 'session__referrer_keyword__id'}
             g.annotate = {'count': Count('action'), 'timelength': Avg('timelength')}
@@ -105,7 +107,10 @@ class Command(LabelCommand):
         cur = con.cursor()
         sql = "SELECT id FROM track_track WHERE dateline<='%s' ORDER BY dateline desc LIMIT 1" % processing_day
         cur.execute(sql)
-        last_track_id = cur.fetchone()[0]
+        try:
+            last_track_id = cur.fetchone()[0]
+        except:
+            last_track_id = 0
         sql = "INSERT INTO %s(id, project_id, session_id, action_id, url, from_track_id, referrer_site_id, referrer_keyword_id, step, timelength, dateline) SELECT id, project_id, session_id, action_id, url, from_track_id, referrer_site_id, referrer_keyword_id, step, timelength, dateline FROM %s f WHERE f.id <= %d" % ('track_trackarch', 'track_track', last_track_id)
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE id <= %d" % ('track_track', last_track_id)
