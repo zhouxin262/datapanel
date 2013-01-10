@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 # from django.core.cache import cache
 from django.contrib.auth.views import redirect_to_login
+from django.views.decorators.cache import cache_page
 
 from track.models import GAction
 from datapanel.utils import get_times
@@ -48,6 +49,7 @@ from datapanel.utils import get_times
 #     return render(request, 'track/groupby_value.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
 
 
+@cache_page(60 * 60 * 24)
 def action(request, id):
     try:
         project = request.user.participate_projects.get(id=id)

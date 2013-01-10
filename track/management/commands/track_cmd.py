@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from django.core.management.base import LabelCommand
 from django.db.models import Count, Sum, Avg
+from django.core.cache import cache
 
 from datapanel.models import Timeline
 from project.models import Project
@@ -125,4 +126,5 @@ class Command(LabelCommand):
         cur.execute(sql)
         sql = "flush tables"
         cur.execute(sql)
+        cache.clear()
         print '====finished at %s====' % datetime.now()

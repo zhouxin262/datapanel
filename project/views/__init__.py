@@ -5,6 +5,8 @@ from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.cache import cache_page
+
 from project.forms import ProjectForm
 from session.models import Session, GTime
 from track.models import Track
@@ -36,6 +38,7 @@ def overview(request, id):
     return render(request, 'project/overview.html', {'project': project, })
 
 
+@cache_page(60 * 60 * 24)
 def home(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
