@@ -15,30 +15,30 @@
 	<table class='table'>
 		<thead>
 		<tr>
-		  <th>页面</th>
-		  <th>url路径</th>
+		  <th>动作</th>
+          <th>URL</th>
+          <th>来自</th>
 		  <th>访问时间</th>
-		  <th>停留时间（秒）</th>
+		  <th >停留</th>
 		</tr>
 		</thead>
 		{% for track in track_flow %}
 		<tr class="{{ track.action }}">
 		<td>{{ track.action }}</td>
 		<td><a href="{{track.url}}" title="{{track.url}}">{{ track.url|urlizetrunc:50 }}</a>
-			<br/>来自
-			{% if track.referrer.referrer_site %}
-            {% if track.referrer.referrer_site != "站内" %}
-			<a href="{{track.referrer.referrer}}" title="{{track.referrer.referrer}}">{{ track.referrer.referrer_site }}</a> 关键词:
-            {% endif %}
-            {% if track.referrer.referrer_keyword %}
-            <a href="{{track.referrer.referrer}}" title="{{track.referrer.referrer}}">{{ track.referrer.referrer_keyword }}</a>
-            {% endif %}
-			{% else %}
-			<a href="{{track.referrer.referrer}}" title="{{track.referrer.referrer}}">{{ track.referrer.referrer|urlizetrunc:30 }}</a>
-			{% endif %}
 		</td>
+        <td>
+        {% if track.referrer_site.name %}
+        {{track.referrer_site.name}}
+        {% if track.referrer_keyword.name %}
+        - {{track.referrer_keyword.name}}
+        {% endif %}
+        {% else %}
+        {{track.from_track.action.name}}
+        {% endif %}
+        </td>
 		<td>{{ track.dateline|date:"Y-m-d H:i:s" }}</td>
-		<td>{{ track.timelength|default:0}}</td>
+		<td style='text-align:right'>{{ track.timelength|default:0}} 秒</td>
 		</tr>
 		</tr>
 		{% endfor %}

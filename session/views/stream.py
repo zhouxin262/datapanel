@@ -82,7 +82,7 @@ def view(request, id, sid):
     session = project.session_set.get(id=sid)
     tracks = session.track_set.all().order_by('dateline')
 
-    paginator = Paginator(tracks, 30)
+    paginator = Paginator(tracks, 20)
     page = request.GET.get('page')
     try:
         track_flow = paginator.page(page)
@@ -94,6 +94,9 @@ def view(request, id, sid):
 
 
 def get_stream_by_value(request, id):
+    # todo
+    # get stream by order SN
+    # it does not belong here, should move into ecshop
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
@@ -102,12 +105,21 @@ def get_stream_by_value(request, id):
     name = request.GET.get('name', '')
     value = request.GET.get('value', '')
 
-    ts = SessionValue.objects.filter(session__project=project, name=name, value__icontains=value).values('session')
-
-    if len(ts) == 1:
-        return HttpResponseRedirect(reverse('stream_view', args=[id, ts[0]['session']]))
-    elif len(ts) > 1:
-        #todo list
-        return HttpResponseRedirect(reverse('stream_view', args=[id, ts[0]['session']]))
+    session_id = 0
+    if name == 'order_sn':
+        from ecshop.models import OrderInfo
+        try:
+            session_id = OrderInfo.objects.get(order_sn=value).session.id
+        except:
+            pass
     else:
+        ts = SessionValue.objects.filter(session__project=project, name=name, value__icontains=value).values('session')
+        #todo list
+        if len(ts) == 1:
+            session_id = ts[0]['session']
+        elif len(ts) > 1:
+            session_id = ts[0]['session']
+
+    if not session_id:
         return HttpResponse('403 forbidden')
+    return HttpResponseRedirect(reverse('stream_view', args=[id, session_id]))
