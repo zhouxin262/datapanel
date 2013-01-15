@@ -46,7 +46,7 @@ class OrderInfo(models.Model):
     order_sn = models.CharField(max_length=50, verbose_name=u"订单编号")
     order_amount = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
     dateline = models.DateTimeField(auto_now_add=True, null=True)
-    status = models.IntegerField(max_length=1, default=0);
+    status = models.IntegerField(max_length=1, default=0)
 
     objects = OrderManager()
 

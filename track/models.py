@@ -2,6 +2,9 @@
 import ast
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.cache import cache
 
 from project.models import Project, Action
 from session.models import Session, SessionArch
@@ -87,7 +90,7 @@ class AbsTrack(models.Model):
 
     def set_from_track(self, referrer_string, save=True):
         probably_from_tracks = self.session.track_set.filter(id__lt=self.id,
-                                                         url=referrer_string)
+                                                             url=referrer_string)
         if not probably_from_tracks:
             probably_from_tracks = self.session.track_set.filter(
                 id__lt=self.id).order_by('-id')
@@ -178,20 +181,12 @@ class GAction(models.Model):
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
 
-"""
-I think this is useless. Fuck.
-"""
-# class GValue(models.Model):
-#     """
-#     TrackGroupbyValue, likes TrackGroupByCondition
-#     """
-#     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
-#     valuetype = models.ForeignKey(TrackValueType, related_name='gvalue', null=True)
-#     value = models.CharField(u'参数值', max_length=255, null=False, default='')
-#     datetype = models.CharField(u'统计时间', null=False, max_length=12)
-#     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
-#     count = models.IntegerField(u'统计数值', null=False, default=0)
-#     timelength = models.IntegerField(u'访问时长', null=False, default=0)
+@receiver(post_save, sender=Track)
+def gaction_cache(sender, **kwargs):
+    track = instance
+    if created:
+        cache.get(id + '_trackvalue_names', 'DoesNotExist')
+        cache.set(id + '_trackvalue_names', value_names)
 
 
 class GReferrerSiteAndAction(models.Model):
@@ -216,3 +211,19 @@ class GReferrerKeywordAndAction(models.Model):
     timeline = models.ForeignKey(Timeline, null=True)
     count = models.IntegerField(u'统计数值', null=False, default=0)
     timelength = models.IntegerField(u'访问时长', null=False, default=0)
+
+
+"""
+I think this is useless. Fuck.
+"""
+# class GValue(models.Model):
+#     """
+#     TrackGroupbyValue, likes TrackGroupByCondition
+#     """
+#     project = models.ForeignKey(Project, related_name='trackgroupbyvalue')
+#     valuetype = models.ForeignKey(TrackValueType, related_name='gvalue', null=True)
+#     value = models.CharField(u'参数值', max_length=255, null=False, default='')
+#     datetype = models.CharField(u'统计时间', null=False, max_length=12)
+#     dateline = models.DateTimeField(verbose_name=u"时间", max_length=13, null=False)
+#     count = models.IntegerField(u'统计数值', null=False, default=0)
+#     timelength = models.IntegerField(u'访问时长', null=False, default=0)
