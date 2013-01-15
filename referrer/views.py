@@ -34,7 +34,7 @@ def session(request, id, referrer_attr):
     if referrer_attr == "site":
         dbtable = GReferrerSite
 
-    tmp = dbtable.objects.filter(**args).values('referrer_' + referrer_attr + '__name').values(
+    tmp = dbtable.objects.filter(**args).exclude(**{'referrer_' + referrer_attr + '__name': ''}).values('referrer_' + referrer_attr + '__name').values(
         'referrer_' + referrer_attr + '__name').annotate(
             count=Sum('count'),
             track_count=Avg('track_count'),

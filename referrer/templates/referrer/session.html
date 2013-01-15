@@ -74,7 +74,26 @@
 </div>
 <script type="text/javascript">
 $(function(){
-
+$(document).ready(function(){
+    $('#datatables').dataTable({
+        "iDisplayLength": 30,
+        "sPaginationType": "full_numbers",
+        "bPaginate": true,
+        "bFilter": false,
+        "bLengthChange": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "aaSorting": [[ 1 , "desc" ]],
+        "oLanguage": {
+          "oPaginate": {
+            "sFirst": "第一页",
+            "sLast": "最后页",
+            "sPrevious": "上一页",
+            "sNext": "下一页"
+          }
+        }
+    });
+});
 });
 </script>
 {% endblock content %}

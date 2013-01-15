@@ -3,7 +3,18 @@ from django.shortcuts import render
 from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.cache import cache_page
 
-from ecshop.models import Report1, Report2
+from ecshop.models import Report1, Report2, OrderInfo
+
+
+def set_order_status(request):
+    order_sn = request.GET.get('order_sn')
+    status = request.GET.get('status')
+    try:
+        status = int(status)
+    except:
+        status = 0
+
+    OrderInfo.objectss.filter(order_sn = order_sn)
 
 
 @cache_page(60 * 60 * 24)

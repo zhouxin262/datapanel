@@ -7,30 +7,41 @@ from session.models import Session
 
 
 class OrderManager(models.Manager):
-    def process(self, project, session, order_sn, order_amount=0, goods_list={}, *args, **kwargs):
-        order = OrderInfo()
-        order.project = project
-        order.session = session
-        order.order_sn = order_sn
-        order.order_amount = order_amount
-        order.save()
+    def process(self, project, session, order_sn, order_amount=0, goods_list={}, status=0, *args, **kwargs):
+        order = OrderInfo.objects.get_or_create(project=project, order_sn=order_sn)
 
-        for goods_id, goods_number in goods_list.items():
-            og = OrderGoods()
-            og.project = project
-            og.session = session
-            og.order = order
-            og.goods_id = goods_id
-            og.goods_number = goods_number
-            og.save()
+        # update order info
+        order[0].session = session
+        order[0].order_amount = order_amount
+        order[0].status = status
+        order[0].save()
+
+        # update order goods
+        if goods_list:
+            # remove all
+            OrderGoods.objects.filter(project=project, session=session, order=order[0]).delete()
+            # create new
+            order_goods = []
+            for goods_id, goods_number in goods_list.items():
+                og = OrderGoods()
+                og.project = project
+                og.session = session
+                og.order = order[0]
+                og.goods_id = goods_id
+                og.goods_number = goods_number
+                order_goods.append(og)
+            OrderGoods.objects.bulk_create(order_goods)
 
 
 class OrderInfo(models.Model):
+    STATUS_CHOICES = ((0, u"待确认"), (1, u"已确认"), (2, u"已取消"), (3, u"无效"), (4, u"退货"), (5, u"已发货"), )
+
     project = models.ForeignKey(Project, related_name='esc_orderinfo')
     session = models.ForeignKey(Session, related_name='esc_orderinfo')
     order_sn = models.CharField(max_length=50, verbose_name=u"订单编号")
     order_amount = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
     dateline = models.DateTimeField(auto_now_add=True, null=True)
+    status = models.IntegerField(max_length=1, default="W")
 
     objects = OrderManager()
 

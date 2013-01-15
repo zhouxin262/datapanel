@@ -24,6 +24,24 @@ def remove_all_foreign_keys(database_name):
 
 remove_all_foreign_keys('datapanel')
 
+sql = 'SELECT id, order_sn FROM ecshop_orderinfo'
+cur.execute(sql)
+orders = {}
+for id, order_sn in cur.fetchall():
+    orders[id] = order_sn
+
+del_order = []
+for k, v in orders.items():
+    sql = "SELECT id FROM ecshop_orderinfo WHERE order_sn='%s' AND id<%d" % (v, k)
+    cur.execute(sql)
+    res = cur.fetchone()
+    if res and res[0] not in del_order:
+        del_order.append(res[0])
+
+for order_id in del_order:
+    sql = "DELETE FROM ecshop_orderinfo WHERE id=%d" % order_id
+    cur.execute(sql)
+
 # sql = "show tables"
 # cur.execute(sql)
 # t = cur.fetchone()[0]
