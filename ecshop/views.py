@@ -1,4 +1,5 @@
 #coding=utf8
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.cache import cache_page
@@ -6,7 +7,12 @@ from django.views.decorators.cache import cache_page
 from ecshop.models import Report1, Report2, OrderInfo
 
 
-def set_order_status(request):
+def set_order_status(request, id):
+    try:
+        project = request.user.participate_projects.get(id=id)
+    except AttributeError:
+        return redirect_to_login(request.get_full_path())
+
     order_sn = request.GET.get('order_sn')
     status = request.GET.get('status')
     try:
@@ -14,7 +20,14 @@ def set_order_status(request):
     except:
         status = 0
 
-    OrderInfo.objectss.filter(order_sn = order_sn)
+    try:
+        order = OrderInfo.objectss.get(order_sn=order_sn)
+        order.status = status
+        order.save()
+        return HttpResponse('order update success')
+    except OrderInfo.DoesNotExist:
+        return HttpResponse('order does not exist')
+
 
 
 @cache_page(60 * 60 * 24)

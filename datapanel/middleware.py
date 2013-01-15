@@ -76,13 +76,14 @@ class SessionMiddleware(object):
                                         httponly=settings.SESSION_COOKIE_HTTPONLY or None)
 
                     if not (settings.TMP_SESSION_COOKIE_NAME in request.session and request.session[settings.TMP_SESSION_COOKIE_NAME]):
+                        # create temp session key, refresh everytime when users close their browser.
                         tmp_obj = Session.objects.create_new()
                         try:
                             token = request.GET.get('k', None)
                             project = Project.objects.get(token=token)
                         except:
                             project = None
-                        print request.session.session_key
+
                         tmp_obj.permanent_session_key = request.session.session_key
                         tmp_obj.project = project
                         tmp_obj.ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')

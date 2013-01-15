@@ -1,5 +1,4 @@
 #coding=utf-8
-import ast
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -66,13 +65,6 @@ class AbsTrack(models.Model):
         except TrackValue.DoesNotExist:
             return ""
 
-    def param_display(self):
-        try:
-            param = ast.literal_eval(self.param)
-            return param
-        except:
-            return None
-
     def prev_track(self):
         try:
             return self.session.track_set.filter(id__lt=self.id).order_by('-id')[0]
@@ -90,7 +82,7 @@ class AbsTrack(models.Model):
 
     def set_from_track(self, referrer_string, save=True):
         probably_from_tracks = self.session.track_set.filter(id__lt=self.id,
-                                                             url=referrer_string)
+                                                             url=referrer_string).order_by('-id')
         if not probably_from_tracks:
             probably_from_tracks = self.session.track_set.filter(
                 id__lt=self.id).order_by('-id')
@@ -100,33 +92,14 @@ class AbsTrack(models.Model):
         else:
             self.from_track = self
 
+        # set timelength
+        timelength = self.dateline - self.from_track.dateline
+        self.from_track.timelength = timelength.seconds + 1
+        self.from_track.save()
+
         if save:
             self.save()
         return self.from_track
-
-    def set_timelength(self, save=True):
-        next_track = self.next_track()
-        # set timelength
-        if next_track:
-            timelength = next_track.dateline - self.dateline
-            self.timelength = timelength.seconds + 1
-            if save:
-                self.save()
-            return self.timelength
-        else:
-            return 0
-
-    def set_prev_timelength(self, save=True):
-        prev_track = self.prev_track()
-        # set timelength
-        if prev_track:
-            timelength = self.dateline - prev_track.dateline
-            prev_track.timelength = timelength.seconds + 1
-            if save:
-                prev_track.save()
-            return prev_track.timelength
-        else:
-            return 0
 
     class Meta:
         abstract = True
@@ -183,10 +156,11 @@ class GAction(models.Model):
 
 @receiver(post_save, sender=Track)
 def gaction_cache(sender, **kwargs):
-    track = instance
-    if created:
-        cache.get(id + '_trackvalue_names', 'DoesNotExist')
-        cache.set(id + '_trackvalue_names', value_names)
+    pass
+    # track = instance
+    # if created:
+    #     cache.get(id + '_trackvalue_names', 'DoesNotExist')
+    #     cache.set(id + '_trackvalue_names', value_names)
 
 
 class GReferrerSiteAndAction(models.Model):
