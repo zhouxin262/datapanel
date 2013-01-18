@@ -8,6 +8,7 @@ from django.conf import settings
 from track.models import Track, TrackValue
 from session.models import Session
 from project.models import Project
+from ecshop.models import OrderInfo, Goods
 from datapanel.utils import now
 
 
@@ -70,17 +71,18 @@ def track(request, response):
     if param_dic and param_dic['function']:
         function_name = param_dic['function'][0]
         function_param = param_dic['function'][1]
-        if function_name == 'set_user':
-            # todo: set user
-            pass
-        elif function_name == 'ecs_order':
-            from ecshop.models import OrderInfo
+        if function_name == 'ecs_order':
             function_param.update({"project": session.project, "session": session})
             OrderInfo.objects.process(**function_param)
+        elif function_name == 'ecs_orderstatus':
+            function_param.update({"project": session.project})
+            OrderInfo.objects.process(**function_param)
         elif function_name == 'ecs_goods':
-            from ecshop.models import Goods
             function_param.update({"project": session.project})
             Goods.objects.process(**function_param)
+        elif function_name == 'set_user':
+            # todo: set user
+            pass
     return response
 
 

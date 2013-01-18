@@ -7,13 +7,14 @@ from session.models import Session
 
 
 class OrderManager(models.Manager):
-    def process(self, project, session, order_sn, order_amount=0, goods_list={}, status=0, *args, **kwargs):
+    def process(self, project, order_sn, order_amount=0, goods_list={}, session=None, status=0, *args, **kwargs):
         try:
             order = OrderInfo.objects.get(project=project, order_sn=order_sn)
         except OrderInfo.DoesNotExist:
             order = OrderInfo()
             order.project = project
-            order.session = session
+            if session:
+                order.session = session
             order.order_sn = order_sn
 
         # update order info
