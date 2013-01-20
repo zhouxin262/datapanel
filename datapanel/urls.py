@@ -5,7 +5,7 @@ from django.views.generic.simple import direct_to_template
 urlpatterns = patterns('',
                        url(r'^$', 'datapanel.views.index', name='index'),
                        url(r'^server_info/$', 'datapanel.views.server_info', name='server_info'),
-                       url(r'^t/$', 'datapanel.views.t', name='track'),
+                       url(r'^a/$', 'datapanel.views.a'),
 
                        (r'^accounts/', include('registration.backends.default.urls')),
                        (r'^project/', include('project.urls')),

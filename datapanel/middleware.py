@@ -8,7 +8,7 @@ from django.utils.importlib import import_module
 
 from project.models import Project
 from session.models import Session
-from track.views import track
+from datapanel.views import analysis
 
 
 class SessionMiddleware(object):
@@ -26,7 +26,6 @@ class SessionMiddleware(object):
                 return False
         return True
 
-
     def process_request(self, request):
         if self.should_process(request):
             engine = import_module(settings.SESSION_ENGINE)
@@ -36,12 +35,11 @@ class SessionMiddleware(object):
             tmp_session_key = request.COOKIES.get(settings.TMP_SESSION_COOKIE_NAME, None)
 
             if tmp_session_key and Session.objects.exists(tmp_session_key) and \
-                settings.TMP_SESSION_COOKIE_NAME in request.session:
+                    settings.TMP_SESSION_COOKIE_NAME in request.session:
                 if not tmp_session_key == request.session[settings.TMP_SESSION_COOKIE_NAME]:
                     request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_session_key
             else:
                 request.session[settings.TMP_SESSION_COOKIE_NAME] = None
-
 
     def process_response(self, request, response):
         """
@@ -104,6 +102,6 @@ class SessionMiddleware(object):
                                             secure=settings.SESSION_COOKIE_SECURE or None,
                                             httponly=settings.SESSION_COOKIE_HTTPONLY or None)
 
-            if request.path == '/t/':
-                track(request, response)
+            if request.path == '/a/':
+                analysis(request, response)
         return response
