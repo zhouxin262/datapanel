@@ -74,6 +74,7 @@ var _haq = (function(_haq) {
                     }
                 } catch(e) {}
             }
+            if(!r){r=''}
             return r;
         },
         json2str: function(obj) {
