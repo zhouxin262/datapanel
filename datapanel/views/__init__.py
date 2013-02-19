@@ -1,6 +1,7 @@
-#coding=utf-8
+# coding=utf-8
 import ast
 import base64
+import logging
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -10,8 +11,9 @@ from django.core.urlresolvers import reverse
 from project.models import Project
 from session.models import Session
 from track.models import Track
-from ecshop.models import OrderInfo, Goods
-from datapanel.utils import now
+from datapanel.utils import now, RunFunctions
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -30,10 +32,13 @@ def server_info(request):
     s = datetime.now() - timedelta(seconds=60)
     ee = e + timedelta(days=365)
     es = s + timedelta(days=365)
-    html = 'django_session_count: %d, increasing by %d/min' % (DjangoSession.objects.filter().count(), DjangoSession.objects.filter(expire_date__range=[es, ee]).count())
+    html = 'django_session_count: %d, increasing by %d/min' % (
+        DjangoSession.objects.filter().count(), DjangoSession.objects.filter(expire_date__range=[es, ee]).count())
     html += '<br/>project_count: %d' % Project.objects.filter().order_by('-id')[0].id
-    html += '<br/>session_count: %d, increasing by %d/min' % (Session.objects.filter().order_by('-id')[0].id, Session.objects.filter(start_time__range=[s, e]).count())
-    html += '<br/>track_count: %d, increasing by %d/min' % (Track.objects.filter().order_by('-id')[0].id, Track.objects.filter(dateline__range=[s, e]).count())
+    html += '<br/>session_count: %d, increasing by %d/min' % (
+        Session.objects.filter().order_by('-id')[0].id, Session.objects.filter(start_time__range=[s, e]).count())
+    html += '<br/>track_count: %d, increasing by %d/min' % (
+        Track.objects.filter().order_by('-id')[0].id, Track.objects.filter(dateline__range=[s, e]).count())
     # html += '<br/>swipe_count: %d' % Swipe.objects.filter().count()
     return HttpResponse(html)
 
@@ -43,93 +48,84 @@ def a(request):
     return response
 
 
+def get_and_verify_data(request):
+    """(bool:verified, dict:data)"""
+    data = None
+    is_verified = True
+    if 'data' in request.GET:
+        try:
+            data = ast.literal_eval(base64.b64decode(request.GET.get('data')))
+        except:
+            logger.debug(request.GET.get('data'))
+            is_verified = False
+
+        if not data or 'k' not in data or 'u' not in data or 'r' not in data or 'a' not in data:
+            is_verified = False
+        else:
+            todo = data.get('a')
+            if (todo == 'run' and 'f' not in data) or (todo == 'track' and 'e' not in data):
+                is_verified = False
+    else:
+        is_verified = False
+    # todo: verify the url
+    return (is_verified, data)
+
+
 def analysis(request, response):
-    if not request.GET.get('data'):
-        # no data, give up
-        return response
-    try:
-        # cannot decode, give up
-        data = ast.literal_eval(base64.b64decode(request.GET.get('data')))
-    except:
-        return response
+    (is_verified, data) = get_and_verify_data(request)
 
-    if not data.has_key('a') or not data.has_key('k'):
-        # donot know what to do
+    if not is_verified:
         return response
+    todo = data.get('a')
+    token = data.get('k')
 
-    todo = data['a']
-    token = data['k']
+    # set session and project
+    session = Session.objects.get(session_key=request.session[settings.TMP_SESSION_COOKIE_NAME])
+    if not session.project:
+        # update 'project' in session table
+        session.project = Project.objects.get(token=token)
+        session.save()
 
     if todo == 'run':
-        function_name = data['f']
-        function_param = data['p']
+        func = data.get('f')
+        param = data.get('p', None)
+        f = RunFunctions()
+        param.update({'session': session, 'project': session.project})
+        getattr(f, func)(param)
 
-
-        session = Session.objects.get(session_key=request.session[settings.TMP_SESSION_COOKIE_NAME])
-        if not session.project:
-            # update 'project' in session table
-            session.project = Project.objects.get(token=token)
-            session.save()
-
+    elif todo == 'track':
         # define const
-        http_url = request.META.get('HTTP_REFERER', '')
-        action_name = request.GET.get('t', '')
-        params = request.GET.get('p', '')
-        param_dic = {}
-        try:
-            param_dic = ast.literal_eval(params)
-        except:
-            pass
-        # end define
+        http_url = data.get('u')
+        action_name = data.get('e')
+        param_dic = data.get('p')
+        referrer = data.get('r')
 
-        # verify the url
-        if http_url.find(session.project.url) == -1 and not request.GET.get('DEBUG'):
-            return response
+        # if action does not exist then add it
+        action = session.project.add_action(action_name, http_url)
 
-        if action_name:
-            # if action does not exist then add it
-            action = session.project.add_action(action_name, http_url)
+        track = Track()
+        track.project = session.project
+        track.session = session
+        track.action = action
+        track.url = http_url
+        track.dateline = now()
+        track.save()
 
-            track = Track()
-            track.project = session.project
-            track.session = session
-            track.action = action
-            track.url = http_url
-            track.dateline = now()
-            track.save()
+        session.track_count = session.track_count + 1
 
-            session.track_count = session.track_count + 1
-            http_referrer = ''
-            if param_dic and param_dic['referrer']:
-                http_referrer = param_dic['referrer']
-                # set from track by referrer
-            from_track = track.set_from_track(http_referrer)
-            if not from_track.id == track.id:
-                session.timelength += from_track.timelength
-            session.save()
+        # set from track by referrer
+        from_track = track.set_from_track(referrer)
+        if not from_track.id == track.id:
+            session.timelength += from_track.timelength
+        session.save()
 
-            # deal with param
-            for k, v in param_dic.items():
-                if len(k.split("__")) > 1:
-                    getattr(track, k.split("__")[0]).set_value(k.split("__")[1], v)
-                elif k.find('referrer') == -1 and k.find('function') == -1:
-                        track.set_value(k, v)
-                elif k.find('referrer') >= 0:
-                    track.set_referrer(v)
+        # set referrer
+        track.set_referrer(referrer)
 
-        if param_dic and param_dic['function']:
-            function_name = param_dic['function'][0]
-            function_param = param_dic['function'][1]
-            if function_name == 'ecs_order':
-                function_param.update({"project": session.project, "session": session})
-                OrderInfo.objects.process(**function_param)
-            elif function_name == 'ecs_orderstatus':
-                function_param.update({"project": session.project})
-                OrderInfo.objects.process(**function_param)
-            elif function_name == 'ecs_goods':
-                function_param.update({"project": session.project})
-                Goods.objects.process(**function_param)
-            elif function_name == 'set_user':
-                # todo: set user
-                pass
+        # deal with param
+        for k, v in param_dic.items():
+            if len(k.split("__")) > 1:
+                getattr(track, k.split("__")[0]).set_value(k.split("__")[1], v)
+            else:
+                track.set_value(k, v)
     return response

@@ -34,15 +34,12 @@ class AbsTrack(models.Model):
     timelength = models.IntegerField(max_length=50, null=False, default=0)
     dateline = models.DateTimeField(auto_now_add=True)
 
-    def set_referrer(self, referrer_string, save=True):
-        url = parse_url(referrer_string)
-
-        s = Site.objects.get_or_create(name=url['netloc'])
+    def set_referrer(self, referrer_url, save=True):
+        referrer = parse_url(referrer_url)
+        s = Site.objects.get_or_create(name=referrer.get('d'))
         self.referrer_site_id = s[0].id
-
-        s = Keyword.objects.get_or_create(name=url['kw'])
+        s = Keyword.objects.get_or_create(name=referrer.get('kw'))
         self.referrer_keyword_id = s[0].id
-
         if save:
             self.save()
         return None

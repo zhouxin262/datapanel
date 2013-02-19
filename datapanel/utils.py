@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 import urlparse
 import re
 from django.conf import settings
@@ -6,6 +6,20 @@ from datetime import tzinfo, timedelta, datetime
 
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
+
+
+class RunFunctions():
+    def ecs_order(self, param):
+        from ecshop.models import OrderInfo
+        OrderInfo.objects.process(**param)
+
+    def ecs_orderstatus(self, param):
+        from ecshop.models import OrderInfo
+        OrderInfo.objects.process(**param)
+
+    def ecs_goods(self, param):
+        from ecshop.models import Goods
+        Goods.objects.process(**param)
 
 
 class Group():
@@ -40,17 +54,17 @@ class Group():
         exclude_attr.extend([v for v in dynamic_attr.values()])
 
         if static_attr and annotate:
-            #clean db
+            # clean db
             if not update:
                 # delete & bulk_create, most rapidly
                 self.ToModel.objects.filter(**static_attr).delete()
 
                 if values:
-                    #group
-                    dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
+                    # group
+                    dataset = self.FromModel.objects.filter(
+                        **fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
                     data = []
                     for datarow in dataset:
-                        # print datarow
                         obj = self.ToModel()
                         for k, v in static_attr.items():
                             setattr(obj, k, v)
@@ -84,11 +98,11 @@ class Group():
             else:
                 # update, for one table's content has to groupby twice
                 if values:
-                    #group
-                    dataset = self.FromModel.objects.filter(**fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
+                    # group
+                    dataset = self.FromModel.objects.filter(
+                        **fargs).extra(**eargs).exclude(**exargs).values(*values).annotate(**annotate)
                     data = []
                     for datarow in dataset:
-                        # print datarow
                         get_or_create_args = {}
                         for k, v in static_attr.items():
                             get_or_create_args[k] = v
@@ -141,14 +155,14 @@ def get_times(interval):
 
 
 def parse_url(url):
-    url_dict = {'url': url, 'netloc': '', 'kw': ''}
+    url_dict = {'u': url, 'd': '', 'kw': ''}
     try:
         parsed_url = urlparse.urlparse(url)
         if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
-            url_dict['netloc'] = parsed_url.netloc
+            url_dict['d'] = parsed_url.netloc
             querystring = urlparse.parse_qs(parsed_url.query, True)
             if parsed_url.netloc.find('baidu') != -1:
-                #baidu
+                # baidu
                 if 'wd' in querystring:
                     url_dict['kw'] = decode_keyword(
                         querystring['wd'][0])
@@ -156,7 +170,7 @@ def parse_url(url):
                     url_dict['kw'] = decode_keyword(
                         querystring['word'][0])
             if parsed_url.netloc.find('sogou') != -1:
-                #sogou
+                # sogou
                 if 'query' in querystring:
                     url_dict['kw'] = decode_keyword(
                         querystring['query'][0])
@@ -179,7 +193,7 @@ def decode_keyword(s):
             except:
                 res = ''
 
-    res = res.replace('site:', '')
+    # res = res.replace('site:', '')
     p = re.compile('[\(\)\+\;\,\>\<\\\ ]')
     res = p.sub('', res, re.U)
     return res
