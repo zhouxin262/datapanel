@@ -48,13 +48,27 @@ def a(request):
     return response
 
 
+def dict_string_unquote(dic):
+    import urllib2
+    for k, v in dic.items():
+        if type(v) == str:
+            dic[k] = urllib2.unquote(v).decode('utf-8')
+        elif type(v) == dict:
+            dic[k] = dict_string_unquote(v)
+        else:
+            dic[k] = v
+    return dic
+
+
 def get_and_verify_data(request):
     """(bool:verified, dict:data)"""
     data = None
     is_verified = True
+
     if 'data' in request.GET:
         try:
             data = ast.literal_eval(base64.b64decode(request.GET.get('data')))
+            data = dict_string_unquote(data)
         except:
             logger.debug(request.GET.get('data'))
             is_verified = False
@@ -68,14 +82,15 @@ def get_and_verify_data(request):
     else:
         is_verified = False
     # todo: verify the url
+
     return (is_verified, data)
 
 
 def analysis(request, response):
     (is_verified, data) = get_and_verify_data(request)
-
     if not is_verified:
         return response
+
     todo = data.get('a')
     token = data.get('k')
 
@@ -85,7 +100,6 @@ def analysis(request, response):
         # update 'project' in session table
         session.project = Project.objects.get(token=token)
         session.save()
-
     if todo == 'run':
         func = data.get('f')
         param = data.get('p', None)
