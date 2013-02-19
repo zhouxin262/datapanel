@@ -97,8 +97,8 @@ def analysis(request, response):
         # define const
         http_url = data.get('u')
         action_name = data.get('e')
-        param_dic = data.get('p')
         referrer = data.get('r')
+        param_dic = data.get('p', {})
 
         # if action does not exist then add it
         action = session.project.add_action(action_name, http_url)
@@ -110,7 +110,6 @@ def analysis(request, response):
         track.url = http_url
         track.dateline = now()
         track.save()
-
         session.track_count = session.track_count + 1
 
         # set from track by referrer
