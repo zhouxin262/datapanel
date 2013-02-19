@@ -48,7 +48,7 @@ class OrderInfo(models.Model):
     order_amount = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
     dateline = models.DateTimeField(auto_now=True, null=True)
     add_dateline = models.DateTimeField(auto_now_add=True, null=True)
-    status = models.IntegerField(max_length=1, default=0)
+    order_status = models.IntegerField(max_length=1, default=0)
 
     objects = OrderManager()
 
