@@ -19,7 +19,7 @@ class OrderManager(models.Manager):
 
         # update order info
         order.order_amount = order_amount
-        order.status = status
+        order.order_status = status
         order.save()
 
         # update order goods
