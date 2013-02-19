@@ -7,7 +7,7 @@ var _haq = (function(_haq) {
         }
     }
     _haq.func = {
-        domain: '127.0.0.1:8000',
+        domain: 'tongji.haoems.com',
         token: '',
         config: {},
         init: function(token, config) {
