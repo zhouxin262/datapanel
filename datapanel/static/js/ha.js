@@ -42,6 +42,7 @@ var _haq = (function(_haq) {
             url += (url.indexOf("?") + 1) ? "&" : "?";
             url += now;
             if(this.config['debug']){
+                console.log(this.json2str(data));
                 console.log(data);
                 console.log(url);
             }
@@ -79,7 +80,7 @@ var _haq = (function(_haq) {
             var THIS = this;
             switch(typeof(obj)) {
                 case 'string':
-                     return '"' + obj.replace(/(["\\])/g, '\\$1') + '"';
+                     return '"' + encodeURI(obj.replace(/(["\\])/g, '\\$1')) + '"';
                 case 'array':
                     return '[' + obj.map(this.json2str).join(',') + ']';
                 case 'object':
