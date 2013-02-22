@@ -95,11 +95,11 @@ class Command(LabelCommand):
             last_id = cur.fetchone()[0]
         except:
             last_id = 0
-        sql = "INSERT INTO %s(id, project_id, session_key, permanent_session_key, start_time, end_time, user_language, user_timezone, agent_id, os_id, device_id, referrer_site_id, referrer_keyword_id, track_count, timelength, ipaddress) SELECT id, project_id, session_key, permanent_session_key, start_time, end_time, user_language, user_timezone, agent_id, os_id, device_id, referrer_site_id, referrer_keyword_id, track_count, timelength, ipaddress FROM %s f WHERE f.id <= %d" % ('session_sessionarch', 'session_session', last_id)
+        sql = "REPLACE INTO %s(id, project_id, session_key, permanent_session_key, start_time, end_time, user_language, user_timezone, agent_id, os_id, device_id, referrer_site_id, referrer_keyword_id, track_count, timelength, ipaddress) SELECT id, project_id, session_key, permanent_session_key, start_time, end_time, user_language, user_timezone, agent_id, os_id, device_id, referrer_site_id, referrer_keyword_id, track_count, timelength, ipaddress FROM %s f WHERE f.id <= %d" % ('session_sessionarch', 'session_session', last_id)
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE id <= %d" % ('session_session', last_id)
         cur.execute(sql)
-        sql = "INSERT INTO %s(id, session_id, valuetype_id, value) SELECT id, session_id, valuetype_id, value FROM %s f WHERE f.session_id <= %d" % ('session_sessionvaluearch', 'session_sessionvalue', last_id)
+        sql = "REPLACE INTO %s(id, session_id, valuetype_id, value) SELECT id, session_id, valuetype_id, value FROM %s f WHERE f.session_id <= %d" % ('session_sessionvaluearch', 'session_sessionvalue', last_id)
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE session_id <= %d" % ('session_sessionvalue', last_id)
         cur.execute(sql)
