@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 from datetime import datetime, timedelta
 
 from django.core.management.base import LabelCommand
@@ -38,20 +38,23 @@ class Command(LabelCommand):
         for p in Project.objects.filter():
             timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)
             try:
-                r = Report1.objects.get(timeline=timeline[0])
+                r = Report1.objects.get(project=p, timeline=timeline[0])
             except Report1.DoesNotExist:
                 r = Report1()
+                r.project = p
 
-            r.project = p
             r.timeline = timeline[0]
             r.userview = Session.objects.filter(project=p, end_time__range=[s, e]).values('ipaddress').distinct().count()
             r.pageview = Track.objects.filter(session__project=p, dateline__range=[s, e]).count()
-            r.goodsview = TrackValue.objects.filter(track__session__project=p, valuetype__name='goods_goods_id', track__dateline__range=[s, e]).values('value').distinct().count()
+            r.goodsview = TrackValue.objects.filter(track__session__project=p, valuetype__name='goods_goods_id',
+                                                    track__dateline__range=[s, e]).values('value').distinct().count()
             r.goodspageview = Track.objects.filter(session__project=p, dateline__range=[s, e], action__name='goods').count()
 
-            orderinfo = OrderInfo.objects.filter(project=p, dateline__range=[s, e]).aggregate(c=Count('id'), s=Sum('order_amount'))
+            orderinfo = OrderInfo.objects.filter(
+                project=p, dateline__range=[s, e]).aggregate(c=Count('id'), s=Sum('order_amount'))
             r.ordercount = orderinfo['c']
-            r.ordergoodscount = OrderGoods.objects.filter(project=p, order__dateline__range=[s, e]).aggregate(Sum('goods_number'))['goods_number__sum']
+            r.ordergoodscount = OrderGoods.objects.filter(
+                project=p, order__dateline__range=[s, e]).aggregate(Sum('goods_number'))['goods_number__sum']
             r.orderamount = orderinfo['s']
             r.save()
 
