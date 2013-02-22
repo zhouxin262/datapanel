@@ -112,11 +112,11 @@ class Command(LabelCommand):
             last_track_id = cur.fetchone()[0]
         except:
             last_track_id = 0
-        sql = "INSERT INTO %s(id, project_id, session_id, action_id, url, from_track_id, referrer_site_id, referrer_keyword_id, step, timelength, dateline) SELECT id, project_id, session_id, action_id, url, from_track_id, referrer_site_id, referrer_keyword_id, step, timelength, dateline FROM %s f WHERE f.id <= %d" % ('track_trackarch', 'track_track', last_track_id)
+        sql = "REPLACE INTO %s(id, project_id, session_id, action_id, url, from_track_id, referrer_site_id, referrer_keyword_id, step, timelength, dateline) SELECT id, project_id, session_id, action_id, url, from_track_id, referrer_site_id, referrer_keyword_id, step, timelength, dateline FROM %s f WHERE f.id <= %d" % ('track_trackarch', 'track_track', last_track_id)
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE id <= %d" % ('track_track', last_track_id)
         cur.execute(sql)
-        sql = "INSERT INTO %s(id, track_id, valuetype_id, value) SELECT id, track_id, valuetype_id, value FROM %s f WHERE f.track_id <= %d" % ('track_trackvaluearch', 'track_trackvalue', last_track_id)
+        sql = "REPLACE INTO %s(id, track_id, valuetype_id, value) SELECT id, track_id, valuetype_id, value FROM %s f WHERE f.track_id <= %d" % ('track_trackvaluearch', 'track_trackvalue', last_track_id)
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE track_id <= %d" % ('track_trackvalue', last_track_id)
         cur.execute(sql)
