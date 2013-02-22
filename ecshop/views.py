@@ -40,6 +40,5 @@ def orderinfo(request, id):
 
     dateline_range = [start_dateline, end_dateline]
 
-    orderlist = OrderInfo.objects.filter(project=project, add_dateline=dateline_range)
-
+    orderlist = OrderInfo.objects.filter(project=project, add_dateline__range=dateline_range)
     return render(request, 'ecshop/orderinfo.html', {'project': project, 'orderlist': orderlist})

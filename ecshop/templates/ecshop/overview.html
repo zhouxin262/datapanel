@@ -36,7 +36,8 @@
                     <td>{{row.pageview}}</td>
                     <td><a href="{% url ecshop_report2 project.id row.timeline.id%}">{{row.goodspageview}}</a></td>
                     <td><a href="{% url ecshop_report2 project.id row.timeline.id%}">{{row.goodsview}}</a></td>
-                    <td>{{row.ordercount}} <a href="{% url ecshop_report2 project.id row.timeline.id%}">({{row.ordergoodscount}})</a></td>
+                    <td><a href="{% url ecshop_orderinfo %}?s={{row.timeline.dateline|date:"Y-m-d"}}&e={{row.timeline.dateline|date:"Y-m-d"}}">{{row.ordercount}}</a>
+                        <a href="{% url ecshop_report2 project.id row.timeline.id%}">({{row.ordergoodscount}})</a></td>
                     <td title="%">{{row.ip_convert_ratio}}</td>
                     <td title="%">{{row.ip_pageview_ratio}}</td>
                     <td>{{row.ip_order_ratio}}‰</td>
