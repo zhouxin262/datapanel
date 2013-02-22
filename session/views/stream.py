@@ -1,11 +1,11 @@
-#coding=utf-8
+# coding=utf-8
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.views import redirect_to_login
 from django.core.urlresolvers import reverse
 
-from session.models import SessionValue
+from session.models import SessionValue, Session, SessionArch
 
 
 def list(request, id):
@@ -79,8 +79,13 @@ def view(request, id, sid):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    session = project.session_set.get(id=sid)
-    tracks = session.track_set.all().order_by('dateline')
+    try:
+        session = Session.objects.get(id=sid)
+        tracks = session.track_set.all().order_by('dateline')
+    except:
+        session = SessionArch.objects.get(id=sid)
+        tracks = session.trackarch_set.all().order_by('dateline')
+
 
     paginator = Paginator(tracks, 20)
     page = request.GET.get('page')
@@ -109,12 +114,12 @@ def get_stream_by_value(request, id):
     if name == 'order_sn':
         from ecshop.models import OrderInfo
         try:
-            session_id = OrderInfo.objects.get(order_sn=value).session.id
+            session_id = OrderInfo.objects.get(order_sn=value).session_id
         except:
             pass
     else:
         ts = SessionValue.objects.filter(session__project=project, name=name, value__icontains=value).values('session')
-        #todo list
+        # todo list
         if len(ts) == 1:
             session_id = ts[0]['session']
         elif len(ts) > 1:

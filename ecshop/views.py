@@ -29,16 +29,19 @@ def report2(request, id, timeline_id):
 
 
 def orderinfo(request, id):
+    from datetime import datetime, timedelta
+
     try:
         project = request.user.participate_projects.get(id=id)
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    from datetime import datetime
     start_dateline = request.GET.get('s', datetime.today().strftime("%Y-%m-%d"))
-    end_dateline = request.GET.get('e', datetime.today().strftime("%Y-%m-%d"))
+    end_dateline = request.GET.get('e', (datetime.strptime(start_dateline, "%Y-%m-%d") + timedelta(days = 1)).strftime("%Y-%m-%d"))
 
     dateline_range = [start_dateline, end_dateline]
 
     orderlist = OrderInfo.objects.filter(project=project, add_dateline__range=dateline_range)
+    for o in orderlist:
+        print o.ordergoods_set.all()
     return render(request, 'ecshop/orderinfo.html', {'project': project, 'orderlist': orderlist})

@@ -1,4 +1,4 @@
-#coding=utf8
+# coding=utf8
 from django.db import models
 
 from datapanel.models import Timeline
@@ -56,9 +56,15 @@ class OrderInfo(models.Model):
 class OrderGoods(models.Model):
     project = models.ForeignKey(Project, related_name='esc_ordergoods')
     session = models.ForeignKey(Session, related_name='esc_ordergoods')
-    order = models.ForeignKey(OrderInfo, related_name='esc_ordergoods')
+    order = models.ForeignKey(OrderInfo)
     goods_id = models.IntegerField(null=True, default=0)
     goods_number = models.IntegerField(null=True, default=0)
+
+    def goods(self):
+        try:
+            return Goods.objects.get(project=self.project, goods_id=self.goods_id)
+        except:
+            return None
 
 
 class GoodsManager(models.Manager):

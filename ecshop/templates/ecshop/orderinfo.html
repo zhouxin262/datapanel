@@ -1,0 +1,54 @@
+{% extends 'datapanel/datapanel_base.html' %}
+{% block title %}
+{{project.name}} - 网店概况
+{% endblock title %}
+{% block subnav-ecs %}
+    <li class="active">
+        <a href="{%url ecshop_overview project.id%}">网店概况</a>
+    </li>
+{% endblock subnav-ecs %}
+{% block content %}
+    <div class="span10">
+        <div class="page-header">
+            <h1>{{ project.name }} / ECSHOP / 概况</h1>
+        </div>
+        <div>
+            <ul>
+                {% for order in orderlist %}
+                <li>
+                    <a href="{% url stream_get_stream_by_value project.id %}?name=order_sn&value={{order.order_sn}}">{{order.order_sn}}</a>, {{order.order_amount}}, {{order.add_dateline}}
+                    <ul>
+                        {% for goods in order.ordergoods_set.all %}
+                        <li>{{goods.goods_id}}. {{goods.goods.goods_name}} - ({{goods.goods.goods_price}})</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#datatables').dataTable({
+        "iDisplayLength": 30,
+        "sPaginationType": "full_numbers",
+        "bPaginate": true,
+        "bFilter": false,
+        "bLengthChange": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "aaSorting": [[ 0 , "desc" ]],
+        "oLanguage": {
+          "oPaginate": {
+            "sFirst": "第一页",
+            "sLast": "最后页",
+            "sPrevious": "上一页",
+            "sNext": "下一页"
+          }
+        }
+    });
+});
+</script>
+{% endblock content %}
