@@ -39,8 +39,7 @@ var _haq = (function(_haq) {
         _send: function(data){
             var url = 'http://' + this.domain + '/a/?data=' + this.zip(this.json2str(data))
             var now = "i=" + new Date().getTime();
-            url += (url.indexOf("?") + 1) ? "&" : "?";
-            url += now;
+            url += "&" + now;
             if(this.config['debug']){
                 console.log(this.json2str(data));
                 console.log(data);

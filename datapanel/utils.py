@@ -21,6 +21,12 @@ class RunFunctions():
         from ecshop.models import Goods
         Goods.objects.process(**param)
 
+    def ecs_del_order(self, param):
+        from ecshop.models import OrderInfo, OrderGoods
+        o = OrderInfo.objects.get(order_sn=param["order_sn"])
+        OrderGoods.objects.filter(order=o).delete()
+        o.delete()
+
 
 class Group():
     FromModel = None
