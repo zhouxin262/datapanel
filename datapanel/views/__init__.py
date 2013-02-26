@@ -52,7 +52,10 @@ def dict_string_unquote(dic):
     import urllib2
     for k, v in dic.items():
         if type(v) == str:
-            dic[k] = urllib2.unquote(v).decode('utf-8')
+            try:
+                dic[k] = urllib2.unquote(v).decode('utf-8')
+            except:
+                dic[k] = urllib2.unquote(v).decode('gbk')
         elif type(v) == dict:
             dic[k] = dict_string_unquote(v)
         else:
@@ -82,7 +85,6 @@ def get_and_verify_data(request):
     else:
         is_verified = False
     # todo: verify the url
-
     return (is_verified, data)
 
 
@@ -93,7 +95,6 @@ def analysis(request, response):
 
     todo = data.get('a')
     token = data.get('k')
-
     # set session and project
     session = Session.objects.get(session_key=request.session[settings.TMP_SESSION_COOKIE_NAME])
     if not session.project:
@@ -103,6 +104,7 @@ def analysis(request, response):
     if todo == 'run':
         func = data.get('f')
         param = data.get('p', None)
+        print data
         f = RunFunctions()
         param.update({'session': session, 'project': session.project})
         getattr(f, func)(param)
