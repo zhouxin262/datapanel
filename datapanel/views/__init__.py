@@ -104,7 +104,6 @@ def analysis(request, response):
     if todo == 'run':
         func = data.get('f')
         param = data.get('p', None)
-        print data
         f = RunFunctions()
         param.update({'session': session, 'project': session.project})
         getattr(f, func)(param)

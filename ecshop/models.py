@@ -18,7 +18,7 @@ class OrderManager(models.Manager):
             order.order_sn = order_sn
 
         # update order info
-        if order_amount > 0 and not order_amount == order.order_amount:
+        if order_amount > 0 and not order.order_amount == order_amount:
             order.order_amount = order_amount
         order.order_status = status
         order.save()
