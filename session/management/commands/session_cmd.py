@@ -24,7 +24,7 @@ class Command(LabelCommand):
             print 'wrong label, should be int'
             return None
 
-        processing_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+        processing_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before)
         print '====processing %s====' % processing_day.strftime("%Y-%m-%d")
 
         """
@@ -34,7 +34,7 @@ class Command(LabelCommand):
         for i in range(24):
 
             # get time range
-            s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+            s = datetime.now().replace(hour=i, minute=0, second=0, microsecond=0) - timedelta(days=days_before)
             e = s + timedelta(seconds=3600)
             dateline = s
             t = Timeline.objects.get_or_create(dateline=dateline, datetype='hour')
@@ -52,7 +52,7 @@ class Command(LabelCommand):
         group by time per day
         """
         # all day data
-        s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before + 1)
+        s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_before)
         e = s + timedelta(days=1)
         dateline = s
         t = Timeline.objects.get_or_create(dateline=dateline, datetype='day')

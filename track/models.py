@@ -1,9 +1,9 @@
-#coding=utf-8
+# coding=utf-8
 
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.core.cache import cache
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# from django.core.cache import cache
 
 from project.models import Project, Action
 from session.models import Session, SessionArch
@@ -151,13 +151,13 @@ class GAction(models.Model):
     # condition = models.ForeignKey("TrackCondition", related_name='trackgroup', verbose_name=u'满足条件表达式', null=True, blank=True)
 
 
-@receiver(post_save, sender=Track)
-def gaction_cache(sender, **kwargs):
-    pass
-    # track = instance
-    # if created:
-    #     cache.get(id + '_trackvalue_names', 'DoesNotExist')
-    #     cache.set(id + '_trackvalue_names', value_names)
+# @receiver(post_save, sender=Track)
+# def gaction_cache(sender, **kwargs):
+#     pass
+#     # track = instance
+#     # if created:
+#     #     cache.get(id + '_trackvalue_names', 'DoesNotExist')
+#     #     cache.set(id + '_trackvalue_names', value_names)
 
 
 class GReferrerSiteAndAction(models.Model):

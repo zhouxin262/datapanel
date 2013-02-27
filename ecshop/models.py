@@ -1,9 +1,16 @@
-# coding=utf8
+# coding=utf-8
+from datetime import datetime, timedelta
+
 from django.db import models
+from django.db.models import Sum, Count
+from  django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.cache import cache
 
 from datapanel.models import Timeline
 from project.models import Project
 from session.models import Session
+from track.models import Track, TrackValue
 
 
 class OrderManager(models.Manager):
@@ -97,6 +104,61 @@ class Goods(models.Model):
         unique_together = (('project', 'goods_id'))
 
 
+class Report1Manager(models.Manager):
+    def generate(self, project, timeline, start_dateline, end_dateline, save=False):
+
+        try:
+            r = Report1.objects.get(project=project, timeline=timeline)
+        except Report1.DoesNotExist:
+            r = Report1()
+            r.project = project
+            r.timeline = timeline
+
+        drange = [start_dateline, end_dateline]
+        r.userview = Session.objects.filter(project=project, end_time__range=drange).values('ipaddress').distinct().count()
+        r.pageview = Track.objects.filter(session__project=project, dateline__range=drange).count()
+        r.goodsview = TrackValue.objects.filter(track__session__project=project, valuetype__name='goods_goods_id',
+                                                track__dateline__range=drange).values('value').distinct().count()
+        r.goodspageview = Track.objects.filter(session__project=project, dateline__range=drange, action__name='goods').count()
+        orderinfo = OrderInfo.objects.filter(
+            project=project, add_dateline__range=drange).aggregate(c=Count('id'), s=Sum('order_amount'))
+        r.ordercount = orderinfo['c']
+        r.orderamount = orderinfo['s']
+        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__add_dateline__range=[start_dateline,
+                                                      end_dateline]).aggregate(Sum('goods_number'))['goods_number__sum']
+        if save:
+            r.save()
+        return r
+
+    def cache(self, project):
+        r = cache.get(str(project.id) + "_report1", None)
+        if not r:
+            s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            e = s + timedelta(days=1)
+            timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
+            r = Report1.objects.generate(project, timeline, s, e)
+            cache.set(str(project.id) + "_report1", r)
+        return r
+
+
+@receiver(post_save)
+def my_callback(sender, instance, created, **kwargs):
+    if sender in (Session, Track, OrderInfo):
+        r = Report1.objects.cache(instance.project)
+        if sender == Session and created:
+            r.userview += 1
+        elif sender == Track and created:
+            r.pageview += 1
+            if instance.action == "goods":
+                r.goodspageview += 1
+        elif sender == OrderInfo:
+            if instance.order_status == 1:
+                r.ordercount += 1
+                r.orderamount += instance.order_amount
+                r.ordergoodscount += instance.ordergoods_set.count()
+        cache.set(str(instance.project.id) + "_report1", r)
+
+
 class Report1(models.Model):
     """ overview """
     project = models.ForeignKey(Project, related_name='esc_report1')
@@ -108,6 +170,8 @@ class Report1(models.Model):
     ordercount = models.IntegerField(u'订单量', null=True, default=0)
     ordergoodscount = models.IntegerField(u'订单商品件数', null=True, default=0)
     orderamount = models.IntegerField(u'订单总额', null=True, default=0)
+
+    objects = Report1Manager()
 
     def ip_convert_ratio(self):
         if not self.userview == 0:
