@@ -23,7 +23,8 @@ class OrderManager(models.Manager):
             status = int(status)
             if order_amount > 0 and not order.order_amount == order_amount:
                 order.order_amount = order_amount
-            order.order_status = status
+            if status > 0 and not order.order_status == status:
+                order.order_status = status
             order.save()
         except:
             pass
