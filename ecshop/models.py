@@ -31,6 +31,7 @@ class OrderManager(models.Manager):
             if order_amount > 0 and not order.order_amount == order_amount:
                 order.order_amount = order_amount
             if status > 0 and not order.order_status == status:
+                order.dateline = datetime.now() # confirm dateline
                 order.order_status = status
             order.save()
         except:
@@ -60,9 +61,8 @@ class OrderInfo(models.Model):
     session = models.ForeignKey(Session, related_name='esc_orderinfo')
     order_sn = models.CharField(max_length=50, verbose_name=u"订单编号")
     order_amount = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
-    dateline = models.DateTimeField(auto_now=True, null=True)
+    dateline = models.DateTimeField(null=True)
     add_dateline = models.DateTimeField(auto_now_add=True, null=True)
-    confirm_dateline = models.DateTimeField(null=True)
     order_status = models.IntegerField(max_length=1, default=0)
 
     objects = OrderManager()
@@ -149,7 +149,7 @@ def my_callback(sender, instance, created, **kwargs):
             r.userview += 1
         elif sender == Track and created:
             r.pageview += 1
-            if instance.action.name == "goods":
+            if instance.action == "goods":
                 r.goodspageview += 1
         elif sender == OrderInfo:
             if instance.order_status == 1:
