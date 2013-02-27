@@ -107,7 +107,6 @@ class Goods(models.Model):
 
 class Report1Manager(models.Manager):
     def generate(self, project, timeline, start_dateline, end_dateline, save=False):
-
         try:
             r = Report1.objects.get(project=project, timeline=timeline)
         except Report1.DoesNotExist:
@@ -122,13 +121,31 @@ class Report1Manager(models.Manager):
                                                 track__dateline__range=drange).values('value').distinct().count()
         r.goodspageview = Track.objects.filter(session__project=project, dateline__range=drange, action__name='goods').count()
         orderinfo = OrderInfo.objects.filter(
-            project=project, dateline__range=drange, order_status=1).aggregate(c=Count('id'), s=Sum('order_amount'))
+            project=project, dateline__range=drange, order_status__in=[1,3,5]).aggregate(c=Count('id'), s=Sum('order_amount'))
         r.ordercount = orderinfo['c']
         r.orderamount = orderinfo['s']
-        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status=1).aggregate(Sum('goods_number'))['goods_number__sum']
+        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1,3,5]).aggregate(Sum('goods_number'))['goods_number__sum']
         if save:
             r.save()
         return r
+
+    def refresh_confirm_order(self, project, timeline, start_dateline, end_dateline):
+        #todo delete this
+        try:
+            r = Report1.objects.get(project=project, timeline=timeline)
+
+            drange = [start_dateline, end_dateline]
+            orderinfo = OrderInfo.objects.filter(
+                project=project, dateline__range=drange, order_status__in=[1,3,5]).aggregate(c=Count('id'), s=Sum('order_amount'))
+            r.ordercount = orderinfo['c']
+            r.orderamount = orderinfo['s']
+            r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1,3,5]).aggregate(Sum('goods_number'))['goods_number__sum']
+
+            print r.ordercount, r.orderamount
+            r.save()
+            return r
+        except Report1.DoesNotExist:
+            return None
 
     def cache(self, project):
         r = cache.get(str(project.id) + "_report1", None)
@@ -152,7 +169,7 @@ def my_callback(sender, instance, created, **kwargs):
             if instance.action == "goods":
                 r.goodspageview += 1
         elif sender == OrderInfo:
-            if instance.order_status == 1:
+            if instance.order_status in [1, 3, 5]:
                 r.ordercount += 1
                 r.orderamount += instance.order_amount
                 r.ordergoodscount += instance.ordergoods_set.count()

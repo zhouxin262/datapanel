@@ -5,10 +5,9 @@ from django.core.management.base import LabelCommand
 from django.db.models import Sum, Count
 from django.core.cache import cache
 
-from session.models import Session
 from project.models import Project
-from track.models import Track, TrackValue
-from ecshop.models import Report1, OrderGoods, OrderInfo, Report2, Goods
+from track.models import TrackValue
+from ecshop.models import Report1, OrderGoods, Report2, Goods
 from datapanel.models import Timeline
 from datapanel.utils import Group
 
