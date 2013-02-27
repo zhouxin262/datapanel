@@ -121,11 +121,10 @@ class Report1Manager(models.Manager):
                                                 track__dateline__range=drange).values('value').distinct().count()
         r.goodspageview = Track.objects.filter(session__project=project, dateline__range=drange, action__name='goods').count()
         orderinfo = OrderInfo.objects.filter(
-            project=project, add_dateline__range=drange).aggregate(c=Count('id'), s=Sum('order_amount'))
+            project=project, dateline__range=drange, order_status=1).aggregate(c=Count('id'), s=Sum('order_amount'))
         r.ordercount = orderinfo['c']
         r.orderamount = orderinfo['s']
-        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__add_dateline__range=[start_dateline,
-                                                      end_dateline]).aggregate(Sum('goods_number'))['goods_number__sum']
+        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status=1).aggregate(Sum('goods_number'))['goods_number__sum']
         if save:
             r.save()
         return r
