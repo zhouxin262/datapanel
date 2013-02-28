@@ -124,8 +124,9 @@ class Report1Manager(models.Manager):
             project=project, dateline__range=drange, order_status__in=[1, 3, 5]).aggregate(c=Count('id'), s=Sum('order_amount'))
         r.ordercount = orderinfo['c']
         r.orderamount = orderinfo['s']
-        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5]
-                                                      ).aggregate(Sum('goods_number'))['goods_number__sum']
+        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5]).aggregate(Sum('goods_number'))['goods_number__sum']
+        r.get_order_set()
+
         if save:
             r.save()
         return r
@@ -156,7 +157,6 @@ class Report1Manager(models.Manager):
             e = s + timedelta(days=1)
             timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
             r = Report1.objects.generate(project, timeline, s, e)
-            r.get_order_set()
             cache.set(str(project.id) + "_report1", r)
         return r
 
