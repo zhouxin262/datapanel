@@ -31,7 +31,7 @@ class OrderManager(models.Manager):
             if order_amount > 0 and not order.order_amount == order_amount:
                 order.order_amount = order_amount
             if status > 0 and not order.order_status == status:
-                order.dateline = datetime.now() # confirm dateline
+                order.dateline = datetime.now()  # confirm dateline
                 order.order_status = status
             order.save()
         except:
@@ -121,25 +121,28 @@ class Report1Manager(models.Manager):
                                                 track__dateline__range=drange).values('value').distinct().count()
         r.goodspageview = Track.objects.filter(session__project=project, dateline__range=drange, action__name='goods').count()
         orderinfo = OrderInfo.objects.filter(
-            project=project, dateline__range=drange, order_status__in=[1,3,5]).aggregate(c=Count('id'), s=Sum('order_amount'))
+            project=project, dateline__range=drange, order_status__in=[1, 3, 5]).aggregate(c=Count('id'), s=Sum('order_amount'))
         r.ordercount = orderinfo['c']
         r.orderamount = orderinfo['s']
-        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1,3,5]).aggregate(Sum('goods_number'))['goods_number__sum']
+        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5]
+                                                      ).aggregate(Sum('goods_number'))['goods_number__sum']
         if save:
             r.save()
         return r
 
     def refresh_confirm_order(self, project, timeline, start_dateline, end_dateline):
-        #todo delete this
+        # todo delete this
         try:
             r = Report1.objects.get(project=project, timeline=timeline)
 
             drange = [start_dateline, end_dateline]
             orderinfo = OrderInfo.objects.filter(
-                project=project, dateline__range=drange, order_status__in=[1,3,5]).aggregate(c=Count('id'), s=Sum('order_amount'))
+                project=project, dateline__range=drange, order_status__in=[1, 3, 5]).aggregate(c=Count('id'), s=Sum('order_amount'))
             r.ordercount = orderinfo['c']
             r.orderamount = orderinfo['s']
-            r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1,3,5]).aggregate(Sum('goods_number'))['goods_number__sum']
+            r.ordergoodscount = OrderGoods.objects.filter(
+                project=project, order__dateline__range=drange, order__order_status__in=[1,
+                                                                                         3, 5]).aggregate(Sum('goods_number'))['goods_number__sum']
 
             print r.ordercount, r.orderamount
             r.save()

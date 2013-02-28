@@ -56,10 +56,12 @@ class SessionManager(models.Manager):
                 break
         return session_key
 
-    def create_new(self):
+    def create_new(self, project=None):
         while True:
             obj = Session()
             obj.session_key = self._get_new_session_key()
+            if project:
+                obj.project = project
             # try:
             obj.save()
             # except:

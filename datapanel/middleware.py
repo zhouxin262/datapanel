@@ -78,31 +78,30 @@ class SessionMiddleware(object):
                         (is_verified, data) = get_and_verify_data(request)
                         if is_verified:
                             # create temp session key, refresh everytime when users close their browser.
-                            tmp_obj = Session.objects.create_new()
                             try:
                                 token = data.get('k')
                                 project = Project.objects.get(token=token)
-                            except:
-                                project = None
-                            tmp_obj.project = project
-                            tmp_obj.permanent_session_key = request.session.session_key
-                            tmp_obj.ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')
-                            tmp_obj.user_timezone = request.META.get('TZ', '')
-                            tmp_obj.set_user_agent(request.META.get('HTTP_USER_AGENT', ''))
-                            try:
-                                tmp_obj.set_referrer(data.get('r'))
-                            except:
+                                tmp_obj = Session.objects.create_new()
+                                tmp_obj.project = project
+                                tmp_obj.permanent_session_key = request.session.session_key
+                                tmp_obj.ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')
+                                tmp_obj.user_timezone = request.META.get('TZ', '')
+                                tmp_obj.set_user_agent(request.META.get('HTTP_USER_AGENT', ''))
+                                try:
+                                    tmp_obj.set_referrer(data.get('r'))
+                                except:
+                                    pass
+                                tmp_obj.save()
+
+                                request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_obj.session_key
+                                response.set_cookie(settings.TMP_SESSION_COOKIE_NAME,
+                                                    request.session[settings.TMP_SESSION_COOKIE_NAME], max_age=None,
+                                                    expires=None, domain=settings.SESSION_COOKIE_DOMAIN,
+                                                    path=settings.SESSION_COOKIE_PATH,
+                                                    secure=settings.SESSION_COOKIE_SECURE or None,
+                                                    httponly=settings.SESSION_COOKIE_HTTPONLY or None)
+                            except Project.DoesNotExist:
                                 pass
-                            tmp_obj.save()
-
-                            request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_obj.session_key
-                            response.set_cookie(settings.TMP_SESSION_COOKIE_NAME,
-                                                request.session[settings.TMP_SESSION_COOKIE_NAME], max_age=None,
-                                                expires=None, domain=settings.SESSION_COOKIE_DOMAIN,
-                                                path=settings.SESSION_COOKIE_PATH,
-                                                secure=settings.SESSION_COOKIE_SECURE or None,
-                                                httponly=settings.SESSION_COOKIE_HTTPONLY or None)
-
-            if request.path == '/a/':
+            if tmp_obj and request.path == '/a/':
                 analysis(request, response)
         return response
