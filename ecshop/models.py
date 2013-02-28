@@ -152,7 +152,7 @@ class Report1Manager(models.Manager):
 
     def cache(self, project):
         r = cache.get(str(project.id) + "_report1", None)
-        if not r:
+        if not (r and r.timeline.has_time(datetime.now())):
             s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             e = s + timedelta(days=1)
             timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
@@ -162,7 +162,7 @@ class Report1Manager(models.Manager):
 
 
 @receiver(post_save)
-def my_callback(sender, instance, created, **kwargs):
+def report1_receiver(sender, instance, created, **kwargs):
     if sender in (Session, Track, OrderInfo):
         r = Report1.objects.cache(instance.project)
         if sender == Session and created:
@@ -172,7 +172,8 @@ def my_callback(sender, instance, created, **kwargs):
             if instance.action.name == "goods":
                 r.goodspageview += 1
         elif sender == OrderInfo:
-            if instance.order_status in [1, 3, 5]:
+            if instance.order_status in [1, 3, 5] and instance.order_sn not in r.order_set:
+                r.order_set.append(instance.order_sn)
                 r.ordercount += 1
                 r.orderamount += instance.order_amount
                 r.ordergoodscount += instance.ordergoods_set.count()
@@ -210,6 +211,10 @@ class Report1(models.Model):
             return round(float(self.ordercount) / float(self.userview), 5) * 1000
         else:
             return 0
+
+    def get_order_set(self, project):
+        self.order_set = [o.order_sn for o in OrderInfo.objects.filter(project=project, dateline__in=self.timeline.get_range, order_status__in=[1, 3, 5])]
+        return self.order_set
 
 
 class Report2(models.Model):
