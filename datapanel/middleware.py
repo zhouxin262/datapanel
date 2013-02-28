@@ -102,6 +102,6 @@ class SessionMiddleware(object):
                                                     httponly=settings.SESSION_COOKIE_HTTPONLY or None)
                             except Project.DoesNotExist:
                                 pass
-            if tmp_obj and request.path == '/a/':
+            if request.path == '/a/' and tmp_obj:
                 analysis(request, response)
         return response
