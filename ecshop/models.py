@@ -125,7 +125,7 @@ class Report1Manager(models.Manager):
         r.ordercount = orderinfo['c']
         r.orderamount = orderinfo['s']
         r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5]).aggregate(Sum('goods_number'))['goods_number__sum']
-        r.get_order_set()
+        r.get_order_set(project)
 
         if save:
             r.save()
