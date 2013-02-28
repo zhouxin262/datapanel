@@ -169,7 +169,7 @@ def my_callback(sender, instance, created, **kwargs):
             r.userview += 1
         elif sender == Track and created:
             r.pageview += 1
-            if instance.action == "goods":
+            if instance.action.name == "goods":
                 r.goodspageview += 1
         elif sender == OrderInfo:
             if instance.order_status in [1, 3, 5]:
