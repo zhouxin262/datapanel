@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models import Sum, Count
-from  django.db.models.signals import post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 
