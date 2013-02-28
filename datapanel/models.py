@@ -23,7 +23,8 @@ class Timeline(models.Model):
         return drange
 
     def has_time(self, time):
-        if time <= self.get_range[1] and time >= self.get_range[0]:
+        drange = self.get_range()
+        if time <= drange[1] and time >= drange[0]:
             return True
         return False
 
