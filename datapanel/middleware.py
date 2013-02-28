@@ -81,7 +81,7 @@ class SessionMiddleware(object):
                             try:
                                 token = data.get('k')
                                 project = Project.objects.get(token=token)
-                                tmp_obj = Session.objects.create_new()
+                                tmp_obj = Session.objects.create_new(project)
                                 tmp_obj.project = project
                                 tmp_obj.permanent_session_key = request.session.session_key
                                 tmp_obj.ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')
