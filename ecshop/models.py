@@ -132,25 +132,6 @@ class Report1Manager(models.Manager):
             r.save()
         return r
 
-    def refresh_confirm_order(self, project, timeline):
-        # todo delete this
-        try:
-            r = Report1.objects.get(project=project, timeline=timeline)
-
-            drange = timeline.get_range()
-            orderinfo = OrderInfo.objects.filter(
-                project=project, dateline__range=drange, order_status__in=[1, 3, 5]).aggregate(c=Count('id'), s=Sum('order_amount'))
-            r.ordercount = orderinfo['c']
-            r.orderamount = orderinfo['s']
-            r.ordergoodscount = OrderGoods.objects.filter(
-                project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5]).aggregate(Sum('goods_number'))['goods_number__sum']
-
-            print r.ordercount, r.orderamount
-            r.save()
-            return r
-        except Report1.DoesNotExist:
-            return None
-
     def cache(self, project):
         r = cache.get(str(project.id) + "_report1", None)
         if not (r and r.timeline.has_time(datetime.now())):
