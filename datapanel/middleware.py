@@ -78,7 +78,6 @@ class SessionMiddleware(object):
                         (is_verified, data) = get_and_verify_data(request)
                         if is_verified:
                             # create temp session key, refresh everytime when users close their browser.
-                            try:
                                 token = data.get('k')
                                 project = Project.objects.get(token=token)
                                 tmp_obj = Session.objects.create_new(project)
@@ -87,10 +86,7 @@ class SessionMiddleware(object):
                                 tmp_obj.ipaddress = request.META.get('REMOTE_ADDR', '0.0.0.0')
                                 tmp_obj.user_timezone = request.META.get('TZ', '')
                                 tmp_obj.set_user_agent(request.META.get('HTTP_USER_AGENT', ''))
-                                try:
-                                    tmp_obj.set_referrer(data.get('r'))
-                                except:
-                                    pass
+                                tmp_obj.set_referrer(data.get('r'))
                                 tmp_obj.save()
 
                                 request.session[settings.TMP_SESSION_COOKIE_NAME] = tmp_obj.session_key
@@ -100,8 +96,6 @@ class SessionMiddleware(object):
                                                     path=settings.SESSION_COOKIE_PATH,
                                                     secure=settings.SESSION_COOKIE_SECURE or None,
                                                     httponly=settings.SESSION_COOKIE_HTTPONLY or None)
-                            except Project.DoesNotExist:
-                                pass
             if request.path == '/a/':
                 analysis(request, response)
         return response

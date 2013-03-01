@@ -3,6 +3,7 @@ import ast
 import base64
 import logging
 from datetime import datetime, timedelta
+import chardet
 
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
@@ -52,10 +53,10 @@ def dict_string_unquote(dic):
     import urllib2
     for k, v in dic.items():
         if type(v) == str:
-            try:
-                dic[k] = urllib2.unquote(v).decode('utf-8')
-            except:
-                dic[k] = urllib2.unquote(v).decode('gbk')
+            dic[k] = urllib2.unquote(v)
+            encoding = chardet.detect(dic[k])['encoding']
+            if encoding != 'ascii':
+                dic[k] = urllib2.unquote(v).decode(encoding)
         elif type(v) == dict:
             dic[k] = dict_string_unquote(v)
         else:
@@ -135,7 +136,6 @@ def analysis(request, response):
 
         # set referrer
         track.set_referrer(referrer)
-
         # deal with param
         for k, v in param_dic.items():
             if len(k.split("__")) > 1:

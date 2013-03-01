@@ -1,8 +1,10 @@
 # coding=utf-8
 import urlparse
 import re
-from django.conf import settings
+import chardet
 from datetime import tzinfo, timedelta, datetime
+
+from django.conf import settings
 
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
@@ -162,26 +164,26 @@ def get_times(interval):
 
 def parse_url(url):
     url_dict = {'u': url, 'd': '', 'kw': ''}
-    try:
-        parsed_url = urlparse.urlparse(url)
-        if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
-            url_dict['d'] = parsed_url.netloc
-            querystring = urlparse.parse_qs(parsed_url.query, True)
-            if parsed_url.netloc.find('baidu') != -1:
-                # baidu
-                if 'wd' in querystring:
-                    url_dict['kw'] = decode_keyword(
-                        querystring['wd'][0])
-                elif 'word' in querystring:
-                    url_dict['kw'] = decode_keyword(
-                        querystring['word'][0])
-            if parsed_url.netloc.find('sogou') != -1:
-                # sogou
-                if 'query' in querystring:
-                    url_dict['kw'] = decode_keyword(
-                        querystring['query'][0])
-    except:
-        pass
+    # try:
+    parsed_url = urlparse.urlparse(url)
+    if parsed_url.netloc and parsed_url.netloc != 'www.xmeise.com':
+        url_dict['d'] = parsed_url.netloc
+        querystring = urlparse.parse_qs(parsed_url.query, True)
+        if parsed_url.netloc.find('baidu') != -1:
+            # baidu
+            if 'wd' in querystring:
+                url_dict['kw'] = decode_keyword(
+                    querystring['wd'][0])
+            elif 'word' in querystring:
+                url_dict['kw'] = decode_keyword(
+                    querystring['word'][0])
+        if parsed_url.netloc.find('sogou') != -1:
+            # sogou
+            if 'query' in querystring:
+                url_dict['kw'] = decode_keyword(
+                    querystring['query'][0])
+    # except:
+        # pass
     return url_dict
 
 
@@ -192,12 +194,9 @@ def decode_keyword(s):
         res = "".join([unichr(int(i, 16)) for i in s.split('%u')[1:]])
     else:
         try:
-            res = s.decode('utf-8', 'strict')
+            res = s.decode(chardet.detect(s)['encoding'])
         except:
-            try:
-                res = s.decode('gbk', 'strict')
-            except:
-                res = ''
+            res = ''
 
     # res = res.replace('site:', '')
     p = re.compile('[\(\)\+\;\,\>\<\\\ ]')
