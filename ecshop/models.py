@@ -214,7 +214,7 @@ class Report1(models.Model):
 
     def get_order_set(self, project):
         self.order_set = [o.order_sn for o in OrderInfo.objects.filter(
-            project=project, dateline__in=self.timeline.get_range, order_status__in=[1, 3, 5])]
+            project=project, dateline__range=self.timeline.get_range, order_status__in=[1, 3, 5])]
         return self.order_set
 
 
