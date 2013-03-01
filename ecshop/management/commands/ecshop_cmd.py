@@ -30,7 +30,7 @@ class Command(LabelCommand):
 
         for p in Project.objects.filter():
             timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)
-            Report1.objects.generate(project=p, timeline=timeline[0], start_dateline=s, end_dateline=e, save=True)
+            Report1.objects.generate(project=p, timeline=timeline[0], save=True)
 
             def get_goods(datarow):
                 goods = Goods.objects.get_or_create(project=p, goods_id=datarow['value'])

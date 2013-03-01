@@ -106,7 +106,7 @@ class Goods(models.Model):
 
 
 class Report1Manager(models.Manager):
-    def generate(self, project, timeline, start_dateline, end_dateline, save=False):
+    def generate(self, project, timeline, save=False):
         try:
             r = Report1.objects.get(project=project, timeline=timeline)
         except Report1.DoesNotExist:
@@ -114,7 +114,7 @@ class Report1Manager(models.Manager):
             r.project = project
             r.timeline = timeline
 
-        drange = [start_dateline, end_dateline]
+        drange = timeline.get_range()
         r.userview = Session.objects.filter(project=project, end_time__range=drange).values('ipaddress').distinct().count()
         r.pageview = Track.objects.filter(session__project=project, dateline__range=drange).count()
         r.goodsview = TrackValue.objects.filter(track__session__project=project, valuetype__name='goods_goods_id',
@@ -154,9 +154,8 @@ class Report1Manager(models.Manager):
         r = cache.get(str(project.id) + "_report1", None)
         if not (r and r.timeline.has_time(datetime.now())):
             s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            e = s + timedelta(days=1)
             timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
-            r = Report1.objects.generate(project, timeline, s, e)
+            r = Report1.objects.generate(project, timeline)
             cache.set(str(project.id) + "_report1", r)
         return r
 
