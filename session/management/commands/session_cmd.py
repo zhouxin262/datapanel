@@ -1,5 +1,4 @@
-#coding=utf-8
-import time
+# coding=utf-8
 from datetime import datetime, timedelta
 
 from django.db.models import Count, Sum, Avg
@@ -82,7 +81,8 @@ class Command(LabelCommand):
             g.fargs = {'start_time__range': [s, e], 'project': p, 'track_count__gte': 1}
             g.values = ['referrer_keyword', ]
             g.dynamic_attr = {'referrer_keyword_id': 'referrer_keyword'}
-            g.annotate = {'count': Count('referrer_keyword'), 'track_count': Avg('track_count'), 'timelength': Avg('timelength')}
+            g.annotate = {'count': Count('referrer_keyword'), 'track_count': Avg('track_count'), 'timelength':
+                          Avg('timelength')}
             g.easy_group()
 
         print '====moving data===='
@@ -99,7 +99,8 @@ class Command(LabelCommand):
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE id <= %d" % ('session_session', last_id)
         cur.execute(sql)
-        sql = "REPLACE INTO %s(id, session_id, valuetype_id, value) SELECT id, session_id, valuetype_id, value FROM %s f WHERE f.session_id <= %d" % ('session_sessionvaluearch', 'session_sessionvalue', last_id)
+        sql = "REPLACE INTO %s(id, session_id, valuetype_id, value) SELECT id, session_id, valuetype_id, value FROM %s f WHERE f.session_id <= %d" % (
+            'session_sessionvaluearch', 'session_sessionvalue', last_id)
         cur.execute(sql)
         sql = "DELETE FROM %s WHERE session_id <= %d" % ('session_sessionvalue', last_id)
         cur.execute(sql)
