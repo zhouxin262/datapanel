@@ -1,5 +1,5 @@
 # coding=utf-8
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.db import models
 from django.db.models import Sum, Count
@@ -132,12 +132,12 @@ class Report1Manager(models.Manager):
             r.save()
         return r
 
-    def refresh_confirm_order(self, project, timeline, start_dateline, end_dateline):
+    def refresh_confirm_order(self, project, timeline):
         # todo delete this
         try:
             r = Report1.objects.get(project=project, timeline=timeline)
 
-            drange = [start_dateline, end_dateline]
+            drange = timeline.get_range()
             orderinfo = OrderInfo.objects.filter(
                 project=project, dateline__range=drange, order_status__in=[1, 3, 5]).aggregate(c=Count('id'), s=Sum('order_amount'))
             r.ordercount = orderinfo['c']
@@ -214,7 +214,7 @@ class Report1(models.Model):
 
     def get_order_set(self, project):
         self.order_set = [o.order_sn for o in OrderInfo.objects.filter(
-            project=project, dateline__range=self.timeline.get_range, order_status__in=[1, 3, 5])]
+            project=project, dateline__range=self.timeline.get_range(), order_status__in=[1, 3, 5])]
         return self.order_set
 
 
