@@ -32,7 +32,7 @@ def report2(request, id):
 
     s = request.GET.get('s', datetime.today().strftime("%Y-%m-%d"))
     timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
-    report = Report2.objects.filter(project=project, timeline=timeline).order_by('-sellcount')
+    report = Report2.objects.filter(project=project, timeline=timeline, sellcount__gt=0).order_by('-sellcount')
     return render(request, 'ecshop/report2.html', {'project': project, 'report': report})
 
 
