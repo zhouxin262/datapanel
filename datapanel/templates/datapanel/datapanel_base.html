@@ -92,6 +92,11 @@
 		<a href="{%url session_groupby_referrer project.id "keyword" %}">来源分析</a>
 	</li>
 	{% endblock subnav-referrer-keyword %}
+    {% block subnav-referrer-order-keyword %}
+    <li>
+        <a href="{%url session_order_keyword project.id %}">订单来源分析</a>
+    </li>
+    {% endblock subnav-referrer-order-keyword %}
 	<li class="nav-header">访客分析</li>
 	{% block subnav-stream %}
 	<li>
