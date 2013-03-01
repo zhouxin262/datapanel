@@ -172,7 +172,7 @@ def report1_receiver(sender, instance, created, **kwargs):
             if instance.action.name == "goods":
                 r.goodspageview += 1
         elif sender == OrderInfo:
-            if instance.order_status in [1, 3, 5] and instance.order_sn not in r.order_set:
+            if instance.order_status in [1, 3, 5] and instance.order_sn not in r.order_set and r.timeline.has_time(instance.dateline):
                 r.order_set.append(instance.order_sn)
                 r.ordercount += 1
                 r.orderamount += instance.order_amount
