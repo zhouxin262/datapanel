@@ -1,4 +1,6 @@
-#coding=utf-8
+# coding=utf-8
+import time
+import json
 from datetime import datetime, timedelta
 
 from django.contrib.auth.views import redirect_to_login
@@ -10,6 +12,7 @@ from django.views.decorators.cache import cache_page
 from project.forms import ProjectForm
 from session.models import Session, GTime
 from track.models import Track
+from datapanel.models import Timeline
 
 
 def create(request):
@@ -21,7 +24,7 @@ def create(request):
             project.creator = request.user
             project.save()
             import md5
-            #project.token = md5.new(str(project.id + time.mktime(project.dateline.timetuple()))).hexdigest()
+            # project.token = md5.new(str(project.id + time.mktime(project.dateline.timetuple()))).hexdigest()
             project.token = md5.new(str(project.id + 54321)).hexdigest()
             project.participants.add(request.user)
             project.save()
@@ -38,7 +41,7 @@ def overview(request, id):
     return render(request, 'project/overview.html', {'project': project, })
 
 
-@cache_page(60 * 60 * 24)
+# @cache_page(60 * 60 * 24)
 def home(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
@@ -48,22 +51,19 @@ def home(request, id):
     # save for update the last view datetime
     project.save()
 
-    interval = request.GET.get('interval', '1')
-    datetype = ""
-    if interval == "1":
-        start_day = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-        end_day = (datetime.today()).strftime("%Y-%m-%d")
-        datetype = "hour"
-    elif interval == "7":
-        start_day = (datetime.today() - timedelta(days=6)).strftime("%Y-%m-%d")
-        end_day = (datetime.today()).strftime("%Y-%m-%d")
-        datetype = "day"
-    elif interval == "30":
-        start_day = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
-        end_day = (datetime.today()).strftime("%Y-%m-%d")
+    d = request.GET.get('d', 'hour')
+    s = request.GET.get('s', datetime.today().strftime("%Y-%m-%d"))
+    e = request.GET.get('e', (datetime.strptime(s, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d"))
+    print d, s, e
+    ts = Timeline.objects.filter(datetype=d, dateline__range=[s, e])
+    gts = GTime.objects.filter(project=project, timeline__in=ts).order_by("timeline__dateline")
+    report = []
+    for gt in gts:
+        report.append([time.mktime(gt.timeline.dateline.timetuple()) * 1000, gt.count])
 
-    s1 = GTime.objects.filter(project=project, timeline__datetype=datetype, timeline__dateline__range=[start_day, end_day]).order_by("timeline__dateline")
-    return render(request, 'project/index.html', {'project': project, 'sbt': s1, 'interval': interval})
+    if request.is_ajax():
+        return HttpResponse(json.dumps(report), mimetype="application/json")
+    return render(request, 'project/index.html', {'project': project, 'report': json.dumps(report)})
 
 
 def monitor(request, id):

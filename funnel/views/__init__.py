@@ -146,7 +146,7 @@ def get_regular_funnel(project, max_action):
     return funnel_tuple
 
 
-@cache_page(600)
+# @cache_page(600)
 def intel(request, id):
     print datetime.now()
     try:

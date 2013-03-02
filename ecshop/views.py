@@ -23,7 +23,7 @@ def overview(request, id):
     return render(request, 'ecshop/overview.html', {'project': project, 'report': report})
 
 
-@cache_page(60 * 5)
+#@cache_page(60 * 5)
 def report2(request, id):
     try:
         project = request.user.participate_projects.get(id=id)

@@ -6,123 +6,118 @@
 {% endblock subnav-home %}
 {% block content %}
     <div class="span10">
-        <div class="page-header">
-            <h1>{{ project.name }} / 网站概况 / 浏览量</h1>
-        </div>
-        <ul class="nav nav-pills">
-            {# <li {% if interval == "0" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=0">今天</a></li> #}
-            <li {% if interval == "1" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">昨天</a></li>
-            <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=7">最近7天</a></li>
-            <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=30">最近30天</a></li>
-            <li><a href="{%url project_monitor project.id%}">实时数据</a></li>
+        <ul class="breadcrumb">
+            <li><a href="#">{{ project.name }}</a> <span class="divider">/</span></li>
+            <li class="active">概况</li>
         </ul>
-        <div id="placeholder" style="width:969px;height:500px;margin:10px 0;display:none"></div>
-        <div>
-        <div style="float:left;margin-left:50px;"><label><input type="radio" id="id_type_1" name="type" class="radios" value="chart" checked="checked"> 浏览量</label></div>
-        <div style="float:left"><label><input type="radio" id="id_type_2" name="type" class="radios" value="chart1"> 访问量</label></div>
-        <div style="float:left"><label><input type="radio" id="id_type_3" name="type" class="radios" value="chart2"> 平均访问时长</label></div>
-        </div>
-        <div id="chart" ></div>
-        <div id="chart1" ></div>
-        <div id="chart2" ></div>
+        <ul id="nav_dateline" class="nav nav-pills">
+            <li class="active">
+                <a href="#" id="dateline_today">今天</a>
+            </li>
+            <li>
+                <a href="#" id="dateline_yesterday">昨天</a>
+            </li>
+            <li>
+                <a href="#" id="dateline_week">最近7天</a>
+            </li>
+            <li>
+                <a href="#" id="dateline_month">最近30天</a>
+            </li>
+        </ul>
+        <div id="placeholder" style="height:300px"></div>
     </div>
-	<SCRIPT LANGUAGE="Javascript" SRC="{{ STATIC_URL }}js/FusionCharts.js"></SCRIPT>
-    <script type="text/javascript">
-        var ticks = [];
-        var tooltips = [];
-        var d1 = [];
-        var xmlData="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'>";
-        var xmlData1="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'>";
-        var xmlData2="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'>";
-        {% for sb in sbt %}
-        	xmlData+="<set value='{{sb.count|default:0}}' name = '{% if sb.timeline.datetype == 'hour' %}{{sb.timeline.dateline|date:"H"|safe}}{% endif %}'/>";
-        	xmlData1+="<set value='{{sb.track_count|default:0}}' name = '{% if sb.timeline.datetype == 'hour' %}{{sb.timeline.dateline|date:"H"|safe}}{% endif %}'/>";
-            xmlData2+="<set value='{{sb.timelength|default:0}}' name = '{% if sb.timeline.datetype == 'hour' %}{{sb.timeline.timeline.dateline|date:"H"|safe}}{% endif %}'/>";
-            d1.push(['{{forloop.counter|add:-1}}', {{ sb.count }}]);
-            tooltips[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.timeline.dateline|date:"Y/m/d\<\b\r\/\>H:i"|safe}}'];
-            {% if sb.timeline.datetype == 'hour' %}
-                ticks[{{forloop.counter|add:-1}}] = [{{forloop.counter|add:-1}}, '{{sb.timeline.dateline|date:"H"|safe}}'];
-            {% endif %}
-        {% endfor %}
-
-		xmlData+="</graph>";
-	    var chart = new FusionCharts("{{ STATIC_URL }}flash/FCF_Line.swf", "chartId", "969", "300", "0", "1");
-	    chart.setDataXML(xmlData);
-	    chart.setTransparent(true);
-	    chart.render("chart");
-
-		xmlData1+="</graph>";
-	    var chart = new FusionCharts("{{ STATIC_URL }}flash/FCF_Line.swf", "chartId", "969", "300", "0", "1");
-	    chart.setDataXML(xmlData1);
-	    chart.setTransparent(true);
-	    chart.render("chart1");
-
-	    xmlData2+="</graph>";
-	    var chart = new FusionCharts("{{ STATIC_URL }}flash/FCF_Line.swf", "chartId", "969", "300", "0", "1");
-	    chart.setDataXML(xmlData2);
-	    chart.setTransparent(true);
-	    chart.render("chart2");
-        $('.dropdown-toggle').dropdown();
-        $('.datepicker').datepicker();
-        $.plot($("#placeholder"), [{data:d1}], {
-            yaxis:{ min:0 },
-            grid:{ hoverable:true, clickable:true },
-            xaxis:{ ticks:ticks,show:true},
-            series:{
-                lines:{ show:true, fill: true },
-                points:{ show:true }
-            }
-        });
-        function showTooltip(x, y, contents) {
-            $('<div id="tooltip">' + contents + '</div>').css({
-                position:'absolute',
-                display:'none',
-                top:y + 5,
-                left:x + 5,
-                border:'1px solid #fdd',
-                padding:'2px',
-                'background-color':'#fee',
-                opacity:0.80
-            }).appendTo("body").fadeIn(200);
-        }
-        $("#placeholder").bind("plothover", function (event, pos, item) {
-            if (item) {
-                if (previousPoint != item.dataIndex) {
-                    previousPoint = item.dataIndex;
-                    $("#tooltip").remove();
-                    var i = item.dataIndex;
-                    var x = item.datapoint[0];
-                    var y = item.datapoint[1];
-                    showTooltip(item.pageX, item.pageY, "总访问量：" + y + "<br/>" + tooltips[i][1]);
-                }
-            }
-            else {
-                $("#tooltip").remove();
-                previousPoint = null;
-            }
-        });
-        $(document).ready(function(){
-        	$('#chart1').hide();
-        	$('#chart2').hide();
-        	$("input[name='type']").change(function() {
-        	var svalue = $("input[name='type']:checked").val();
-			if (svalue =='chart'){
-			$('#chart').show();
-        	$('#chart1').hide();
-        	$('#chart2').hide();
-			}
-			if (svalue =='chart1'){
-			$('#chart1').show();
-        	$('#chart').hide();
-        	$('#chart2').hide();
-			}
-			if (svalue =='chart2'){
-			$('#chart2').show();
-        	$('#chart1').hide();
-        	$('#chart').hide();
-			}
-        	});
-
-          });
-    </script>
 {% endblock content %}
+{% block jsblock %}
+<script type="text/javascript">
+function plot(data){
+    $.plot($("#placeholder"), [{data:data}], {
+        yaxis:{ min:0 },
+        grid:{
+            borderWidth: 1,
+            minBorderMargin: 20,
+            labelMargin: 10,
+            backgroundColor: {
+                colors: ["#fff", "#e4f4f4"]
+            },
+            hoverable: true,
+            margin: {
+                top: 8,
+                bottom: 20,
+                left: 20
+            }
+        },
+        xaxis:{ mode: "time", timeformat:"%Y/%m/%d"},
+        series:{
+            lines:{ show:true, fill: true },
+            points:{ show:true }
+        }
+    });
+}
+function showTooltip(x, y, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+        position:'absolute',
+        display:'none',
+        top:y + 5,
+        left:x + 5,
+        border:'1px solid #fdd',
+        padding:'2px',
+        'background-color':'#fee',
+        opacity:0.80
+    }).appendTo("body").fadeIn(200);
+}
+$(document).ready(function(){
+    var ticks = [];
+    var tooltips = [];
+    var d1 = {{report}};
+
+    plot(d1);
+
+    $("#placeholder").bind("plothover", function (event, pos, item) {
+        if (item) {
+            if (previousPoint != item.dataIndex) {
+                previousPoint = item.dataIndex;
+                $("#tooltip").remove();
+                var i = item.dataIndex;
+                var x = item.datapoint[0];
+                var y = item.datapoint[1];
+                showTooltip(item.pageX, item.pageY, "访问量: " + y + "<br/>" +  new Date(x).toLocaleString());
+            }
+        }
+        else {
+            $("#tooltip").remove();
+            previousPoint = null;
+        }
+    });
+
+    $("#nav_dateline a").click(function(e){
+        e.preventDefault();
+        var a_id = $(this).attr("id");
+        if(a_id == "dateline_today"){
+            url = "{% url project_home project.id %}"
+        }
+        else if (a_id == "dateline_yesterday"){
+            var d = new Date();
+            var s = d.setDate(d.getDate()-1);
+            url = "{% url project_home project.id %}" + "?s=" + d.format('yyyy-MM-dd');
+        }
+        else if(a_id == "dateline_week"){
+            var d = new Date();
+            e = d.format('yyyy-MM-dd');
+            d.setDate(d.getDate()-7);
+            s = d.format('yyyy-MM-dd');
+            url = "{% url project_home project.id %}" + "?d=day&s=" + s + "&e=" + e;
+        }
+        else if(a_id == "dateline_month"){
+            var d = new Date();
+            e = d.format('yyyy-MM-dd');
+            d.setDate(d.getDate() - 30);
+            s = d.format('yyyy-MM-dd');
+            url = "{% url project_home project.id %}" + "?d=day&s=" + s + "&e=" + e;
+        }
+        $.get(url, function(data){plot(data);}, 'json');
+        $("#nav_dateline li").removeClass("active");
+        $(this).parent().addClass('active');
+    });
+});
+</script>
+{% endblock jsblock %}

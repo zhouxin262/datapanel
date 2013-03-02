@@ -23,7 +23,6 @@
 	</ul>
     <ul id="choiceContainer" class="nav nav-pills"></ul>
 	<div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>
-	<div id="chart" ></div>
     </div>
     <table class="display datatables" id="datatables">
         <thead>
@@ -102,48 +101,16 @@ $(document).ready(function(){
 
     $("table#datatables").find("input").click(plotAccordingToChoices);
 	function plotAccordingToChoices() {
-
-		var lcolor = new Array("1D8BD1","F1683C","2AD62A","DBDC25","649665","4169E1","087eb6","BA55D3","D2691E","FF7F50","32CD32","4682B4")
-	    var xmlData="<graph formatNumberScale='0' showShadow ='1' showValues='0' useRoundEdges='1'><categories>";
-		{% for t in times %}
-	
-	    {% if params.datetype == 'hour' %}
-		    xmlData+="<category name='{{t|date:"H:00"}}'/>";
-		    {% else %}
-		    xmlData+="<category name='{{t|date:"d"}}'/>";
-	    {% endif %}
-	
-		{% endfor %}
-		xmlData+="</categories>";
-		var j = 0;
-		
 		var data = [];
-		
         $("table#datatables").find("input:checked").each(function () {
         	var key = $(this).attr("name");
-
-        	xmlData+="<dataset seriesName='"+key+"' color ='"+lcolor[j]+"'>";
-        	j++;
-			$.each(datasets[key].data, function(key, val) {
-				xmlData+="<set value='"+val[1]+"'/>";
-			});
-			xmlData+="</dataset>";
-
-            
             if (key && datasets[key])
                 data.push(datasets[key]);
         });
 
-		xmlData+="</graph>";
-	    var chart = new FusionCharts("{{ STATIC_URL }}flash/FCF_MSLine.swf", "chartId", "969", "300", "0", "1");
-	    chart.setDataXML(xmlData);
-	    chart.setTransparent(true);
-	    chart.render("chart");
-
         var height = $("table#datatables").find("input:checked").length * 20 + 100;
         if(height < 300){height = 300;}
         $("#placeholder").height(height + "px");
-		
 
         if (data.length > 0)
             $.plot($("#placeholder"), data, {

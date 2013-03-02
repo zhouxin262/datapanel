@@ -50,7 +50,7 @@ def session(request, id, referrer_attr):
                                                      'dataset': dataset, 'params': {'referrer_attr': referrer_attr, 'interval': interval, 'page': page}})
 
 
-@cache_page(60 * 15)
+# @cache_page(60 * 15)
 def order_keyword(request, id):
     try:
         project = request.user.participate_projects.get(id=id)
@@ -78,7 +78,7 @@ def order_keyword(request, id):
     return render(request, 'referrer/order_keyword.html', {'project': project, 'kws': kws})
 
 
-@cache_page(60 * 15)
+# @cache_page(60 * 15)
 def order_site(request, id):
     try:
         project = request.user.participate_projects.get(id=id)

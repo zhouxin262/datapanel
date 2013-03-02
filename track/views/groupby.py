@@ -49,7 +49,7 @@ from datapanel.utils import get_times
 #     return render(request, 'track/groupby_value.html', {'project': project, 'params': params, 'times': times, 'value_names': value_names, 'data': data})
 
 
-@cache_page(60 * 60 * 24)
+# @cache_page(60 * 60 * 24)
 def action(request, id):
     try:
         project = request.user.participate_projects.get(id=id)

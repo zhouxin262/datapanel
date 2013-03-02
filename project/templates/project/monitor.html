@@ -1,28 +1,28 @@
 {% extends 'datapanel/datapanel_base.html' %}
-{% block subnav-home %}
-    <li class="active">
-        <a href="{% url project_home project.id %}">网站概况</a>
-    </li>
-{% endblock subnav-home %}
+{% block subnav-monitor %}
+  <li class="active"><a href="{%url project_monitor project.id%}">实时访客</a></li>
+{% endblock subnav-monitor %}
 {% block content %}
     <div class=" span10">
-        <div class="page-header">
-            <h1>{{ project.name }} / 访问量</h1>
-        </div>
-        <ul class="nav nav-pills">
-            <li {% if interval == "1" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=1">昨天</a></li>
-            <li {% if interval == "7" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=7">最近7天</a></li>
-            <li {% if interval == "30" %}class="active"{% endif %}><a href="{%url project_home project.id%}?interval=30">最近30天</a></li>
-            <li class="active"><a href="{%url project_monitor project.id%}">实时数据</a></li>
+        <ul class="breadcrumb">
+            <li><a href="#">{{ project.name }}</a> <span class="divider">/</span></li>
+            <li class="active">实时访客</li>
         </ul>
-        <h2>页面点击数</h2>
-        <div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>
-        <h2>用户访问量</h2>
-        <div id="placeholder1" style="width:969px;height:300px;margin:10px 0"></div>
+        <ul class="nav nav-tabs" id="myTab">
+            <li class="active"><a href="#pv">页面点击数</a></li>
+            <li><a href="#uv">用户访问量</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="pv">
+                <div id="placeholder" style="width:969px;height:300px;margin:10px 0"></div>
+            </div>
+            <div class="tab-pane" id="uv">
+                <div id="placeholder1" style="width:969px;height:300px;margin:10px 0"></div>
+            </div>
+        </div>
     </div>
     <script type="text/javascript">
     $(function() {
-
         var container = $("#placeholder");
         var container1 = $("#placeholder1");
 
@@ -219,7 +219,12 @@
 
         setInterval(function set_value1(){
             second_value1 = true_value1 + Math.random() * 10 - 5;
-        }, 1000)
+        }, 1000);
+
+        $('#myTab a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
     });
     </script>
 {% endblock content %}

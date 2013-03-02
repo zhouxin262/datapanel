@@ -10,25 +10,28 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/table.css">
 	{% block cssblock %}{% endblock cssblock %}
 	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"></script>
+
 	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.flot.time.js"></script>
+	<!--[if lte IE 8]><script type="text/javascript" src="{{ STATIC_URL }}js/excanvas.min.js"></script><![endif]-->
 	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dataTables.min.js"></script>
-	{% block jsblock %}{% endblock jsblock %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/common.js"></script>
 	<title>{%block title%}{%endblock%}</title>
 </head>
 
 <body>
-	<div class="container">
-		<div class="navbar navbar-fixed-top">
-			<div class="navbar-inner">
-				{%block topbar%}
-				<div class="container">
-					<a class="brand" href="#">MyPanel</a>
-				</div>
-				{%endblock topbar%}
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			{%block topbar%}
+			<div class="container">
+				<a class="brand" href="#">Home</a>
 			</div>
+			{%endblock topbar%}
 		</div>
+	</div>
+	<div class="container">
 		<div class="row-fluid" style="margin-top:50px;" >
 				{%block navbar%}
 				{%endblock navbar%}
@@ -36,5 +39,6 @@
 				{%endblock content%}
 		</div>
 	</div>
+	{% block jsblock %}{% endblock jsblock %}
 </body>
 </html>

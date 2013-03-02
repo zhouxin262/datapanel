@@ -1,7 +1,12 @@
 {% extends "base.html" %}
+{% block title %}
+{%if project%}
+{{project.name}}
+{%endif%}
+{% endblock title %}
 {% block topbar %}
 <div class="container">
-	<a class="brand" href="#">MyPanel</a>
+	<a class="brand" href="#">Home</a>
 	<ul class="nav">
 		{% if project %}
 			<li class="dropdown">
@@ -12,7 +17,6 @@
 							<a href="{%url project_home p.id%}">{{p.name}}</a>
 						</li>
 						{% endfor %}
-					</li>
 				</ul>
 			</li>
 		{% endif %}
@@ -47,77 +51,80 @@
 {% block navbar %}
 {%if project%}
 <div class="span2">
-<ul class="nav nav-list well">
-	<li class="nav-header">概况</li>
-	{% block subnav-home %}
-	<li>
-		<a href="{%url project_home project.id%}">网站概况</a>
-	</li>
-	{% endblock subnav-home %}
-    <li class="nav-header">ECSHOP</li>
-    {% block subnav-ecs %}
-    <li>
-        <a href="{%url ecshop_overview project.id%}">网店概况</a>
-    </li>
-    {% endblock subnav-ecs %}
-	<li class="nav-header">分析</li>
-	{% block subnav-group %}
-	<li>
-		<a href="{%url track_groupby_action project.id%}">网页分析</a>
-	</li>
-	{% endblock subnav-group %}
-	{% block subnav-funnel %}
-	<li>
-		<a href="{%url funnel_home project.id%}">转化路径</a>
-	</li>
-	{% endblock subnav-funnel %}
-    {% comment %}
-    {% block subnav-condition %}
-    <li>
-        <a href="{%url condition_list project.id%}">条件设定</a>
-    </li>
-    {% endblock subnav-condition %}
-    {% endcomment %}
+    <ul class="nav nav-list well">
+    	<li class="nav-header">概况</li>
+    	{% block subnav-home %}
+    	<li>
+    		<a href="{%url project_home project.id%}">网站概况</a>
+    	</li>
+    	{% endblock subnav-home %}
+        {% block subnav-monitor %}
+          <li><a href="{%url project_monitor project.id%}">实时访客</a></li>
+        {% endblock subnav-monitor %}
+        <li class="nav-header">ECSHOP</li>
+        {% block subnav-ecs %}
+        <li>
+            <a href="{%url ecshop_overview project.id%}">网店概况</a>
+        </li>
+        {% endblock subnav-ecs %}
+    	<li class="nav-header">分析</li>
+    	{% block subnav-group %}
+    	<li>
+    		<a href="{%url track_groupby_action project.id%}">网页分析</a>
+    	</li>
+    	{% endblock subnav-group %}
+    	{% block subnav-funnel %}
+    	<li>
+    		<a href="{%url funnel_home project.id%}">转化路径</a>
+    	</li>
+    	{% endblock subnav-funnel %}
+        {% comment %}
+        {% block subnav-condition %}
+        <li>
+            <a href="{%url condition_list project.id%}">条件设定</a>
+        </li>
+        {% endblock subnav-condition %}
+        {% endcomment %}
 
-	<li class="nav-header">来源分析</li>
-    {% comment %}
-    {% block subnav-referrer %}
-    <li>
-        <a href="{%url track_groupby_referrer project.id%}">来源总数</a>
-    </li>
-    {% endblock subnav-referrer %}
-    {% endcomment %}
-	{% block subnav-referrer-keyword %}
-	<li>
-		<a href="{%url session_groupby_referrer project.id "keyword" %}">来源分析</a>
-	</li>
-	{% endblock subnav-referrer-keyword %}
-    {% block subnav-referrer-order-keyword %}
-    <li>
-        <a href="{%url session_order_keyword project.id %}">订单来源分析</a>
-    </li>
-    {% endblock subnav-referrer-order-keyword %}
-	<li class="nav-header">访客分析</li>
-	{% block subnav-stream %}
-	<li>
-		<a href="{%url stream_list project.id%}">访问路径</a>
-	</li>
-	{% endblock subnav-stream %}
-	<li class="nav-header">设置</li>
-    {% block subnav-setting  %}
-	<li>
-		<a href="{%url project_setting project.id%}">设置</a>
-	</li>
-    {% endblock subnav-setting %}
-    {% block subnav-action %}
-    <li>
-        <a href="{%url action_list project.id%}">定义行为</a>
-    </li>
-    {% endblock subnav-action %}
-	<li>
-		<a href="#">队友</a>
-	</li>
-</ul>
+    	<li class="nav-header">来源分析</li>
+        {% comment %}
+        {% block subnav-referrer %}
+        <li>
+            <a href="{%url track_groupby_referrer project.id%}">来源总数</a>
+        </li>
+        {% endblock subnav-referrer %}
+        {% endcomment %}
+    	{% block subnav-referrer-keyword %}
+    	<li>
+    		<a href="{%url session_groupby_referrer project.id "keyword" %}">来源分析</a>
+    	</li>
+    	{% endblock subnav-referrer-keyword %}
+        {% block subnav-referrer-order-keyword %}
+        <li>
+            <a href="{%url session_order_keyword project.id %}">订单来源分析</a>
+        </li>
+        {% endblock subnav-referrer-order-keyword %}
+    	<li class="nav-header">访客分析</li>
+    	{% block subnav-stream %}
+    	<li>
+    		<a href="{%url stream_list project.id%}">访问路径</a>
+    	</li>
+    	{% endblock subnav-stream %}
+    	<li class="nav-header">设置</li>
+        {% block subnav-setting  %}
+    	<li>
+    		<a href="{%url project_setting project.id%}">设置</a>
+    	</li>
+        {% endblock subnav-setting %}
+        {% block subnav-action %}
+        <li>
+            <a href="{%url action_list project.id%}">定义行为</a>
+        </li>
+        {% endblock subnav-action %}
+    	<li>
+    		<a href="#">队友</a>
+    	</li>
+    </ul>
 </div>
 {%else%}
 {%endif%}
