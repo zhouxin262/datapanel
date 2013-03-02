@@ -1,0 +1,72 @@
+{%extends 'datapanel/datapanel_base.html'%}
+{% block title %}
+{{project.name}} - 来源分析
+{% endblock title %}
+{% block subnav-referrer-order-keyword %}
+<li class="active">
+	<a href="{%url session_order_keyword project.id %}">订单来源分析</a>
+</li>
+{% endblock subnav-referrer-order-keyword %}
+{% block content %}
+<div class="span10">
+	<div class="page-header">
+		<h1>{{project.name}} / 来源分析</h1>
+	</div>
+	<div class="">
+		<table id="datatables" class="display datatables">
+			<thead>
+			<tr>
+				<th width="300">
+                    来源网站
+				</th>
+				<th>
+					订单数
+				</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for k,v in kws.items %}
+			<tr>
+				<td>{{k}}</td>
+				<td>{{v}}</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+            <tfoot>
+            <tr>
+                <th width="300">
+                    来源网站
+                </th>
+                <th>
+                    订单数
+                </th>
+            </tr>
+            </tfoot>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+$(document).ready(function(){
+    $('#datatables').dataTable({
+        "iDisplayLength": 30,
+        "sPaginationType": "full_numbers",
+        "bPaginate": true,
+        "bFilter": false,
+        "bLengthChange": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "aaSorting": [[ 1 , "desc" ]],
+        "oLanguage": {
+          "oPaginate": {
+            "sFirst": "第一页",
+            "sLast": "最后页",
+            "sPrevious": "上一页",
+            "sNext": "下一页"
+          }
+        }
+    });
+});
+});
+</script>
+{% endblock content %}

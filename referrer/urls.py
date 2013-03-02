@@ -4,4 +4,5 @@ urlpatterns = patterns('',
                        url(r'^(?P<id>\d+)/(?P<referrer_attr>site|keyword)/$', 'referrer.views.session',
                            name='session_groupby_referrer'),
                        url(r'^(?P<id>\d+)/order/keyword/$', 'referrer.views.order_keyword', name='session_order_keyword'),
+                       url(r'^(?P<id>\d+)/order/site/$', 'referrer.views.order_site', name='session_order_site'),
                        )
