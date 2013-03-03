@@ -135,10 +135,14 @@ class Report1Manager(models.Manager):
     def cache(self, project):
         r = cache.get(str(project.id) + "_report1", None)
         if not (r and r.timeline.has_time(datetime.now())):
+            if not (r.time.has_time(datetime.now())):
+                r.save()
+                r = None
+
             s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
             r = Report1.objects.generate(project, timeline)
-            cache.set(str(project.id) + "_report1", r, 3600)
+            cache.set(str(project.id) + "_report1", r)
         return r
 
 
@@ -158,7 +162,7 @@ def report1_receiver(sender, instance, created, **kwargs):
                 r.ordercount += 1
                 r.orderamount += instance.order_amount
                 r.ordergoodscount += instance.ordergoods_set.count()
-        cache.set(str(instance.project.id) + "_report1", r, 3600)
+        cache.set(str(instance.project.id) + "_report1", r)
 
 
 class Report1(models.Model):
