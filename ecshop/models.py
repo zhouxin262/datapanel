@@ -134,11 +134,12 @@ class Report1Manager(models.Manager):
 
     def cache(self, project):
         r = cache.get(str(project.id) + "_report1", None)
-        in_time = r.timeline.has_time(datetime.now())
-        if not (r and in_time):
-            if r and not in_time:
+        if r:
+            in_time = r.timeline.has_time(datetime.now())
+            if not in_time:
                 r.save()
                 r = None
+        if not r:
             s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
             r = Report1.objects.generate(project, timeline)
