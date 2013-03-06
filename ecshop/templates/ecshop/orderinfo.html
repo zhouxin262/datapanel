@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block subnav-ecs %}
     <li class="active">
-        <a href="{%url ecshop_overview project.id%}">网店概况</a>
+        <a href="{%url 'ecshop_overview' project.id%}">网店概况</a>
     </li>
 {% endblock subnav-ecs %}
 {% block content %}
@@ -16,7 +16,7 @@
             <ul>
                 {% for order in orderlist %}
                 <li>
-                    <a href="{% url stream_get_stream_by_value project.id %}?name=order_sn&value={{order.order_sn}}">{{order.order_sn}}</a>, {{order.order_amount}}, {{order.add_dateline}}
+                    <a href="{% url 'stream_get_stream_by_value' project.id %}?name=order_sn&value={{order.order_sn}}">{{order.order_sn}}</a>, {{order.order_amount}}, {{order.add_dateline}}
                     <ul>
                         {% for goods in order.ordergoods_set.all %}
                         <li>{{goods.goods_id}}. {{goods.goods.goods_name}} - ({{goods.goods.goods_price}})</li>

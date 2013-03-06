@@ -13,18 +13,21 @@ from datapanel.views import analysis, get_and_verify_data
 
 class SessionMiddleware(object):
     def should_process(self, request):
-        if getattr(settings, 'STATIC_URL', None) and request.build_absolute_uri().startswith(request.build_absolute_uri(settings.STATIC_URL)):
+        # if getattr(settings, 'STATIC_URL', None) and request.build_absolute_uri().startswith(request.build_absolute_uri(settings.STATIC_URL)):
+        #     return False
+        # if settings.MEDIA_URL and request.build_absolute_uri().startswith(request.build_absolute_uri(settings.MEDIA_URL)):
+        #     return False
+        # if getattr(settings, 'ADMIN_MEDIA_PREFIX', None) and request.path.startswith(settings.ADMIN_MEDIA_PREFIX):
+        #     return False
+        # if request.path == '/favicon.ico':
+        #     return False
+        # for path in getattr(settings, 'DEVSERVER_IGNORED_PREFIXES', []):
+        #     if request.path.startswith(path):
+        #         return False
+        if request.path == '/a/':
+            return True
+        else:
             return False
-        if settings.MEDIA_URL and request.build_absolute_uri().startswith(request.build_absolute_uri(settings.MEDIA_URL)):
-            return False
-        if getattr(settings, 'ADMIN_MEDIA_PREFIX', None) and request.path.startswith(settings.ADMIN_MEDIA_PREFIX):
-            return False
-        if request.path == '/favicon.ico':
-            return False
-        for path in getattr(settings, 'DEVSERVER_IGNORED_PREFIXES', []):
-            if request.path.startswith(path):
-                return False
-        return True
 
     def process_request(self, request):
         if self.should_process(request):
@@ -96,6 +99,6 @@ class SessionMiddleware(object):
                                                     path=settings.SESSION_COOKIE_PATH,
                                                     secure=settings.SESSION_COOKIE_SECURE or None,
                                                     httponly=settings.SESSION_COOKIE_HTTPONLY or None)
-            if request.path == '/a/':
+            
                 analysis(request, response)
         return response

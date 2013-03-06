@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block subnav-ecs %}
     <li class="active">
-        <a href="{%url ecshop_overview project.id%}">网店概况</a>
+        <a href="{%url 'ecshop_overview' project.id%}">网店概况</a>
     </li>
 {% endblock subnav-ecs %}
 {% block content %}
@@ -34,10 +34,10 @@
                     <td>{{row.timeline.dateline|date:"Y-m-d, D"}}</td>
                     <td>{{row.userview}}</td>
                     <td>{{row.pageview}}</td>
-                    <td><a href="{% url ecshop_report2 project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">{{row.goodspageview}}</a></td>
-                    <td><a href="{% url ecshop_report2 project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">{{row.goodsview}}</a></td>
-                    <td><a href="{% url ecshop_orderinfo project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">{{row.ordercount}}</a>
-                        <a href="{% url ecshop_report2 project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">({{row.ordergoodscount}})</a></td>
+                    <td><a href="{% url 'ecshop_report2' project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">{{row.goodspageview}}</a></td>
+                    <td><a href="{% url 'ecshop_report2' project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">{{row.goodsview}}</a></td>
+                    <td><a href="{% url 'ecshop_orderinfo' project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">{{row.ordercount}}</a>
+                        <a href="{% url 'ecshop_report2' project.id %}?s={{row.timeline.dateline|date:"Y-m-d"}}">({{row.ordergoodscount}})</a></td>
                     <td title="%">{{row.ip_convert_ratio}}</td>
                     <td title="%">{{row.ip_pageview_ratio}}</td>
                     <td>{{row.ip_order_ratio}}‰</td>

@@ -13,7 +13,7 @@
 </style>
 <div id="signin" class="span6 well">
     <div class="title">已有账号？请登录:</div>
-    <form action="{% url django.contrib.auth.views.login %}" method="post">
+    <form action="{% url 'django.contrib.auth.views.login' %}" method="post">
         {%csrf_token%}
             <input type="hidden" name="next" value="/">
             <fieldset>
@@ -32,14 +32,14 @@
                     <div class="actions">
                         <input type="hidden" name="next" value="{{ next }}" />
                         <input tabindex="3" class="btn-primary btn " type="submit" value="登 录">
-                        <p class="reset">忘记密码？<a tabindex="4" href="{% url auth_password_reset %}" title="忘记密码">点击找回</a></p>
+                        <p class="reset">忘记密码？<a tabindex="4" href="{% url 'auth_password_reset' %}" title="忘记密码">点击找回</a></p>
                     </div>
             </fieldset>
     </form>
 </div>
 <div id="signup" class="span5 well">
     <div class="title">免费注册！</div>
-    <form action="{% url registration_register %}" method="post" class="form-stacked">
+    <form action="{% url 'registration_register' %}" method="post" class="form-stacked">
         {%csrf_token%}
             <fieldset style="margin-left:100px">
                     <div class="clearfix">

@@ -7,12 +7,14 @@ Requirements:
     sudo easy_install mysql-python
     sudo easy_install django
     sudo easy_install flup
+
     sudo apt-get install uwsgi
     sudo apt-get install uwsgi-plugin-python
     mysql
     python 2.7
     django 1.4
     pyyaml
+    python-memcached
     south
 
 How to Use:

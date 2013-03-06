@@ -1,7 +1,7 @@
 {% extends 'datapanel/datapanel_base.html' %}
 {% block subnav-home %}
     <li class="active">
-        <a href="{% url project_home project.id %}">网站概况</a>
+        <a href="{% url 'project_home' project.id %}">网站概况</a>
     </li>
 {% endblock subnav-home %}
 {% block content %}
@@ -93,26 +93,26 @@ $(document).ready(function(){
         e.preventDefault();
         var a_id = $(this).attr("id");
         if(a_id == "dateline_today"){
-            url = "{% url project_home project.id %}"
+            url = "{% url 'project_home' project.id %}"
         }
         else if (a_id == "dateline_yesterday"){
             var d = new Date();
             var s = d.setDate(d.getDate()-1);
-            url = "{% url project_home project.id %}" + "?s=" + d.format('yyyy-MM-dd');
+            url = "{% url 'project_home' project.id %}" + "?s=" + d.format('yyyy-MM-dd');
         }
         else if(a_id == "dateline_week"){
             var d = new Date();
             e = d.format('yyyy-MM-dd');
             d.setDate(d.getDate()-7);
             s = d.format('yyyy-MM-dd');
-            url = "{% url project_home project.id %}" + "?d=day&s=" + s + "&e=" + e;
+            url = "{% url 'project_home' project.id %}" + "?d=day&s=" + s + "&e=" + e;
         }
         else if(a_id == "dateline_month"){
             var d = new Date();
             e = d.format('yyyy-MM-dd');
             d.setDate(d.getDate() - 30);
             s = d.format('yyyy-MM-dd');
-            url = "{% url project_home project.id %}" + "?d=day&s=" + s + "&e=" + e;
+            url = "{% url 'project_home' project.id %}" + "?d=day&s=" + s + "&e=" + e;
         }
         $.get(url, function(data){plot(data);}, 'json');
         $("#nav_dateline li").removeClass("active");
