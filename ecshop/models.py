@@ -149,21 +149,24 @@ class Report1Manager(models.Manager):
 
 @receiver(post_save)
 def report1_receiver(sender, instance, created, **kwargs):
-    if sender in (Session, Track, OrderInfo):
+    if created and sender.__name__ in ('Session', 'Track'):
         r = Report1.objects.cache(instance.project)
-        if sender == Session and created:
+        if sender.__name__ == 'Session':
             r.userview += 1
-        elif sender == Track and created:
+        elif sender.__name__ == 'Track':
             r.pageview += 1
             if instance.action.name == "goods":
                 r.goodspageview += 1
-        elif sender == OrderInfo:
-            if instance.order_status in [1, 3, 5] and instance.order_sn not in r.order_set and r.timeline.has_time(instance.dateline):
-                r.order_set.append(instance.order_sn)
-                r.ordercount += 1
-                r.orderamount += instance.order_amount
-                r.ordergoodscount += instance.ordergoods_set.count()
         cache.set(str(instance.project.id) + "_report1", r)
+
+    elif sender.__name__ == 'OrderInfo':
+        r = Report1.objects.cache(instance.project)
+        if instance.order_status in [1, 3, 5] and instance.order_sn not in r.order_set and r.timeline.has_time(instance.dateline):
+            r.order_set.append(instance.order_sn)
+            r.ordercount += 1
+            r.orderamount += instance.order_amount
+            r.ordergoodscount += instance.ordergoods_set.count()
+            cache.set(str(instance.project.id) + "_report1", r)
 
 
 class Report1(models.Model):

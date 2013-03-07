@@ -1,6 +1,12 @@
-#coding=utf-8
+# coding=utf-8
+from datetime import datetime
+
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.db.models import Avg, Count
+from django.core.cache import cache
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from project.models import Project
 from referrer.models import Site, Keyword
@@ -123,11 +129,12 @@ class AbsSession(models.Model):
         for t in self.track_set.filter().order_by('id'):
             if prev_track:
                 if (prev_track.timelength == 0 or prev_track.timelength > 300) and (t.dateline - prev_track.dateline).seconds > 300:
-                    tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline - prev_track.dateline).seconds / 60)
+                    tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline -
+                                                                                 prev_track.dateline).seconds / 60)
                     tracks.append([t.action.name, "<span class='type-name'>%s</span>" % t.action.name])
                 else:
                     if t.action == prev_track.action:
-                        #tracks[0][1] = "aaaaa"
+                        # tracks[0][1] = "aaaaa"
                         tracks[-1][1] += "<span class='repeat'>*</span>"
                     else:
                         tracks.append([t.action.name, "<span class='type-name'>%s</span>" % t.action.name])
@@ -140,7 +147,8 @@ class AbsSession(models.Model):
         if self.start_time:
             self.hour = self.start_time.replace(minute=0, second=0, microsecond=0)
             self.day = self.start_time.replace(hour=0, minute=0, second=0, microsecond=0)
-            self.week = self.start_time.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=self.start_time.weekday())
+            self.week = self.start_time.replace(
+                hour=0, minute=0, second=0, microsecond=0) - timedelta(days=self.start_time.weekday())
             self.month = self.start_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             return getattr(self, datetype)
         else:
@@ -242,6 +250,62 @@ class SessionValueArch(AbsSessionValue):
     session = models.ForeignKey(SessionArch)
 
 
+class GTimeManager(models.Manager):
+    def generate(self, project, timeline, save=False):
+        try:
+            r = GTime.objects.get(project=project, timeline=timeline)
+        except GTime.DoesNotExist:
+            r = GTime()
+            r.project = project
+            r.timeline = timeline
+
+        drange = timeline.get_range()
+
+        s = Session.objects.filter(
+            project=project, end_time__range=drange).aggregate(Count("id"), Avg('track_count'), Avg('timelength'))
+        r.count = s['id__count']
+        r.track_count = s['track_count__avg']
+        r.timelength = s['timelength__avg']
+
+        if save:
+            r.save()
+        return r
+
+    def cache(self, project, timeline):
+        key = "gtime|p:" + str(project.id) + "|d:" + timeline.datetype
+        value = cache.get(key, {"timeline": None, "data": None})
+        if value and value['timeline']:
+            in_time = value['timeline'].has_time(datetime.now())
+            if not in_time:
+                value['data'].save()
+                value['data'] = None
+        if not value['data']:
+            value = {'timeline': timeline, 'data': GTime.objects.generate(project, timeline)}
+            cache.set(key, value)
+        return (key, value)
+
+
+@receiver(post_save)
+def gtime_receiver(sender, instance, created, **kwargs):
+    if sender.__name__ in ('Session', 'Track') and created:
+        for datetype in ['hour', 'day']:
+            s = datetime.now().replace(minute=0, second=0, microsecond=0)
+            if datetype == 'day':
+                s = s.replace(hour=0)
+            timeline = Timeline.objects.get_or_create(datetype=datetype, dateline=s)[0]
+
+            (key, value) = GTime.objects.cache(instance.project, timeline)
+            if sender.__name__ == 'Session':
+                value.count += 1
+            elif sender.__name__ == 'Track':
+                value.track_count = float(value.track_count * value.count + 1) / value.count
+                try:
+                    value.timelength = float(value.timelength * value.count + instance.prev_track().timelength) / value.count
+                except:
+                    pass
+            cache.set(key, value)
+
+
 class GTime(models.Model):
     '''
     Session Group by Time
@@ -252,6 +316,8 @@ class GTime(models.Model):
     count = models.IntegerField(u'统计数值', null=True, default=0)
     track_count = models.IntegerField(u'点击数', null=True, default=0)
     timelength = models.IntegerField(u'访问时长', null=True, default=0)
+
+    objects = GTimeManager()
 
 
 class GReferrerSite(models.Model):

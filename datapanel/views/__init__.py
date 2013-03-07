@@ -55,7 +55,7 @@ def dict_string_unquote(dic):
         if type(v) == str:
             dic[k] = urllib2.unquote(v)
             encoding = chardet.detect(dic[k])['encoding']
-            if encoding != 'ascii':
+            if encoding and encoding != 'ascii':
                 dic[k] = urllib2.unquote(v).decode(encoding)
         elif type(v) == dict:
             dic[k] = dict_string_unquote(v)
@@ -93,7 +93,6 @@ def analysis(request, response):
     (is_verified, data) = get_and_verify_data(request)
     if not is_verified:
         return response
-
     todo = data.get('a')
     token = data.get('k')
     # set session and project
@@ -133,7 +132,6 @@ def analysis(request, response):
         if not from_track.id == track.id:
             session.timelength += from_track.timelength
         session.save()
-
         # set referrer
         track.set_referrer(referrer)
         # deal with param
