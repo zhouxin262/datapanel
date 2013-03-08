@@ -56,6 +56,8 @@ def home(request, id):
     e = request.GET.get('e', (datetime.strptime(s, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d"))
 
     report = []
+    
+    ts = Timeline.objects.filter(datetype=d, dateline__range=[s, e])
     for t in ts:
         if t.dateline < datetime.now():
             try:
