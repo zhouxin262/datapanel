@@ -275,10 +275,12 @@ class GTimeManager(models.Manager):
         key = "gtime|p:" + str(project.id) + "|d:" + timeline.datetype
         value = cache.get(key, {"timeline": None, "data": None})
         if value['timeline'] and value['data']:
-            in_time = value['timeline'].has_time(datetime.now())
-            if not in_time:
+            in_time = value['timeline'].judge(datetime.now())
+            if in_time == 'gt':
                 value['data'].save()
                 value = {"timeline": None, "data": None}
+            elif in_time == 'lt':
+                return (key, GTime.objects.generate(project, timeline, True))
 
         # check again
         if not value['timeline'] or not  value['data']:

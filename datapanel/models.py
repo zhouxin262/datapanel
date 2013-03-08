@@ -24,9 +24,22 @@ class Timeline(models.Model):
 
     def has_time(self, time):
         drange = self.get_range()
+
         if time <= drange[1] and time >= drange[0]:
             return True
         return False
+
+    def judge(self, time):
+        drange = self.get_range()
+        
+        if time > drange[1]:
+            return 'gt'
+        elif time < drange[0]:
+            return 'lt'
+        else:
+            return 'in'
+
+
 
     class Meta:
         unique_together = (('datetype', 'dateline'))
