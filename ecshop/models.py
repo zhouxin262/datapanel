@@ -135,7 +135,7 @@ class Report1Manager(models.Manager):
     def cache(self, project, timeline=None):
         if not timeline:
             s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            timeline = Timeline.objects.get_or_create(datetype=datetype, dateline=s)[0]
+            timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
 
         key = "ecshop.report1|p:" + str(project.id) + "|d:" + timeline.datetype
         value = cache.get(key, {"timeline": None, "data": None})
@@ -154,25 +154,25 @@ class Report1Manager(models.Manager):
 
 @receiver(post_save)
 def report1_receiver(sender, instance, created, **kwargs):
-    if created and sender.__name__ in ('Session', 'Track'):
-        (key, value) = Report1.objects.cache(instance.project)
-        if sender.__name__ == 'Session':
-            value.userview += 1
-        elif sender.__name__ == 'Track':
-            value.pageview += 1
-            if instance.action.name == "goods":
-                value.goodspageview += 1
-        cache.set(key, value)
-
-    elif sender.__name__ == 'OrderInfo':
-        (key, value) = Report1.objects.cache(instance.project)
-        value = Report1.objects.cache(instance.project)
-        if instance.order_status in [1, 3, 5] and instance.order_sn not in value.order_set and value.timeline.has_time(instance.dateline):
-            value.order_set.append(instance.order_sn)
-            value.ordercount += 1
-            value.orderamount += instance.order_amount
-            value.ordergoodscount += instance.ordergoods_set.count()
+    if hasattr(instance, 'project'):
+        if created and sender.__name__ in ('Session', 'Track'):
+            (key, value) = Report1.objects.cache(instance.project)
+            if sender.__name__ == 'Session':
+                value["data"].userview += 1
+            elif sender.__name__ == 'Track':
+                value["data"].pageview += 1
+                if instance.action.name == "goods":
+                    value["data"].goodspageview += 1
             cache.set(key, value)
+
+        elif sender.__name__ == 'OrderInfo':
+            (key, value) = Report1.objects.cache(instance.project)
+            if instance.order_status in [1, 3, 5] and instance.order_sn not in value.order_set and value.timeline.has_time(instance.dateline):
+                value["data"].order_set.append(instance.order_sn)
+                value["data"].ordercount += 1
+                value["data"].orderamount += instance.order_amount
+                value["data"].ordergoodscount += instance.ordergoods_set.count()
+                cache.set(key, value)
 
 
 class Report1(models.Model):

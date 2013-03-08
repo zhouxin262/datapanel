@@ -290,22 +290,23 @@ class GTimeManager(models.Manager):
 @receiver(post_save)
 def gtime_receiver(sender, instance, created, **kwargs):
     if sender.__name__ in ('Session', 'Track') and created:
-        for datetype in ['hour', 'day']:
-            s = datetime.now().replace(minute=0, second=0, microsecond=0)
-            if datetype == 'day':
-                s = s.replace(hour=0)
-            timeline = Timeline.objects.get_or_create(datetype=datetype, dateline=s)[0]
+        if hasattr(instance, 'project'):
+            for datetype in ['hour', 'day']:
+                s = datetime.now().replace(minute=0, second=0, microsecond=0)
+                if datetype == 'day':
+                    s = s.replace(hour=0)
+                timeline = Timeline.objects.get_or_create(datetype=datetype, dateline=s)[0]
 
-            (key, value) = GTime.objects.cache(instance.project, timeline)
-            if sender.__name__ == 'Session':
-                value.count += 1
-            elif sender.__name__ == 'Track':
-                value.track_count = float(value.track_count * value.count + 1) / value.count
-                try:
-                    value.timelength = float(value.timelength * value.count + instance.prev_track().timelength) / value.count
-                except:
-                    pass
-            cache.set(key, value)
+                (key, value) = GTime.objects.cache(instance.project, timeline)
+                if sender.__name__ == 'Session':
+                    value["data"].count += 1
+                elif sender.__name__ == 'Track':
+                    value["data"].track_count = float(value["data"].track_count * value["data"].count + 1) / value["data"].count
+                    try:
+                        value["data"].timelength = float(value["data"].timelength * value["data"].count + instance.prev_track().timelength) / value["data"].count
+                    except:
+                        pass
+                cache.set(key, value)
 
 
 class GTime(models.Model):
