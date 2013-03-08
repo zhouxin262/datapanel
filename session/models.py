@@ -274,12 +274,14 @@ class GTimeManager(models.Manager):
     def cache(self, project, timeline):
         key = "gtime|p:" + str(project.id) + "|d:" + timeline.datetype
         value = cache.get(key, {"timeline": None, "data": None})
-        if value and value['timeline']:
+        if value['timeline'] and value['data']:
             in_time = value['timeline'].has_time(datetime.now())
             if not in_time:
                 value['data'].save()
-                value['data'] = None
-        if not value['data']:
+                value = {"timeline": None, "data": None}
+
+        # check again
+        if not value['timeline'] or not  value['data']:
             value = {'timeline': timeline, 'data': GTime.objects.generate(project, timeline)}
             cache.set(key, value)
         return (key, value)

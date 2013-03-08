@@ -132,41 +132,43 @@ class Report1Manager(models.Manager):
             r.save()
         return r
 
-    def cache(self, project):
-        r = cache.get(str(project.id) + "_report1", None)
-        if r:
-            in_time = r.timeline.has_time(datetime.now())
+    def cache(self, project, timeline):
+        key = "ecshop.report1|p:" + str(project.id) + "|d:" + timeline.datetype
+        value = cache.get(key, {"timeline": None, "data": None})
+        if value['timeline'] and value['data']:
+            in_time = value['timeline'].has_time(datetime.now())
             if not in_time:
-                r.save()
-                r = None
-        if not r:
-            s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
-            r = Report1.objects.generate(project, timeline)
-            cache.set(str(project.id) + "_report1", r)
-        return r
+                value['data'].save()
+                value = {"timeline": None, "data": None}
+
+        # check again
+        if not value['timeline'] or not  value['data']:
+            value = {'timeline': timeline, 'data': Report1.objects.generate(project, timeline)}
+            cache.set(key, value)
+        return (key, value)
 
 
 @receiver(post_save)
 def report1_receiver(sender, instance, created, **kwargs):
     if created and sender.__name__ in ('Session', 'Track'):
-        r = Report1.objects.cache(instance.project)
+        (key, value) = Report1.objects.cache(instance.project)
         if sender.__name__ == 'Session':
-            r.userview += 1
+            value.userview += 1
         elif sender.__name__ == 'Track':
-            r.pageview += 1
+            value.pageview += 1
             if instance.action.name == "goods":
-                r.goodspageview += 1
-        cache.set(str(instance.project.id) + "_report1", r)
+                value.goodspageview += 1
+        cache.set(key, value)
 
     elif sender.__name__ == 'OrderInfo':
-        r = Report1.objects.cache(instance.project)
-        if instance.order_status in [1, 3, 5] and instance.order_sn not in r.order_set and r.timeline.has_time(instance.dateline):
-            r.order_set.append(instance.order_sn)
-            r.ordercount += 1
-            r.orderamount += instance.order_amount
-            r.ordergoodscount += instance.ordergoods_set.count()
-            cache.set(str(instance.project.id) + "_report1", r)
+        (key, value) = Report1.objects.cache(instance.project)
+        value = Report1.objects.cache(instance.project)
+        if instance.order_status in [1, 3, 5] and instance.order_sn not in value.order_set and value.timeline.has_time(instance.dateline):
+            value.order_set.append(instance.order_sn)
+            value.ordercount += 1
+            value.orderamount += instance.order_amount
+            value.ordergoodscount += instance.ordergoods_set.count()
+            cache.set(key, value)
 
 
 class Report1(models.Model):
