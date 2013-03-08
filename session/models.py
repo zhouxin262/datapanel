@@ -280,7 +280,7 @@ class GTimeManager(models.Manager):
                 value['data'].save()
                 value = {"timeline": None, "data": None}
         elif in_time == 'gt': 
-            return (key, GTime.objects.generate(project, timeline, True))                
+            return (key, {'timeline': timeline, 'data':GTime.objects.generate(project, timeline, True)})                
 
         # check again
         if not value['timeline'] or not  value['data']:

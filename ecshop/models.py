@@ -114,19 +114,19 @@ class Report1Manager(models.Manager):
             r.project = project
             r.timeline = timeline
 
-        drange = timeline.get_range()
-        r.userview = Session.objects.filter(project=project, end_time__range=drange).values('ipaddress').distinct().count()
-        r.pageview = Track.objects.filter(session__project=project, dateline__range=drange).count()
-        r.goodsview = TrackValue.objects.filter(track__session__project=project, valuetype__name='goods_goods_id',
-                                                track__dateline__range=drange).values('value').distinct().count()
-        r.goodspageview = Track.objects.filter(session__project=project, dateline__range=drange, action__name='goods').count()
-        orderinfo = OrderInfo.objects.filter(
-            project=project, dateline__range=drange, order_status__in=[1, 3, 5]).aggregate(c=Count('id'), s=Sum('order_amount'))
-        r.ordercount = orderinfo['c']
-        r.orderamount = orderinfo['s']
-        r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5]
-                                                      ).aggregate(Sum('goods_number'))['goods_number__sum']
-        r.get_order_set(project)
+            drange = timeline.get_range()
+            r.userview = Session.objects.filter(project=project, end_time__range=drange).values('ipaddress').distinct().count()
+            r.pageview = Track.objects.filter(session__project=project, dateline__range=drange).count()
+            r.goodsview = TrackValue.objects.filter(track__session__project=project, valuetype__name='goods_goods_id',
+                                                    track__dateline__range=drange).values('value').distinct().count()
+            r.goodspageview = Track.objects.filter(session__project=project, dateline__range=drange, action__name='goods').count()
+            orderinfo = OrderInfo.objects.filter(
+                project=project, dateline__range=drange, order_status__in=[1, 3, 5]).aggregate(c=Count('id'), s=Sum('order_amount'))
+            r.ordercount = orderinfo['c']
+            r.orderamount = orderinfo['s']
+            r.ordergoodscount = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5]
+                                                          ).aggregate(Sum('goods_number'))['goods_number__sum']
+            r.get_order_set(project)
 
         if save:
             r.save()
@@ -146,8 +146,7 @@ class Report1Manager(models.Manager):
                 value['data'].save()
                 value = {"timeline": None, "data": None}
         elif in_time == 'gt': 
-            return (key, Report1.objects.generate(project, timeline, True)) 
-
+            return (key, {'timeline': timeline, 'data':Report1.objects.generate(project, timeline)}) 
         # check again
         if not value['timeline'] or not  value['data']:
             value = {'timeline': timeline, 'data': Report1.objects.generate(project, timeline)}
