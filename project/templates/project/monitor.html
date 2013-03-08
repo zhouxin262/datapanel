@@ -1,6 +1,6 @@
 {% extends 'datapanel/datapanel_base.html' %}
 {% block subnav-monitor %}
-  <li class="active"><a href="{%url project_monitor project.id%}">实时访客</a></li>
+  <li class="active"><a href="{%url 'project_monitor' project.id%}">实时访客</a></li>
 {% endblock subnav-monitor %}
 {% block content %}
     <div class=" span10">
