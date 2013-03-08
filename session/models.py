@@ -254,10 +254,17 @@ class GTimeManager(models.Manager):
     def generate(self, project, timeline, save=False):
         try:
             r = GTime.objects.get(project=project, timeline=timeline)
+        except GTime.MultipleObjectsReturned:
+            rs = GTime.objects.filter(project=project, timeline=timeline).order_by('id')
+            for r in rs[:-1]:
+                r.delete()
+            r = rs[-1]
         except GTime.DoesNotExist:
             r = GTime()
             r.project = project
             r.timeline = timeline
+
+
 
         drange = timeline.get_range()
 
