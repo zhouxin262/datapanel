@@ -19,7 +19,7 @@ def overview(request, id):
     (key,value) = Report1.objects.cache(project)
     report = Report1.objects.filter(project=project, timeline__datetype='day').order_by('-timeline__dateline')
     len(report)  # or anything that will evaluate and hit the db
-    report._result_cache.append(value)
+    report._result_cache.append(value["data"])
     return render(request, 'ecshop/overview.html', {'project': project, 'report': report})
 
 
