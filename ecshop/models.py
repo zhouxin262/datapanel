@@ -169,12 +169,13 @@ def report1_receiver(sender, instance, created, **kwargs):
 
         elif sender.__name__ == 'OrderInfo':
             (key, value) = Report1.objects.cache(instance.project)
-            if instance.order_status in [1, 3, 5] and instance.order_sn not in value.order_set and value.timeline.has_time(instance.dateline):
+            if instance.order_status in [1, 3, 5] and instance.order_sn not in value['data'].order_set and value['timeline'].has_time(instance.dateline):
                 value["data"].order_set.append(instance.order_sn)
                 value["data"].ordercount += 1
                 value["data"].orderamount += instance.order_amount
                 value["data"].ordergoodscount += instance.ordergoods_set.count()
                 cache.set(key, value)
+                print key, value['data'].ordercount
 
 
 class Report1(models.Model):
