@@ -59,12 +59,15 @@ def home(request, id):
 
     ts = Timeline.objects.filter(datetype=d, dateline__range=[s, e])
     for t in ts:
+        count = 0
         if t.dateline < datetime.now():
             try:
                 gt = GTime.objects.get(project=project, timeline=t)
             except:
                 gt = GTime.objects.generate(project, t, True)
-        report.append([time.mktime(t.dateline.timetuple()) * 1000, gt.count])
+            count = gt.count
+
+        report.append([time.mktime(t.dateline.timetuple()) * 1000, count])
 
     if request.is_ajax():
         return HttpResponse(json.dumps(report), mimetype="application/json")
