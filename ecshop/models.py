@@ -141,11 +141,11 @@ class Report1Manager(models.Manager):
         value = cache.get(key, {"timeline": None, "data": None})
         in_time = timeline.judge(datetime.now())
 
-        if in_time == 'gt':
+        if in_time == 'lt':
             if value['timeline'] and value['data']:
                 value['data'].save()
                 value = {"timeline": None, "data": None}
-        elif in_time == 'lt': 
+        elif in_time == 'gt': 
             return (key, Report1.objects.generate(project, timeline, True)) 
 
         # check again
