@@ -264,18 +264,15 @@ class GTimeManager(models.Manager):
             r.project = project
             r.timeline = timeline
 
+            drange = timeline.get_range()
+            s = Session.objects.filter(
+                project=project, end_time__range=drange).aggregate(Count("id"), Avg('track_count'), Avg('timelength'))
+            r.count = s['id__count']
+            r.track_count = s['track_count__avg']
+            r.timelength = s['timelength__avg']
 
-
-        drange = timeline.get_range()
-
-        s = Session.objects.filter(
-            project=project, end_time__range=drange).aggregate(Count("id"), Avg('track_count'), Avg('timelength'))
-        r.count = s['id__count']
-        r.track_count = s['track_count__avg']
-        r.timelength = s['timelength__avg']
-
-        if save:
-            r.save()
+            if save:
+                r.save()
         return r
 
     def cache(self, project, timeline):
@@ -287,6 +284,7 @@ class GTimeManager(models.Manager):
                 value['data'].save()
                 value = {"timeline": None, "data": None}
             elif in_time == 'lt':
+                print lt
                 return (key, GTime.objects.generate(project, timeline, True))
 
         # check again
