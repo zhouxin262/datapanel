@@ -16,10 +16,10 @@ def overview(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    r = Report1.objects.cache(project)
+    (key,value) = Report1.objects.cache(project)
     report = Report1.objects.filter(project=project, timeline__datetype='day').order_by('-timeline__dateline')
     len(report)  # or anything that will evaluate and hit the db
-    report._result_cache.append(r)
+    report._result_cache.append(value)
     return render(request, 'ecshop/overview.html', {'project': project, 'report': report})
 
 

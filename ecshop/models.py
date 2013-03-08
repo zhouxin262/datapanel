@@ -132,7 +132,11 @@ class Report1Manager(models.Manager):
             r.save()
         return r
 
-    def cache(self, project, timeline):
+    def cache(self, project, timeline=None):
+        if not timeline:
+            s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            timeline = Timeline.objects.get_or_create(datetype=datetype, dateline=s)[0]
+
         key = "ecshop.report1|p:" + str(project.id) + "|d:" + timeline.datetype
         value = cache.get(key, {"timeline": None, "data": None})
         if value['timeline'] and value['data']:
