@@ -1,4 +1,4 @@
-# coding=utf-8
+ # coding=utf-8
 import time
 import json
 from datetime import datetime, timedelta
@@ -54,12 +54,15 @@ def home(request, id):
     d = request.GET.get('d', 'hour')
     s = request.GET.get('s', datetime.today().strftime("%Y-%m-%d"))
     e = request.GET.get('e', (datetime.strptime(s, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d"))
-    print d, s, e
-    ts = Timeline.objects.filter(datetype=d, dateline__range=[s, e])
-    gts = GTime.objects.filter(project=project, timeline__in=ts).order_by("timeline__dateline")
+
     report = []
-    for gt in gts:
-        report.append([time.mktime(gt.timeline.dateline.timetuple()) * 1000, gt.count])
+    for t in ts:
+        if t.dateline < datetime.now():
+            try:
+                gt = GTime.objects.get(project=project, timeline=t)
+            except:
+                gt = Gtime.objects.generate(project, t, True)
+        report.append([time.mktime(t.dateline.timetuple()) * 1000, gt.count])
 
     if request.is_ajax():
         return HttpResponse(json.dumps(report), mimetype="application/json")
