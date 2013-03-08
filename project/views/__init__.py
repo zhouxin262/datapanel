@@ -56,14 +56,14 @@ def home(request, id):
     e = request.GET.get('e', (datetime.strptime(s, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d"))
 
     report = []
-    
+
     ts = Timeline.objects.filter(datetype=d, dateline__range=[s, e])
     for t in ts:
         if t.dateline < datetime.now():
             try:
                 gt = GTime.objects.get(project=project, timeline=t)
             except:
-                gt = Gtime.objects.generate(project, t, True)
+                gt = GTime.objects.generate(project, t, True)
         report.append([time.mktime(t.dateline.timetuple()) * 1000, gt.count])
 
     if request.is_ajax():
