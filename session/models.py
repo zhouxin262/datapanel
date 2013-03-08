@@ -254,11 +254,6 @@ class GTimeManager(models.Manager):
     def generate(self, project, timeline, save=False):
         try:
             r = GTime.objects.get(project=project, timeline=timeline)
-        except GTime.MultipleObjectsReturned:
-            rs = GTime.objects.filter(project=project, timeline=timeline).order_by('id')
-            for r in rs[:-1]:
-                r.delete()
-            r = GTime.objects.get(project=project, timeline=timeline)
         except GTime.DoesNotExist:
             r = GTime()
             r.project = project
@@ -278,13 +273,15 @@ class GTimeManager(models.Manager):
     def cache(self, project, timeline):
         key = "gtime|p:" + str(project.id) + "|d:" + timeline.datetype
         value = cache.get(key, {"timeline": None, "data": None})
-        if value['timeline'] and value['data']:
-            in_time = value['timeline'].judge(datetime.now())
-            if in_time == 'gt':
+
+        in_time = timeline.judge(datetime.now())       
+
+        if in_time == 'gt':
+            if value['timeline'] and value['data']:
                 value['data'].save()
                 value = {"timeline": None, "data": None}
-            elif in_time == 'lt':
-                return (key, GTime.objects.generate(project, timeline, True))
+        elif in_time == 'lt': 
+            return (key, GTime.objects.generate(project, timeline, True))                
 
         # check again
         if not value['timeline'] or not  value['data']:
