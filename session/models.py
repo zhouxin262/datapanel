@@ -258,7 +258,7 @@ class GTimeManager(models.Manager):
             rs = GTime.objects.filter(project=project, timeline=timeline).order_by('id')
             for r in rs[:-1]:
                 r.delete()
-            r = rs[-1]
+            r = GTime.objects.get(project=project, timeline=timeline)
         except GTime.DoesNotExist:
             r = GTime()
             r.project = project
@@ -284,7 +284,6 @@ class GTimeManager(models.Manager):
                 value['data'].save()
                 value = {"timeline": None, "data": None}
             elif in_time == 'lt':
-                print lt
                 return (key, GTime.objects.generate(project, timeline, True))
 
         # check again
