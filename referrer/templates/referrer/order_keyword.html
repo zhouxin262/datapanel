@@ -82,7 +82,7 @@ function dtable(url){
 }
 $(document).ready(function(){
     $('#datatables').dataTable({
-        "aaData": {{res}}['aaData'],
+        "aaData": {{res|safe}}['aaData'],
         "iDisplayLength": 30,
         "sPaginationType": "full_numbers",
         "bPaginate": true,
