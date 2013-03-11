@@ -126,6 +126,7 @@ class Report1Manager(models.Manager):
             r.ordercount = orderinfo['c']
             r.orderamount = orderinfo['s']
             og = OrderGoods.objects.filter(project=project, order__dateline__range=drange, order__order_status__in=[1, 3, 5])
+
             if not og:
                 r.ordergoodscount = 0
             else:
@@ -133,8 +134,8 @@ class Report1Manager(models.Manager):
             r.get_order_set(project)
             r.get_order_set(project)
 
-        if save:
-            r.save()
+            if save:
+                r.save()
         return r
 
     def cache(self, project, timeline=None):
@@ -147,11 +148,11 @@ class Report1Manager(models.Manager):
         in_time = timeline.judge(datetime.now())
 
         if in_time == 'lt':
+            return (key, {'timeline': timeline, 'data': Report1.objects.generate(project, timeline, True)})
+        elif in_time == 'gt':
             if value['timeline'] and value['data']:
                 value['data'].save()
                 value = {"timeline": None, "data": None}
-        elif in_time == 'gt':
-            return (key, {'timeline': timeline, 'data': Report1.objects.generate(project, timeline)})
         # check again
         if not value['timeline'] or not value['data']:
             value = {'timeline': timeline, 'data': Report1.objects.generate(project, timeline)}
