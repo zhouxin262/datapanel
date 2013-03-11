@@ -145,8 +145,8 @@ class Report1Manager(models.Manager):
             if value['timeline'] and value['data']:
                 value['data'].save()
                 value = {"timeline": None, "data": None}
-        elif in_time == 'gt': 
-            return (key, {'timeline': timeline, 'data':Report1.objects.generate(project, timeline)}) 
+        elif in_time == 'gt':
+            return (key, {'timeline': timeline, 'data':Report1.objects.generate(project, timeline)})
         # check again
         if not value['timeline'] or not  value['data']:
             value = {'timeline': timeline, 'data': Report1.objects.generate(project, timeline)}
@@ -175,7 +175,6 @@ def report1_receiver(sender, instance, created, **kwargs):
                 value["data"].orderamount += instance.order_amount
                 value["data"].ordergoodscount += instance.ordergoods_set.count()
                 cache.set(key, value)
-                print key, value['data'].ordercount
 
 
 class Report1(models.Model):

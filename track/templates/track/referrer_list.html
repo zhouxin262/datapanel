@@ -1,7 +1,7 @@
 {%extends 'datapanel/datapanel_base.html'%}
 {% block subnav-referrer %}
 <li class="active">
-	<a href="{%url referrer_list project.id%}">来源分析</a>
+	<a href="{%url 'referrer_list' project.id%}">来源分析</a>
 </li>
 {% endblock subnav-referrer %}
 {% block content %}

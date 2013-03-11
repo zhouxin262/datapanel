@@ -1,13 +1,13 @@
 {%extends 'datapanel/datapanel_base.html'%}
 {% block subnav-action %}
     <li class="active">
-        <a href="{%url action_list project.id%}">行为设置</a>
+        <a href="{%url 'action_list' project.id%}">行为设置</a>
     </li>
 {% endblock subnav-action %}
 {% block content %}
     <div class="span10">
         <div class="page-header">
-            <a class="btn pull-right" href="{%url action_create project.id%}">添加行为</a>
+            <a class="btn pull-right" href="{%url 'action_create' project.id%}">添加行为</a>
             <h1>{{project.name}} / action</h1>
         </div>
         <table class="table">
@@ -25,7 +25,7 @@
                     <td class="action">{{action.name}}</td>
                     <td>{{action.url}}</td>
                     <td>{{action.get_is_flag_display}}</td>
-                    <td><a href="{%url action_update action.project.id action.id%}">编辑</a>|<a href="{%url action_delete action.project.id action.id%}">删除</a></td>
+                    <td><a href="{%url 'action_update' action.project.id action.id%}">编辑</a>|<a href="{%url 'action_delete' action.project.id action.id%}">删除</a></td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -1,7 +1,7 @@
 {%extends 'datapanel/datapanel_base.html'%}
 {% block subnav-setting %}
 <li class="active">
-	<a href="{%url project_setting project.id%}">设置</a>
+	<a href="{%url 'project_setting' project.id%}">设置</a>
 </li>
 {% endblock subnav-setting %}
 {% block content  %}
@@ -19,7 +19,7 @@
 				<label class="control-label" for="input01">项目URL</label>
 				<div class="controls">
 					<input type="text" class="input-xlarge" id="input01" value="{{project.url}}"></div>
-					
+
 			</div>
 			<div class="control-group">
 				<label class="control-label" for="input01">Token</label>

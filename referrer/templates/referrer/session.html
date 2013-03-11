@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block subnav-referrer-keyword %}
 <li class="active">
-	<a href="{%url session_groupby_referrer project.id "keyword" %}">来源分析</a>
+	<a href="{%url 'session_groupby_referrer' project.id "keyword" %}">来源分析</a>
 </li>
 {% endblock subnav-referrer-keyword %}
 {% block content %}
@@ -14,10 +14,10 @@
 	</div>
 	<ul class="nav nav-tabs">
 		<li {%if params.referrer_attr == 'keyword'%}class="active"{%endif%}>
-			<a href="{%url session_groupby_referrer project.id "keyword" %}">来源关键词分析</a>
+			<a href="{%url 'session_groupby_referrer' project.id "keyword" %}">来源关键词分析</a>
 		</li>
 		<li {%if params.referrer_attr == 'site'%}class="active"{%endif%}>
-			<a href="{%url session_groupby_referrer project.id "site" %}">来源网站分析</a>
+			<a href="{%url 'session_groupby_referrer' project.id "site" %}">来源网站分析</a>
 		</li>
 	</ul>
 	<ul class="nav nav-pills">

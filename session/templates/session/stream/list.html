@@ -7,7 +7,7 @@
 {% endblock title %}
 {% block subnav-stream %}
 <li class="active">
-	<a href="{%url stream_list project.id%}">访问路径</a>
+	<a href="{%url 'stream_list' project.id%}">访问路径</a>
 </li>
 {% endblock subnav-stream %}
 {% block content %}
@@ -18,17 +18,17 @@
 	<div class="span8">
 		<ul class="nav nav-tabs">
 			<li class="active">
-				<a href="{%url stream_list project.id %}">列表</a>
+				<a href="{%url 'stream_list' project.id %}">列表</a>
 			</li>
 			<li>
-				<a href="{%url stream_tile project.id %}">平铺</a>
+				<a href="{%url 'stream_tile' project.id %}">平铺</a>
 			</li>
 		</ul>
 		<ul class="unstyled session-list">
 			{% for session in session_list %}
 			<li>
 				<h3>
-				<a href="{%url stream_view project.id session.id%}">
+				<a href="{%url 'stream_view' project.id session.id%}">
 					{% if session.username %}
 					{{ session.username }}
 					{% else %}
