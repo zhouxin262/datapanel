@@ -28,7 +28,7 @@
 			{% for session in session_list %}
 			<li>
 				<h3>
-				<a href="{%url stream_view project.id session.id%}">
+				<a href="{%url 'stream_view' project.id session.id%}">
 					{% if session.username %}
 					{{ session.username }}
 					{% else %}
