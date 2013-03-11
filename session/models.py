@@ -129,7 +129,8 @@ class AbsSession(models.Model):
         for t in self.track_set.filter().order_by('id'):
             if prev_track:
                 if (prev_track.timelength == 0 or prev_track.timelength > 300) and (t.dateline - prev_track.dateline).seconds > 300:
-                    tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline - prev_track.dateline).seconds / 60)
+                    tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline -
+                                                                                 prev_track.dateline).seconds / 60)
                     tracks.append([t.action.name, "<span class='type-name'>%s</span>" % t.action.name])
                 else:
                     if t.action == prev_track.action:
@@ -275,11 +276,11 @@ class GTimeManager(models.Manager):
 
         in_time = timeline.judge(datetime.now())
         if in_time == 'lt':
+            return (key, {'timeline': timeline, 'data': GTime.objects.generate(project, timeline, True)})
+        elif in_time == 'gt':
             if value['timeline'] and value['data']:
                 value['data'].save()
                 value = {"timeline": None, "data": None}
-        elif in_time == 'gt':
-            return (key, {'timeline': timeline, 'data': GTime.objects.generate(project, timeline, True)})
 
         # check again
         if not value['timeline'] or not value['data']:
