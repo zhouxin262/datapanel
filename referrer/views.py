@@ -66,17 +66,14 @@ def order_keyword(request, id):
                                                                dateline__range=[s, e])]
 
     kws = {}
-    for sid in sessions:
-        s = None
-        try:
-            s = Session.objects.get(id=sid)
-        except Session.DoesNotExist:
-            s = SessionArch.objects.get(id=sid)
-        if s and s.referrer_keyword:
-            if s.referrer_keyword.name in kws:
-                kws[s.referrer_keyword.name] += 1
-            else:
-                kws[s.referrer_keyword.name] = 1
+    ss = Session.objects.filter(id__in=sessions)
+    len(ss)  # or anything that will evaluate and hit the db
+    ss._result_cache.append(SessionArch.objects.filter(id__in=sessions))
+    for obj in ss:
+        if obj.referrer_keyword.name in kws:
+            kws[obj.referrer_keyword.name] += 1
+        else:
+            kws[obj.referrer_keyword.name] = 1
 
     res = {"aaData": []}
     for k, v in kws.items():
