@@ -129,8 +129,7 @@ class AbsSession(models.Model):
         for t in self.track_set.filter().order_by('id'):
             if prev_track:
                 if (prev_track.timelength == 0 or prev_track.timelength > 300) and (t.dateline - prev_track.dateline).seconds > 300:
-                    tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline -
-                                                                                 prev_track.dateline).seconds / 60)
+                    tracks[-1][1] += u"</li><span class='break'>%d 分钟</span>" % ((t.dateline - prev_track.dateline).seconds / 60)
                     tracks.append([t.action.name, "<span class='type-name'>%s</span>" % t.action.name])
                 else:
                     if t.action == prev_track.action:
@@ -274,16 +273,16 @@ class GTimeManager(models.Manager):
         key = "gtime|p:" + str(project.id) + "|d:" + timeline.datetype
         value = cache.get(key, {"timeline": None, "data": None})
 
-        in_time = timeline.judge(datetime.now()) 
+        in_time = timeline.judge(datetime.now())
         if in_time == 'lt':
             if value['timeline'] and value['data']:
                 value['data'].save()
                 value = {"timeline": None, "data": None}
-        elif in_time == 'gt': 
-            return (key, {'timeline': timeline, 'data':GTime.objects.generate(project, timeline, True)})                
+        elif in_time == 'gt':
+            return (key, {'timeline': timeline, 'data': GTime.objects.generate(project, timeline, True)})
 
         # check again
-        if not value['timeline'] or not  value['data']:
+        if not value['timeline'] or not value['data']:
             value = {'timeline': timeline, 'data': GTime.objects.generate(project, timeline)}
             cache.set(key, value)
         return (key, value)
@@ -305,7 +304,8 @@ def gtime_receiver(sender, instance, created, **kwargs):
                 elif sender.__name__ == 'Track':
                     value["data"].track_count = float(value["data"].track_count * value["data"].count + 1) / value["data"].count
                     try:
-                        value["data"].timelength = float(value["data"].timelength * value["data"].count + instance.prev_track().timelength) / value["data"].count
+                        value["data"].timelength = float(value["data"].timelength * value["data"]
+                                                         .count + instance.prev_track().timelength) / value["data"].count
                     except:
                         pass
                 cache.set(key, value)

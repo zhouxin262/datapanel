@@ -1,8 +1,10 @@
 # coding=utf-8
+import json
 from datetime import datetime, timedelta
 
 from django.db.models import Sum, Avg
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.cache import cache_page
 
@@ -75,7 +77,15 @@ def order_keyword(request, id):
                 kws[s.referrer_keyword.name] += 1
             else:
                 kws[s.referrer_keyword.name] = 1
-    return render(request, 'referrer/order_keyword.html', {'project': project, 'kws': kws})
+
+    res = {"aaData": []}
+    for k, v in kws.items():
+        res["aaData"].append([k, v])
+
+    if request.is_ajax():
+        return HttpResponse(json.dumps(res), mimetype="application/json")
+
+    return render(request, 'referrer/order_keyword.html', {'project': project, 'res': json.dumps(res)})
 
 
 # @cache_page(60 * 15)
