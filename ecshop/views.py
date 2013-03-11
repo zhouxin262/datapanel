@@ -16,7 +16,7 @@ def overview(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    (key,value) = Report1.objects.cache(project)
+    (key, value) = Report1.objects.cache(project)
     report = Report1.objects.filter(project=project, timeline__datetype='day').order_by('-timeline__dateline')
     len(report)  # or anything that will evaluate and hit the db
     report._result_cache.append(value["data"])

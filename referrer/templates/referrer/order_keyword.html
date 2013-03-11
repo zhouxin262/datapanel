@@ -9,9 +9,24 @@
 {% endblock subnav-referrer-order-keyword %}
 {% block content %}
 <div class="span10">
-	<div class="page-header">
-		<h1>{{project.name}} / 来源分析</h1>
-	</div>
+	<ul class="breadcrumb">
+        <li><a href="#">{{ project.name }}</a> <span class="divider">/</span></li>
+        <li class="active">概况</li>
+    </ul>
+    <ul id="nav_dateline" class="nav nav-pills">
+        <li class="active">
+            <a href="#" id="dateline_today">今天</a>
+        </li>
+        <li>
+            <a href="#" id="dateline_yesterday">昨天</a>
+        </li>
+        <li>
+            <a href="#" id="dateline_week">最近7天</a>
+        </li>
+        <li>
+            <a href="#" id="dateline_month">最近30天</a>
+        </li>
+    </ul>
 	<div class="">
 		<table id="datatables" class="display datatables">
 			<thead>
@@ -25,12 +40,6 @@
 			</tr>
 			</thead>
 			<tbody>
-			{% for k,v in kws.items %}
-			<tr>
-				<td>{{k}}</td>
-				<td>{{v}}</td>
-			</tr>
-			{% endfor %}
 			</tbody>
             <tfoot>
             <tr>
@@ -45,10 +54,14 @@
 		</table>
 	</div>
 </div>
+{% endblock content %}
+{% block jsblock %}
+
 <script type="text/javascript">
-$(function(){
-$(document).ready(function(){
+function dtable(url){
     $('#datatables').dataTable({
+        "bProcessing": true,
+        "sAjaxSource": url,
         "iDisplayLength": 30,
         "sPaginationType": "full_numbers",
         "bPaginate": true,
@@ -66,7 +79,57 @@ $(document).ready(function(){
           }
         }
     });
-});
+}
+$(document).ready(function(){
+    $('#datatables').dataTable({
+        "aaData": res['aaData'],
+        "iDisplayLength": 30,
+        "sPaginationType": "full_numbers",
+        "bPaginate": true,
+        "bFilter": false,
+        "bLengthChange": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "aaSorting": [[ 1 , "desc" ]],
+        "oLanguage": {
+          "oPaginate": {
+            "sFirst": "第一页",
+            "sLast": "最后页",
+            "sPrevious": "上一页",
+            "sNext": "下一页"
+          }
+        }
+    });
+
+    $("#nav_dateline a").click(function(e){
+        e.preventDefault();
+        var a_id = $(this).attr("id");
+        if(a_id == "dateline_today"){
+            url = "{% url 'session_order_keyword' project.id %}"
+        }
+        else if (a_id == "dateline_yesterday"){
+            var d = new Date();
+            var s = d.setDate(d.getDate()-1);
+            url = "{% url 'session_order_keyword' project.id %}" + "?s=" + d.format('yyyy-MM-dd');
+        }
+        else if(a_id == "dateline_week"){
+            var d = new Date();
+            e = d.format('yyyy-MM-dd');
+            d.setDate(d.getDate()-7);
+            s = d.format('yyyy-MM-dd');
+            url = "{% url 'session_order_keyword' project.id %}" + "?d=day&s=" + s + "&e=" + e;
+        }
+        else if(a_id == "dateline_month"){
+            var d = new Date();
+            e = d.format('yyyy-MM-dd');
+            d.setDate(d.getDate() - 30);
+            s = d.format('yyyy-MM-dd');
+            url = "{% url 'session_order_keyword' project.id %}" + "?d=day&s=" + s + "&e=" + e;
+        }
+        dtable(url);
+        $("#nav_dateline li").removeClass("active");
+        $(this).parent().addClass('active');
+    });
 });
 </script>
-{% endblock content %}
+{% endblock jsblock %}

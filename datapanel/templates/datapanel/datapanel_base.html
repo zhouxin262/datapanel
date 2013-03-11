@@ -73,12 +73,12 @@
     		<a href="{%url 'track_groupby_action' project.id%}">网页分析</a>
     	</li>
     	{% endblock subnav-group %}
+        {% comment %}
     	{% block subnav-funnel %}
     	<li>
     		<a href="{%url 'funnel_home' project.id%}">转化路径</a>
     	</li>
     	{% endblock subnav-funnel %}
-        {% comment %}
         {% block subnav-condition %}
         <li>
             <a href="{%url 'condition_list' project.id%}">条件设定</a>
