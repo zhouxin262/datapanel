@@ -85,7 +85,7 @@ def order_keyword(request, id):
         res["aaData"].append([k, v])
 
     if request.is_ajax():
-        return render(request, 'datapanel/respond.json', {'res': json.dumps(res)}, content_type="application/json")
+        return render(request, 'respond.json', {'res': json.dumps(res)}, content_type="application/json")
 
     return render(request, 'referrer/order_keyword.html', {'project': project, 'res': json.dumps(res)})
 
