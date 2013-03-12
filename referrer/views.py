@@ -68,7 +68,7 @@ def order_keyword(request, id):
     kws = {}
     ss = Session.objects.filter(id__in=sessions)
     len(ss)  # or anything that will evaluate and hit the db
-    ss._result_cache.append(SessionArch.objects.filter(id__in=sessions))
+    ss._result_cache.extend(SessionArch.objects.filter(id__in=sessions))
     for obj in ss:
         if obj.referrer_keyword.name in kws:
             kws[obj.referrer_keyword.name] += 1
