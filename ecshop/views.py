@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from django.shortcuts import render
 from django.contrib.auth.views import redirect_to_login
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
 
 from datapanel.models import Timeline
 from ecshop.models import Report1, Report2, OrderInfo
@@ -16,7 +16,10 @@ def overview(request, id):
     except AttributeError:
         return redirect_to_login(request.get_full_path())
 
-    (key, value) = Report1.objects.cache(project)
+    s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
+
+    (key, value) = Report1.objects.cache(project, timeline)
     report = Report1.objects.filter(project=project, timeline__datetype='day').order_by('-timeline__dateline')
     len(report)  # or anything that will evaluate and hit the db
     report._result_cache.append(value["data"])

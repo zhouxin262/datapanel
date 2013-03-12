@@ -163,8 +163,11 @@ class Report1Manager(models.Manager):
 @receiver(post_save)
 def report1_receiver(sender, instance, created, **kwargs):
     if hasattr(instance, 'project'):
+        s = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        timeline = Timeline.objects.get_or_create(datetype='day', dateline=s)[0]
+
         if created and sender.__name__ in ('Session', 'Track'):
-            (key, value) = Report1.objects.cache(instance.project)
+            (key, value) = Report1.objects.cache(instance.project, timeline)
             if sender.__name__ == 'Session':
                 value["data"].userview += 1
             elif sender.__name__ == 'Track':
@@ -174,7 +177,7 @@ def report1_receiver(sender, instance, created, **kwargs):
             cache.set(key, value)
 
         elif sender.__name__ == 'OrderInfo':
-            (key, value) = Report1.objects.cache(instance.project)
+            (key, value) = Report1.objects.cache(instance.project, timeline)
             if instance.order_status in [1, 3, 5] and instance.order_sn not in value['data'].order_set and value['timeline'].has_time(instance.dateline):
                 value["data"].order_set.append(instance.order_sn)
                 value["data"].ordercount += 1
