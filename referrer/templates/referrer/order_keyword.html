@@ -63,6 +63,15 @@ function dtable(url){
         "bDestroy": true,
         "bProcessing": true,
         "sAjaxSource": url,
+        "fnServerData": function(sSource, aoData, fnCallback, oSettings){
+            oSettings.jqXHR = $.ajax({
+                "dataType": 'json',
+                "url": sSource,
+                "data": aoData,
+                "success": fnCallback,
+                'cache': true
+            });
+        },
         "iDisplayLength": 30,
         "sPaginationType": "full_numbers",
         "bPaginate": true,
