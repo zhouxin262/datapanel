@@ -70,10 +70,15 @@ def order_keyword(request, id):
     len(ss)  # or anything that will evaluate and hit the db
     ss._result_cache.extend(SessionArch.objects.filter(id__in=sessions))
     for obj in ss:
-        if obj.referrer_keyword.name in kws:
-            kws[obj.referrer_keyword.name] += 1
+        if obj.referrer_keyword:
+            if obj.referrer_keyword.name in kws:
+                kws[obj.referrer_keyword.name] += 1
+            else:
+                kws[obj.referrer_keyword.name] = 1
+        if "" in kws:
+            kws[""] += 1
         else:
-            kws[obj.referrer_keyword.name] = 1
+            kws[""] = 1
 
     res = {"aaData": []}
     for k, v in kws.items():
