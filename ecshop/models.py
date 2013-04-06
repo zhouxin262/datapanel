@@ -108,7 +108,7 @@ class Goods(models.Model):
 
 
 class GoodsRelation(models.Model):
-    RELATIONSHIPS = ((0, u"buy"), (1, u"已确认"))
+    RELATIONSHIPS = ((0, u"buy"), (1, u"view"))
     project = models.ForeignKey(Project)
     goods_id = models.IntegerField(null=True, default=0)
     goods_related_id = models.IntegerField(null=True, default=0)

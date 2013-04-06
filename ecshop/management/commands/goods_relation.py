@@ -20,48 +20,55 @@ class Command(NoArgsCommand):
                 else:
                     goods_dict[g1][g2] = 1
 
-    def write_csv(self, goods_dict):
+    def write_csv(self, goods_dict, project_id, relation_type):
         f = open('test.csv', 'w')
         for goods, goods_attr in goods_dict.items():
             for k, v in goods_attr.items():
                 if not k == goods:
-                    f.write('%d,%d,%d,%d,%f\n' % (goods, k, v, goods_attr[goods], float(v)/goods_attr[goods]*100))
+                    f.write('%d,%d,%d,%d,%f\n' % (goods, k, v, goods_attr[goods], round(float(v)/goods_attr[goods]*100, 3)))
         f.close()
 
     def write_db(self, goods_dict, project_id, relation_type):
-        sql = """INSERT INTO ecshop_goods_relation(project_id, goods_id, goods_related, hit_count, hit_percent, relationship) VALUES(%d, %d, %d, %d, %f, %s)"""
-        values = []
+        sql = """INSERT INTO ecshop_goodsrelation(project_id, goods_id, goods_related_id, hit_count, hit_percent, relationship) VALUES(%d, %d, %d, %d, %f, %d)"""
+        sqls = []
         for goods, goods_attr in goods_dict.items():
             for k, v in goods_attr.items():
                 if not k == goods:
-                    values .append((project_id, goods, k, v, float(v)/goods_attr[goods]*100, relation_type))
-        return (sql, values)
+                    sqls.append(sql % (project_id, goods, k, v, round(float(v)/goods_attr[goods]*100, 3), relation_type))
+        return sqls
+        # return sql % values[0]
 
     def handle_noargs(self, **options):
         conn = _mysql.connect(host='127.0.0.1', user='root', passwd='')
         conn.select_db('datapanel')
         cursor = conn.cursor()
-        for project in Project.objects.filter():
-            project_id = project.id
-            goods_dict = {}
-            cursor.execute(
-                'select group_concat(distinct(goods_id)) from ecshop_ordergoods where order_id > 0 and project_id=%d GROUP BY order_id;' % project_id)
-            goodstrs = cursor.fetchall()
-            for r in goodstrs:
-                goodstr = r[0]
-                self.set_goods_dict(goods_dict, self.split_goods(goodstr))
+        cursor.execute('SET group_concat_max_len=102400;')
+        # for project in Project.objects.filter():
+        project_id = 1
+        goods_dict = {}
+        # cursor.execute(
+        #     'select group_concat(distinct(goods_id)) from ecshop_ordergoods where order_id > 0 and project_id=%d GROUP BY order_id;' % project_id)
+        # goodstrs = cursor.fetchall()
+        # for r in goodstrs:
+        #     goodstr = r[0]
+        #     self.set_goods_dict(goods_dict, self.split_goods(goodstr))
+        # sqls = self.write_db(goods_dict, project_id, 0)
+        # for sql in sqls:
+        #     cursor.execute(sql)
 
-            sql, values = self.write_db(goods_dict, project_id, 'buy')
-            cursor.executemany(sql, values)
+        goods_dict = {}
+        cursor.execute(
+            '''SELECT GROUP_CONCAT(DISTINCT(value))
+FROM track_trackvaluearch ta
+JOIN track_trackarch a ON ta.track_id=a.id
+WHERE ta.valuetype_id = 2 and a.project_id = %d
+GROUP BY a.session_id''' % project_id)
+        goodstrs = cursor.fetchall()
 
-            cursor.execute(
-                'select group_concat(distinct(goods_id)) from track_trackvaluearch tv JOIN track_trackarch a ON ta.track_id=a.track_id where a.session_id > 0 WHERE project_id=%d GROUP BY a.session_id;' % project_id)
-            goodstrs = cursor.fetchall()
-            for r in goodstrs:
-                goodstr = r[0]
-                self.set_goods_dict(goods_dict, self.split_goods(goodstr))
+        for r in goodstrs:
+            goodstr = r[0]
+            self.set_goods_dict(goods_dict, self.split_goods(goodstr))
 
-            sql, values = self.write_db(goods_dict, project_id, 'view')
-            cursor.executemany(sql, values)
-
-        conn.close()
+        sqls = self.write_db(goods_dict, project_id, 1)
+        for sql in sqls:
+            cursor.execute(sql)
