@@ -43,32 +43,33 @@ class Command(NoArgsCommand):
         conn.select_db('datapanel')
         cursor = conn.cursor()
         cursor.execute('SET group_concat_max_len=102400;')
-        # for project in Project.objects.filter():
-        project_id = 1
-        goods_dict = {}
-        # cursor.execute(
-        #     'select group_concat(distinct(goods_id)) from ecshop_ordergoods where order_id > 0 and project_id=%d GROUP BY order_id;' % project_id)
-        # goodstrs = cursor.fetchall()
-        # for r in goodstrs:
-        #     goodstr = r[0]
-        #     self.set_goods_dict(goods_dict, self.split_goods(goodstr))
-        # sqls = self.write_db(goods_dict, project_id, 0)
-        # for sql in sqls:
-        #     cursor.execute(sql)
+        for project in Project.objects.filter():
+            project_id = project.id
+            goods_dict = {}
 
-        goods_dict = {}
-        cursor.execute(
-            '''SELECT GROUP_CONCAT(DISTINCT(value))
-FROM track_trackvaluearch ta
-JOIN track_trackarch a ON ta.track_id=a.id
-WHERE ta.valuetype_id = 2 and a.project_id = %d
-GROUP BY a.session_id''' % project_id)
-        goodstrs = cursor.fetchall()
+            cursor.execute(
+                'select group_concat(distinct(goods_id)) from ecshop_ordergoods where order_id > 0 and project_id=%d GROUP BY order_id;' % project_id)
+            goodstrs = cursor.fetchall()
+            for r in goodstrs:
+                goodstr = r[0]
+                self.set_goods_dict(goods_dict, self.split_goods(goodstr))
+            sqls = self.write_db(goods_dict, project_id, 0)
+            for sql in sqls:
+                cursor.execute(sql)
 
-        for r in goodstrs:
-            goodstr = r[0]
-            self.set_goods_dict(goods_dict, self.split_goods(goodstr))
+            goods_dict = {}
+            cursor.execute(
+                '''SELECT GROUP_CONCAT(DISTINCT(value))
+                FROM track_trackvaluearch ta
+                JOIN track_trackarch a ON ta.track_id=a.id
+                WHERE ta.valuetype_id = 2 and a.project_id = %d
+                GROUP BY a.session_id''' % project_id)
+            goodstrs = cursor.fetchall()
 
-        sqls = self.write_db(goods_dict, project_id, 1)
-        for sql in sqls:
-            cursor.execute(sql)
+            for r in goodstrs:
+                goodstr = r[0]
+                self.set_goods_dict(goods_dict, self.split_goods(goodstr))
+
+            sqls = self.write_db(goods_dict, project_id, 1)
+            for sql in sqls:
+                cursor.execute(sql)
