@@ -13,6 +13,7 @@ from datapanel.utils import Group
 
 
 class Command(LabelCommand):
+
     def handle_label(self, label, **options):
         print label, '====start====', datetime.now()
         days_before = 0
@@ -57,5 +58,6 @@ class Command(LabelCommand):
             g.fargs = {'order__dateline__range': [s, e], 'project': p}
             g.function_attr = {'goods': get_goods2}
             g.easy_group(update=True)
+
         cache.clear()
         print label, '====finished====', datetime.now()

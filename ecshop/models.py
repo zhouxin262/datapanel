@@ -14,6 +14,7 @@ from track.models import Track, TrackValue
 
 
 class OrderManager(models.Manager):
+
     def process(self, project, order_sn, order_amount=0, goods_list={}, session=None, status=0, *args, **kwargs):
         try:
             order = OrderInfo.objects.get(project=project, order_sn=order_sn)
@@ -83,6 +84,7 @@ class OrderGoods(models.Model):
 
 
 class GoodsManager(models.Manager):
+
     def process(self, project, goods_id, cat_id=0, goods_name='', goods_price=0, *args, **kwargs):
         g = Goods.objects.get_or_create(project=project, goods_id=goods_id)
         if not (g[0].cat_id == cat_id and g[0].goods_name == goods_name and g[0].goods_price == goods_price):
@@ -105,7 +107,18 @@ class Goods(models.Model):
         unique_together = (('project', 'goods_id'))
 
 
+class GoodsRelation(models.Model):
+    RELATIONSHIPS = ((0, u"buy"), (1, u"已确认"))
+    project = models.ForeignKey(Project)
+    goods_id = models.IntegerField(null=True, default=0)
+    goods_related_id = models.IntegerField(null=True, default=0)
+    hit_count = models.IntegerField(null=True, default=0)
+    hit_percent = models.DecimalField(null=True, max_digits=11, decimal_places=3, default=0)
+    relationship = models.IntegerField(null=True, default=0, choices=RELATIONSHIPS)
+
+
 class Report1Manager(models.Manager):
+
     def generate(self, project, timeline, save=False):
         try:
             r = Report1.objects.get(project=project, timeline=timeline)
@@ -187,6 +200,7 @@ def report1_receiver(sender, instance, created, **kwargs):
 
 
 class Report1(models.Model):
+
     """ overview """
     project = models.ForeignKey(Project, related_name='esc_report1')
     timeline = models.ForeignKey(Timeline, null=True)
@@ -225,6 +239,7 @@ class Report1(models.Model):
 
 
 class Report2(models.Model):
+
     """
     Goods Report
     including goodsview and goods selling data
