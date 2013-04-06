@@ -34,7 +34,7 @@ class Command(NoArgsCommand):
         for goods, goods_attr in goods_dict.items():
             for k, v in goods_attr.items():
                 if not k == goods:
-                    values .append((project_id, goods, k, v, goods_attr[goods], float(v)/goods_attr[goods]*100, relation_type))
+                    values .append((project_id, goods, k, v, float(v)/goods_attr[goods]*100, relation_type))
         return (sql, values)
 
     def handle_noargs(self, **options):
