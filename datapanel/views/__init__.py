@@ -21,7 +21,7 @@ def track_pool(request):
     start_index = int(request.GET.get("s"))
     response = HttpResponse(mimetype="application/x-javascript")
     res = []
-    for track in TrackArch.objects.filter()[start_index, start_index+100]:
+    for track in TrackArch.objects.filter()[start_index:start_index+100]:
         p = {}
         for pa in track.trackvaluearch_set.all():
             p[pa.valuetype.name] = pa.value 
