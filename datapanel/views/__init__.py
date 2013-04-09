@@ -8,6 +8,7 @@ import chardet
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from django.utils import simplejson
 
 from project.models import Project
 from session.models import Session
