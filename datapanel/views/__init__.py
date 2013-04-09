@@ -24,15 +24,22 @@ def track_pool(request):
     for track in TrackArch.objects.filter()[start_index:start_index+100]:
         p = {}
         for pa in track.trackvaluearch_set.all():
-            p[pa.valuetype.name] = pa.value 
+            p[pa.valuetype.name] = pa.value
+        srs = ""
+        if track.session.referrer_site:
+            srs = track.session.referrer_site.name
+        sks = ""
+        if track.session.referrer_keyword:
+            sks = track.session.referrer_keyword.name
+        s = {'sk': track.session.session_key, 
+             'srs': srs,
+             'srk': sks
+             } 
         t = {'m': 'track',
              'a': track.action.name,
              'k': track.project.token, 
              'u': track.url, 
-             's': {'sk': track.session.session_key, 
-                   'srs': track.session.referrer_site.name,
-                   'srk': track.session.referrer_keyword.name
-                   },
+             's': s,
              'p': p
              }
         res.append(t)
