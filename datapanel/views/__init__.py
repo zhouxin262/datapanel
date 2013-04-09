@@ -22,27 +22,30 @@ def track_pool(request):
     start_index = int(request.GET.get("s", 0))
     res = []
     for track in TrackArch.objects.filter()[start_index:start_index+100]:
-        p = {}
-        for pa in track.trackvaluearch_set.all():
-            p[pa.valuetype.name] = pa.value
-        srs = ""
-        if track.session.referrer_site:
-            srs = track.session.referrer_site.name
-        sks = ""
-        if track.session.referrer_keyword:
-            sks = track.session.referrer_keyword.name
-        s = {'sk': track.session.session_key, 
-             'srs': srs,
-             'srk': sks
-             } 
-        t = {'m': 'track',
-             'a': track.action.name,
-             'k': track.project.token, 
-             'u': track.url, 
-             's': s,
-             'p': p
-             }
-        res.append(t)
+        try:
+            p = {}
+            for pa in track.trackvaluearch_set.all():
+                p[pa.valuetype.name] = pa.value
+            srs = ""
+            if track.session.referrer_site:
+                srs = track.session.referrer_site.name
+            sks = ""
+            if track.session.referrer_keyword:
+                sks = track.session.referrer_keyword.name
+            s = {'sk': track.session.session_key, 
+                 'srs': srs,
+                 'srk': sks
+                 } 
+            t = {'m': 'track',
+                 'a': track.action.name,
+                 'k': track.project.token, 
+                 'u': track.url, 
+                 's': s,
+                 'p': p
+                 }
+            res.append(t)
+        except:
+            pass
         
     response = HttpResponse(content = simplejson.dumps(res), mimetype="application/x-javascript")
     return response
