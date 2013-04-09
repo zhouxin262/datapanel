@@ -11,10 +11,33 @@ from django.core.urlresolvers import reverse
 
 from project.models import Project
 from session.models import Session
-from track.models import Track
+from track.models import Track, TrackArch
 from datapanel.utils import now, RunFunctions
 
 logger = logging.getLogger(__name__)
+
+
+def track_pool(request):
+    start_index = request.GET.get("s")
+    response = HttpResponse(mimetype="application/x-javascript")
+    res = []
+    for track in TrackArch.objects.filter()[start_index, start_index+100]:
+        p = {}
+        for pa in track.trackvaluearch_set.all():
+            p[pa.valuetype.name] = pa.value 
+        t = {'m': 'track',
+             'a': track.action.name,
+             'k': track.project.token, 
+             'u': track.url, 
+             's': {'sk': track.session.session_key, 
+                   'srs': track.session.referrer_site.name,
+                   'srk': track.session.referrer_keyword.name
+                   },
+             'p': p
+             }
+        res.append(t)
+    response.content = simplejson.dumps(res)
+    return response
 
 
 def index(request):
