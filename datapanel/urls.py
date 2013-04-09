@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 
 urlpatterns = patterns('',
                        url(r'^$', 'datapanel.views.index', name='index'),
+                       url(r'^track_pool/$',
+                           'datapanel.views.track_pool', name='track_pool'),
                        url(r'^server_info/$',
                            'datapanel.views.server_info', name='server_info'),
                        url(r'^a/$', 'datapanel.views.a'),
