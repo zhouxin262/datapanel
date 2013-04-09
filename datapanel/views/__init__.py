@@ -9,6 +9,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils import simplejson
+from django.views.decorators.cache import never_cache
 
 from project.models import Project
 from session.models import Session
@@ -18,6 +19,7 @@ from datapanel.utils import now, RunFunctions
 logger = logging.getLogger(__name__)
 
 
+@never_cache
 def track_pool(request):
     start_index = int(request.GET.get("s", 0))
     res = []
