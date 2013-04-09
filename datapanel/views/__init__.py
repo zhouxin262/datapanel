@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def track_pool(request):
-    start_index = request.GET.get("s")
+    start_index = int(request.GET.get("s"))
     response = HttpResponse(mimetype="application/x-javascript")
     res = []
     for track in TrackArch.objects.filter()[start_index, start_index+100]:
